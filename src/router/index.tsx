@@ -1,9 +1,11 @@
 import {createBrowserRouter} from "react-router-dom";
 import Login from "../pages/Login";
 import Dashboard from "../pages/Dashboard";
-import Article from "../pages/Article";
+import Article from "../pages/Article/index";
 import Category from "../pages/Category";
 import User from "../pages/User";
+import Edit from "../pages/Article/Edit"
+import Create from "../pages/Article/Create";
 import AdminLayout from "../layouts/AdminLayout";
 import {Navigate} from "react-router-dom";
 import AuthGuard from "../components/AuthGuard";
@@ -50,8 +52,20 @@ const router=createBrowserRouter([
 
       {
         path:"article",
-        element:
-        <Article/>
+        children:[
+          {
+            index:true,
+            element:<Article/>
+          },
+          {
+            path:"create",
+            element:<Create/>
+          },
+          {
+            path:"edit",
+            element:<Edit/>
+          }
+        ]
       },
 
 
