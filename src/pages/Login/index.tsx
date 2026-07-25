@@ -9,7 +9,7 @@ export default function Login() {
     console.log('Success:', values);
     if(values.username === 'admin' && values.password === '123456'){
       message.success('登录成功');
-      window.location.href = '/admin/dashboard';
+      window.location.href = '/admin';
     }
     else{
       message.error('用户名或密码错误');
