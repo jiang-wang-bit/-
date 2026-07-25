@@ -4,24 +4,29 @@ import{useNavigate} from "react-router-dom";
 import { useDispatch } from 'react-redux';
 import {login} from "../../store/modules/user";
 export default function Login() {
-
+   const navigate = useNavigate();
+   const dispatch = useDispatch();
   const submit = (values: any) => {
     console.log('Success:', values);
     if(values.username === 'admin' && values.password === '123456'){
       message.success('登录成功');
-      window.location.href = '/admin';
+      const token = "blog-token-123";
+      const userInfo = {
+        username:"admin",
+        role:"管理员",
+        avatar:""
+      }
+      //  保存token到redux中
+      dispatch(login({token,userInfo}));
+    // 跳转后台
+      navigate("/admin/dashboard");
+
+      window.location.href = '/admin/dashboard';
     }
     else{
       message.error('用户名或密码错误');
     }
   }
-   const token = "blog-token-123";
-   const navigate = useNavigate();
-   const dispatch = useDispatch();
-  //  保存token到redux中
-    dispatch(login(token));
-    // 跳转后台
-    navigate("/admin/dashboard");
 
     return(
 

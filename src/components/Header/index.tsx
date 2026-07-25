@@ -4,10 +4,12 @@ import './index.scss';
 import { useDispatch } from "react-redux";
 import { logout } from "../../store/modules/user";
 import { useNavigate } from "react-router-dom";
+import {useSelector} from "react-redux";
 
 export default function Header(){
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const userInfo = useSelector((state: any) => state.user.userInfo);
   const items = [
     {
       key:'logout',
@@ -18,6 +20,7 @@ export default function Header(){
     if(key==='logout'){
       dispatch(logout());
       navigate('/login');
+      console.log("logout")
     }
   }
   return (
@@ -31,8 +34,9 @@ export default function Header(){
       
       <div className="user-info">
         <Avatar icon={<UserOutlined />} />
-        <span className="username">admin</span>
-      </div>
+        <div className="username">{userInfo?.username || '用户'}</div>
+        <div className="role">{userInfo?.role}</div>
+        </div>
      </Dropdown>
     </div>
   )
