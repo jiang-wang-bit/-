@@ -1,5 +1,6 @@
 import {Table,Card,Statistic,Row,Col} from 'antd';
 import './index.scss';
+import LineChart from '../../components/Charts/LineChart';
 import {
  FileTextOutlined,
  UserOutlined,
@@ -68,6 +69,10 @@ export default function Dashboard(){
        <Card title="最近发布的文章" className='article-card'>
        <Table columns={columns} dataSource={data} pagination={false}>
        </Table>
+       </Card>
+
+       <Card title="数据趋势" className='chart-card'>
+         <LineChart />
        </Card>
     </div>
   )
