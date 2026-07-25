@@ -68,3 +68,36 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+# Blog Admin System
+
+基于 React + TypeScript 开发的博客后台管理系统
+
+
+## 技术栈
+
+- React
+- TypeScript
+- Ant Design
+- Redux Toolkit
+- React Router
+- SCSS
+- Webpack
+
+
+## 已实现
+
+- 用户登录
+- Token状态管理
+- 后台布局
+- 路由管理
+- 菜单导航
+
+
+## 后续开发
+
+- 权限控制
+- 文章CRUD
+- 用户管理
+- 后端API连接
+- 文件上传

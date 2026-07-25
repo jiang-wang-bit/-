@@ -6,7 +6,7 @@ import Category from "../pages/Category";
 import User from "../pages/User";
 import AdminLayout from "../layouts/AdminLayout";
 import {Navigate} from "react-router-dom";
-
+import AuthGuard from "../components/AuthGuard";
 const router=createBrowserRouter([
 
 
@@ -33,7 +33,9 @@ const router=createBrowserRouter([
     path:"/admin",
 
     element:
-    <AdminLayout/>,
+    <AuthGuard>
+      <AdminLayout/>
+    </AuthGuard>,
 
 
     children:[
