@@ -1,14 +1,25 @@
-import {Table,Button,Tag,Space,Popconfirm} from "antd"
+import {Table,Button,Tag,Space,Popconfirm,Input,Select} from "antd"
 import './index.scss'
 import { useDispatch, useSelector } from "react-redux"
 import { useNavigate } from "react-router-dom"
 import { deleteArticle } from "../../store/modules/article"
+import { useState } from "react"
 import dayjs from "dayjs"
 export default function Article(){
+  interface Article {
+  id:number;
+  title:string;
+  category:string;
+  content:string;
+  status:string;
+  author:string;
+  time:string;
+}
   const navigate = useNavigate()
   const dispatch = useDispatch()
-  const data= useSelector((state:any)=>state.article.list)
-
+  const [keyword,setKeyword] = useState("")
+  const data= useSelector((state:any)=>state.article.list) as Article []
+   const filterData = data.filter(item=>{return item.title.toLowerCase().includes(keyword.toLowerCase())})
    const columns=[
     {
       title:"ID",
@@ -70,9 +81,10 @@ export default function Article(){
     <div className="article-page">
       <div className="article-header">
         <h2>文章管理</h2>
+        <Input placeholder="搜索文章标题" value={keyword} onChange={e=>setKeyword(e.target.value)} style={{width:"400px"}}></Input>
         <Button type="primary" onClick={()=>navigate("/admin/article/create")}>新增文章</Button>
       </div>
-    <Table columns={columns} dataSource={data} rowKey="id" />
+    <Table columns={columns} dataSource={filterData} rowKey="id" />
      </div>
 
   )
