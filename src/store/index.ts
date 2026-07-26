@@ -1,9 +1,11 @@
 import {configureStore} from "@reduxjs/toolkit";
 import userReducer from "./modules/user";
-
+import Article from "../pages/Article";
+import articleReducer from "./modules/article"
 export const store = configureStore({
   reducer: {
-    user: userReducer
+    user: userReducer,
+    article:articleReducer
   }
 });
 

@@ -1,14 +1,29 @@
 import {Form,Input,Button,Select,Card,message} from "antd"
 import { useNavigate } from "react-router-dom"
+import "./create.scss"
+import { useDispatch } from "react-redux"
+import { addArticle } from "../../store/modules/article"
+import Category from "../Category"
 export default function Create(){
+  const dispatch = useDispatch()
   const [form] = Form.useForm()
   const navigate = useNavigate()
   const submit = (values:any)=>{
-    console.log(values)
+    const article = {
+      id:Date.now(),
+      title:values.title,
+      category:values.category,
+      content:values.content,
+      status:values.status,
+      author:"admin",
+      time:new Date().toDateString()
+    }
+    dispatch(addArticle(article))
     message.success("文章创建成功")
     navigate("/admin/article")
   }
   return (
+    <div className="article-create">
     <Card title="新增文章" className="create-card">
        <Form form={form} layout="vertical" onFinish={submit}>
          <Form.Item label="文章标题" name="title" rules={[{required:true,message:"请输入文章标题"}]}>
@@ -33,8 +48,9 @@ export default function Create(){
             {value:"草稿",label:"草稿"}
           ]}/>
          </Form.Item>
-         <Button type="primary" htmlType="submit">保存文章</Button>
+         <Button type="primary" htmlType="submit" className="save-btn">保存文章</Button>
        </Form>
     </Card>
+    </div>
   )
 }

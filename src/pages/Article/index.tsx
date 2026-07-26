@@ -1,44 +1,11 @@
 import {Table,Button,Tag,Space} from "antd"
 import './index.scss'
-
+import { useSelector } from "react-redux"
+import { useNavigate } from "react-router-dom"
 export default function Article(){
-  const data=[
+  const navigate = useNavigate()
+  const data= useSelector((state:any)=>state.article.list)
 
-
-   {
- id:1,
-
- title:"React后台管理系统",
-
- author:"admin",
-
- category:"React",
-
- status:"发布",
-
- time:"2026-07-25"
-
-  },
-
-
-
-{
- id:2,
-
- title:"FastAPI学习笔记",
-
- author:"admin",
-
- category:"Python",
-
- status:"草稿",
-
- time:"2026-07-24"
-
-}
-
-
-]
    const columns=[
     {
       title:"ID",
@@ -95,7 +62,7 @@ export default function Article(){
     <div className="article-page">
       <div className="article-header">
         <h2>文章管理</h2>
-        <Button type="primary">新增文章</Button>
+        <Button type="primary" onClick={()=>navigate("/admin/article/create")}>新增文章</Button>
       </div>
     <Table columns={columns} dataSource={data} rowKey="id" />
      </div>
