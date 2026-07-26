@@ -3,7 +3,7 @@ import './index.scss'
 import { useDispatch, useSelector } from "react-redux"
 import { useNavigate } from "react-router-dom"
 import { deleteArticle } from "../../store/modules/article"
-import { UseDispatch } from "react-redux"
+import dayjs from "dayjs"
 export default function Article(){
   const navigate = useNavigate()
   const dispatch = useDispatch()
@@ -24,7 +24,7 @@ export default function Article(){
     },
     {
       title:"分类",
-      dataIndex:"catogory",
+      dataIndex:"category",
       render:(text:string)=>(
         <Tag color={"blue"}>
           {text}
@@ -42,7 +42,10 @@ export default function Article(){
     },
     {
       title:"发布时间",
-      dataIndex:"time"
+      dataIndex:"time",
+      render:(time:string)=>{
+        return dayjs(time).format("YYYY-MM-DD")
+      }
     },
     {
       title:"操作",

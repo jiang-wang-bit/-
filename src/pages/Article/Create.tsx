@@ -16,7 +16,7 @@ export default function Create(){
       content:values.content,
       status:values.status,
       author:"admin",
-      time:new Date().toDateString()
+      time:new Date().toISOString()
     }
     dispatch(addArticle(article))
     message.success("文章创建成功")

@@ -4,11 +4,56 @@ import LineChart from '../../components/Charts/LineChart';
 import {
  FileTextOutlined,
  UserOutlined,
- AppstoreOutlined
+ AppstoreOutlined,
+ CheckCircleOutlined,
+ EditOutlined
 } from "@ant-design/icons";
-
+import { useSelector } from 'react-redux';
+import dayjs from 'dayjs';
+import PieChart from '../../components/Charts/pieCharts';
+interface Article {
+  id:number;
+  title:string;
+  category:string;
+  content:string;
+  status:string;
+  author:string;
+  time:string;
+}
 export default function Dashboard(){
-
+  // 获取文章
+  const articles = useSelector((state:any)=>state.article.list as Article[])
+  // 已发布文章
+  const publishArticles = articles.filter(item=>item.status==="发布")
+  // 发布文章趋势数据
+   const trendMap = publishArticles.reduce((acc:Record<string, number>,item)=>{
+    const date = dayjs(item.time).format("YYYY-MM-DD")
+    // 数量累加
+    acc[date] = (acc[date] || 0) +1
+    return acc
+   },{})
+    const chartData = Object.keys(trendMap).map(date=>({
+      date,
+      count:trendMap[date]
+    }))
+  // 草稿文章
+  const draftArticles = articles.filter(item=>item.status==="草稿")
+  // 全部文章数量
+  const articleCount = articles.length
+  // 分类数量
+  const categoryCount = new Set(
+  articles.map(item => item.category).filter(Boolean)
+).size
+  // 分类统计
+   const categoryMap = articles.reduce((acc:any,item)=>{
+    const category = item.category
+    acc[category] = (acc[category]||0)+1
+    return acc
+   },{})
+   const piedata = Object.keys(categoryMap).map(item=>({
+      name:item,
+      value:categoryMap[item]
+   }))
   const columns = [
     {
       title:"标题",
@@ -21,23 +66,16 @@ export default function Dashboard(){
     {
       title:"发布时间",
       dataIndex:"time",
+      render:(time:string)=>{
+        return dayjs(time).format("YYYY-MM-DD")
+      }
     }
   ]
-
-  const data = [
-    {
-      key:1,
-      title:"React后台管理系统",
-      author:"admin",
-      time:"2026-07-25"
-    },
-    {
-      key:2,
-      title:"FastAPI学习笔记",
-      author:"admin",
-      time:"2026-07-24"
-}
-  ]
+  // 同步最近发布的文章
+  const data = [...publishArticles].sort(
+    (a,b)=>
+     dayjs(b.time).unix()-dayjs(a.time).unix()
+  ).slice(0,5)
 
   return (
     <div className="dashboard">
@@ -46,7 +84,7 @@ export default function Dashboard(){
        {/* 文章 */}
        <Col span={8}>
        <Card>
-        <Statistic title="文章数量" value={128} prefix={<FileTextOutlined/>} />
+        <Statistic title="文章数量" value={articleCount} prefix={<FileTextOutlined/>} />
        </Card>
        </Col>
        
@@ -61,19 +99,44 @@ export default function Dashboard(){
         {/* 分类 */}
        <Col span={8}>
        <Card>
-        <Statistic title="分类数量" value={25} prefix={<AppstoreOutlined/>} />
+        <Statistic title="分类数量" value={categoryCount} prefix={<AppstoreOutlined/>} />
        </Card>
        </Col>
       </Row>
+       
+       {/* 发布文章 */}
+      <Row gutter={16} style={{marginTop:16}}>
+        <Col span={8}>
+         <Card>
+          <Statistic title="已发布文章" value={publishArticles.length} prefix={<CheckCircleOutlined />} />
+         </Card>
+        </Col>
+
+        {/* 草稿文章 */}
+        <Col span={8}>
+        <Card>
+         <Statistic title="草稿文章" value={draftArticles.length} prefix={<EditOutlined/>}/>
+        </Card>
+        </Col>
+      </Row>
 
        <Card title="最近发布的文章" className='article-card'>
-       <Table columns={columns} dataSource={data} pagination={false}>
+       <Table columns={columns} dataSource={data} pagination={false} rowKey="id">
        </Table>
        </Card>
-
+       <Row gutter={16}>
+        <Col span={12}>
        <Card title="数据趋势" className='chart-card'>
-         <LineChart />
+         <LineChart data={chartData}/>
        </Card>
+       </Col>
+        
+        <Col span={12}>
+       <Card title="文章分类占比" className='pie-chart-card'>
+          <PieChart data={piedata}/>
+       </Card>
+       </Col>
+       </Row>
     </div>
   )
 
