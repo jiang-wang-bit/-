@@ -33,7 +33,7 @@ const articleSlice = createSlice({
         localStorage.setItem("articles",JSON.stringify(state.list))
       },
       deleteArticle:(state,action)=>{
-        state.list = state.list.filter(item=>item.id!==action.payload)
+        state.list = state.list.filter(item=>String(item.id)!==String(action.payload))
         localStorage.setItem("articles",JSON.stringify(state.list))
       }
   }

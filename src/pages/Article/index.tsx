@@ -1,9 +1,12 @@
-import {Table,Button,Tag,Space} from "antd"
+import {Table,Button,Tag,Space,Popconfirm} from "antd"
 import './index.scss'
-import { useSelector } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 import { useNavigate } from "react-router-dom"
+import { deleteArticle } from "../../store/modules/article"
+import { UseDispatch } from "react-redux"
 export default function Article(){
   const navigate = useNavigate()
+  const dispatch = useDispatch()
   const data= useSelector((state:any)=>state.article.list)
 
    const columns=[
@@ -43,14 +46,16 @@ export default function Article(){
     },
     {
       title:"操作",
-      render:()=>(
+      render:(record:any)=>(
         <Space>
         <Button type="link">
         编辑
         </Button>
+        <Popconfirm title="确定删除这篇文章吗" onConfirm={()=>dispatch(deleteArticle(record.id))}>
         <Button danger type="link">
           删除
         </Button>
+        </Popconfirm>
 
         </Space>
       )
