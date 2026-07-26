@@ -35,9 +35,16 @@ const articleSlice = createSlice({
       deleteArticle:(state,action)=>{
         state.list = state.list.filter(item=>String(item.id)!==String(action.payload))
         localStorage.setItem("articles",JSON.stringify(state.list))
+      },
+      updateArticle:(state,action)=>{
+        const index = state.list.findIndex(item=>item.id === action.payload.id)
+        if (index!==-1){
+          state.list[index] = action.payload
+        }
+        localStorage.setItem("articles",JSON.stringify(state.list))
       }
   }
 
 })
-export const{addArticle,deleteArticle} = articleSlice.actions
+export const{addArticle,deleteArticle,updateArticle} = articleSlice.actions
 export default articleSlice.reducer

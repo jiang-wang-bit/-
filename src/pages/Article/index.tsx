@@ -48,7 +48,7 @@ export default function Article(){
       title:"操作",
       render:(record:any)=>(
         <Space>
-        <Button type="link">
+        <Button type="link" onClick={()=>navigate(`/admin/article/edit/${record.id}`)}>
         编辑
         </Button>
         <Popconfirm title="确定删除这篇文章吗" onConfirm={()=>dispatch(deleteArticle(record.id))}>
