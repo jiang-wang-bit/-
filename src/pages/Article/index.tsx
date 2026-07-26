@@ -18,8 +18,15 @@ export default function Article(){
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const [keyword,setKeyword] = useState("")
+  const [status,setStatus] = useState("")
+  const [category,setCategory] = useState("")
   const data= useSelector((state:any)=>state.article.list) as Article []
-   const filterData = data.filter(item=>{return item.title.toLowerCase().includes(keyword.toLowerCase())})
+
+  const filterData = data.filter(item=>{const matchKeyword = item.title.includes(keyword)
+     const matchCategory = category ? item.category===category:true
+     const matchStatus = status?item.status===status:true
+     return (matchKeyword&&matchCategory&&matchStatus)
+})
    const columns=[
     {
       title:"ID",
@@ -82,6 +89,8 @@ export default function Article(){
       <div className="article-header">
         <h2>文章管理</h2>
         <Input placeholder="搜索文章标题" value={keyword} onChange={e=>setKeyword(e.target.value)} style={{width:"400px"}}></Input>
+        <Select placeholder="选择分类" allowClear options={[{label:"React",value:"React"},{label:"python",value:"python"},{label:"vue",value:"vue"}]} onChange={value=>setCategory(value||"")}></Select>
+        <Select placeholder="文章状态" allowClear options={[{label:"发布",value:"发布"},{label:"草稿",value:"草稿"}]} onChange={value=>setStatus(value||"")}></Select>
         <Button type="primary" onClick={()=>navigate("/admin/article/create")}>新增文章</Button>
       </div>
     <Table columns={columns} dataSource={filterData} rowKey="id" />
