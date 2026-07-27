@@ -91,13 +91,18 @@ export default function Article(){
     <div className="article-page">
       <div className="article-header">
         <h2>文章管理</h2>
-        <Input placeholder="搜索文章标题" value={keyword} onChange={e=>setKeyword(e.target.value)} style={{width:"400px"}}></Input>
-        <Select placeholder="选择分类" allowClear options={[{label:"React",value:"React"},{label:"python",value:"python"},{label:"vue",value:"vue"}]} onChange={value=>setCategory(value||"")}></Select>
-        <Select placeholder="文章状态" allowClear options={[{label:"发布",value:"发布"},{label:"草稿",value:"草稿"}]} onChange={value=>setStatus(value||"")}></Select>
+        <Input placeholder="搜索文章标题" value={keyword} onChange={e=>{setKeyword(e.target.value) 
+          setPage(1)}} style={{width:"400px"}}></Input>
+        <Select placeholder="选择分类" allowClear options={[{label:"React",value:"React"},{label:"python",value:"python"},{label:"vue",value:"vue"}]} onChange={value=>{setCategory(value||"")
+          setPage(1)
+        }}></Select>
+        <Select placeholder="文章状态" allowClear options={[{label:"发布",value:"发布"},{label:"草稿",value:"草稿"}]} onChange={value=>{setStatus(value||"")
+          setPage(1)
+        }}></Select>
         <Button type="primary" onClick={()=>navigate("/admin/article/create")}>新增文章</Button>
       </div>
     <Table columns={columns} dataSource={tableData} rowKey="id" pagination={{current:page,pageSize:pageSize,total:filterData.length,onChange:(page,pageSize)=>{setPage(page)
-      setPageSize(pageSize)}}}/>
+      setPageSize(pageSize)}}} />
      </div>
 
   )

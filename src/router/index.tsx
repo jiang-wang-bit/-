@@ -5,6 +5,7 @@ import Article from "../pages/Article/index";
 import Category from "../pages/Category";
 import User from "../pages/User";
 import Edit from "../pages/Article/Edit"
+import Comment from "../pages/Comment";
 import Create from "../pages/Article/Create";
 import AdminLayout from "../layouts/AdminLayout";
 import {Navigate} from "react-router-dom";
@@ -80,6 +81,10 @@ const router=createBrowserRouter([
         path:"user",
         element:
         <User/>
+      },
+      {
+        path:"comment",
+        element:<Comment/>
       }
 
 
