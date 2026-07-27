@@ -4,7 +4,7 @@ import "./index.scss"
 import { Table,Tag,Button,Card,Popconfirm, message} from "antd"
 import { useDispatch,useSelector } from "react-redux"
 import { useEffect } from "react"
-import { setComments,deleteComments } from "../../store/modules/comment"
+import { setComments,deleteComments,updateStatus } from "../../store/modules/comment"
 export default function Comment(){
   const dispatch = useDispatch()
   useEffect(()=>{
@@ -35,10 +35,18 @@ export default function Comment(){
     title:"操作",
     render:(_:any,record:CommentType)=>{
       return (
+        <>
+        {
+          record.status==="待审核"&&
+          <Button type="primary" size="small" onClick={()=>{dispatch(updateStatus({id:record.id,status:"通过"}))
+        message.success("审核通过")}}>通过</Button>
+        }
+
       <Popconfirm title="删除评论" description="确定删除这条评论吗?" okText="确定" cancelText="取消" onConfirm={()=>{dispatch(deleteComments(record.id))
        message.success("删除成功")}}>
         <Button danger size="small">删除</Button>
         </Popconfirm>
+        </>
       )
     }
   }

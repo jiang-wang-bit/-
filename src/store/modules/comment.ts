@@ -22,9 +22,10 @@ const commentSlice = createSlice({
     },
     // 更新状态
     updateStatus:(state,action)=>{
-      const item = state.list.find(item=>item.id===action.payload.id)
-      if (item){
-        item.status = action.payload.status
+      const comment = state.list.find(item=>item.id===action.payload.id)
+      if (comment){
+        comment.status = action.payload.status
+        localStorage.setItem("comments",JSON.stringify(state.list))
       }
     }
   }
