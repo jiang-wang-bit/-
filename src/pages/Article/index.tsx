@@ -20,6 +20,8 @@ export default function Article(){
   const [keyword,setKeyword] = useState("")
   const [status,setStatus] = useState("")
   const [category,setCategory] = useState("")
+  const [page,setPage] = useState(1)
+  const [pageSize,setPageSize] = useState(10)
   const data= useSelector((state:any)=>state.article.list) as Article []
 
   const filterData = data.filter(item=>{const matchKeyword = item.title.includes(keyword)
@@ -27,6 +29,7 @@ export default function Article(){
      const matchStatus = status?item.status===status:true
      return (matchKeyword&&matchCategory&&matchStatus)
 })
+  const tableData = filterData.slice((page-1)*pageSize,page*pageSize)
    const columns=[
     {
       title:"ID",
@@ -93,7 +96,8 @@ export default function Article(){
         <Select placeholder="文章状态" allowClear options={[{label:"发布",value:"发布"},{label:"草稿",value:"草稿"}]} onChange={value=>setStatus(value||"")}></Select>
         <Button type="primary" onClick={()=>navigate("/admin/article/create")}>新增文章</Button>
       </div>
-    <Table columns={columns} dataSource={filterData} rowKey="id" />
+    <Table columns={columns} dataSource={tableData} rowKey="id" pagination={{current:page,pageSize:pageSize,total:filterData.length,onChange:(page,pageSize)=>{setPage(page)
+      setPageSize(pageSize)}}}/>
      </div>
 
   )
