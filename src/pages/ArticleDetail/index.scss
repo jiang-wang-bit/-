@@ -1,25 +1,25 @@
 .article-detail{
 
- padding:30px;
+ width:900px;
+
+ margin:40px auto;
+
 
 }
 
-.article-info{
 
- display:flex;
+.article-detail .ant-card{
 
- gap:30px;
-
- color:#666;
-
- margin:20px 0;
+ border-radius:12px;
 
 }
 
-.article-content{
+.article-meta{
+  display: flex;
+  justify-content: center;
+}
+.article-detail h1{
 
- line-height:2;
-
- font-size:16px;
+ text-align:center;
 
 }

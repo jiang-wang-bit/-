@@ -1,6 +1,14 @@
 import { useParams } from "react-router-dom"
 import "./index.scss"
-import { useSelector, UseSelector } from "react-redux"
+import CommentList from "../../components/CommentList";
+import { useSelector } from "react-redux"
+import {Card,Typography,Tag,Avatar,Space,Divider} from "antd"
+import {
+ UserOutlined,
+ CalendarOutlined
+} from "@ant-design/icons";
+import ReactMarkdown from "react-markdown"
+import "github-markdown-css/github-markdown.css";
 interface Article{
   id:number;
   title:string;
@@ -10,6 +18,7 @@ interface Article{
   author:string;
   time:string;
 }
+const {Title,Paragraph} = Typography
 export default function ArticleDetail(){
 
    const {id}= useParams()
@@ -17,23 +26,43 @@ export default function ArticleDetail(){
    const article = articles.find(item=>item.id===Number(id))
    if(!article){
     return(
-      <div>文章不存在</div>
+      <Card>文章不存在</Card>
     )
    }
 
    return (
-    <div className="文章详情页">
-      <h1>{article.title}</h1>
+    <div className="article-detail">
+      <Card>
+        {/* 标题 */}
+        <Title level={1}>{article.title}</Title>
+        <div className="article-meta">
+        <Space size="large">
+         <Space>
+          <Avatar icon={<UserOutlined />} />
+          {article.author}
+         </Space>
 
-      <div className="article-info">
-           <span>作者:{article.author}</span>
-           <span>分类:{article.category}</span>
-           <span>发布时间:{article.time}</span>
-      </div>
+         <Tag color="blue">{article.category}</Tag>
 
-      <div className="article-content">
-         {article.content}
-      </div>
+        <Space>
+          <CalendarOutlined />{article.time}
+        </Space>
+        </Space>
+        </div>
+
+        <Divider/>
+
+        {/* 正文 */}
+        <div className="markdown-body">
+          <ReactMarkdown>
+            {article.content}
+          </ReactMarkdown>
+        </div>
+
+        <Divider/>
+        <CommentList articleId={article.id} />
+
+      </Card>
     </div>
   )
 }

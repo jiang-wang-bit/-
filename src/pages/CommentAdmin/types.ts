@@ -6,5 +6,5 @@ export interface CommentType{
   content:string;
   status:string;
   time:string;
-  parentId:number|null
+  parentId:number|null;
 }
