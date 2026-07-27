@@ -1,90 +1,100 @@
-import {createBrowserRouter} from "react-router-dom";
+import { createBrowserRouter } from "react-router-dom";
 import Login from "../pages/Login";
 import Dashboard from "../pages/Dashboard";
 import Article from "../pages/Article/index";
 import Category from "../pages/Category";
 import User from "../pages/User";
 import Edit from "../pages/Article/Edit"
-import Comment from "../pages/Comment";
+import Home from "../pages/Home";
+import ArticleDetail from "../pages/ArticleDetail";
+import Comment from "../pages/CommentAdmin";
 import Create from "../pages/Article/Create";
 import AdminLayout from "../layouts/AdminLayout";
-import {Navigate} from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import AuthGuard from "../components/AuthGuard";
-const router=createBrowserRouter([
+const router = createBrowserRouter([
 
 
   // 根路径
   {
-    path:"/",
+    path: "/",
     element:
-    <Navigate to="/login"/>
+      <Navigate to="/login" />
   },
 
 
 
   // 登录
   {
-    path:"/login",
+    path: "/login",
     element:
-    <Login/>
+      <Login />
   },
-
+  // 前台
+  {
+    path:"/",
+    element:<Home/>
+  },
+  {
+    path:"/article/:id",
+    element:<ArticleDetail/>
+  },
 
 
   // 后台
   {
-    path:"/admin",
+    path: "/admin",
 
     element:
-    <AuthGuard>
-      <AdminLayout/>
-    </AuthGuard>,
+      <AuthGuard>
+        <AdminLayout />
+      </AuthGuard>,
 
 
-    children:[
+    children: [
 
 
       {
-        path:"dashboard",
+        path: "dashboard",
         element:
-        <Dashboard/>
+          <Dashboard />
       },
 
 
       {
-        path:"article",
-        children:[
+        path: "article",
+        children: [
           {
-            index:true,
-            element:<Article/>
+            index: true,
+            element: <Article />
           },
           {
-            path:"create",
-            element:<Create/>
+            path: "create",
+            element: <Create />
           },
           {
-            path:"edit/:id",
-            element:<Edit/>
+            path: "edit/:id",
+            element: <Edit />
           }
         ]
       },
 
 
       {
-        path:"category",
+        path: "category",
         element:
-        <Category/>
+          <Category />
       },
 
 
       {
-        path:"user",
+        path: "user",
         element:
-        <User/>
+          <User />
       },
       {
-        path:"comment",
-        element:<Comment/>
+        path: "comment",
+        element: <Comment />
       }
 
 
@@ -93,11 +103,11 @@ const router=createBrowserRouter([
   },
   //404
   {
-    path:"*",
+    path: "*",
     element:
-    <div>
-      404
-    </div>
+      <div>
+        404
+      </div>
   }
 ])
 

@@ -72,11 +72,12 @@ export default function Article(){
       title:"操作",
       render:(record:any)=>(
         <Space>
-        <Button type="link" onClick={()=>navigate(`/admin/article/edit/${record.id}`)}>
+        <Button type="link" onClick={(e)=> {e.stopPropagation()
+          navigate(`/admin/article/edit/${record.id}`)}}>
         编辑
         </Button>
         <Popconfirm title="确定删除这篇文章吗" onConfirm={()=>dispatch(deleteArticle(record.id))}>
-        <Button danger type="link">
+        <Button danger type="link" onClick={(e)=>{e.stopPropagation()}}>
           删除
         </Button>
         </Popconfirm>
@@ -101,7 +102,7 @@ export default function Article(){
         }}></Select>
         <Button type="primary" onClick={()=>navigate("/admin/article/create")}>新增文章</Button>
       </div>
-    <Table columns={columns} dataSource={tableData} rowKey="id" pagination={{current:page,pageSize:pageSize,total:filterData.length,onChange:(page,pageSize)=>{setPage(page)
+    <Table columns={columns} dataSource={tableData} rowKey="id" onRow={(record)=>{return{onClick:()=>{navigate(`/article/${record.id}`)}}}}pagination={{current:page,pageSize:pageSize,total:filterData.length,onChange:(page,pageSize)=>{setPage(page)
       setPageSize(pageSize)}}} />
      </div>
 
