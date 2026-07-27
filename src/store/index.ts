@@ -2,10 +2,12 @@ import { configureStore } from "@reduxjs/toolkit";
 import userReducer from "./modules/auth";
 import Article from "../pages/Article";
 import articleReducer from "./modules/article"
+import commentReducer from "./modules/comment"
 export const store = configureStore({
   reducer: {
     user: userReducer,
-    article: articleReducer
+    article: articleReducer,
+    comment:commentReducer
   }
 });
 
