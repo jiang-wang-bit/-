@@ -7,6 +7,7 @@ import {
  UserOutlined,
  CalendarOutlined
 } from "@ant-design/icons";
+import CommentInput from "../../components/CommentInput";
 import ReactMarkdown from "react-markdown"
 import "github-markdown-css/github-markdown.css";
 interface Article{
@@ -60,6 +61,7 @@ export default function ArticleDetail(){
         </div>
 
         <Divider/>
+        <CommentInput articleId={article.id} />
         <CommentList articleId={article.id} />
 
       </Card>

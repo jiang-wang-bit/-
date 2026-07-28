@@ -1,6 +1,6 @@
 .article-detail{
 
- width:900px;
+ max-width: 1000px;
 
  margin:40px auto;
 
@@ -13,6 +13,13 @@
  border-radius:12px;
 
 }
+
+.markdown-body{
+font-size:16px;
+
+line-height:2;
+}
+
 
 .article-meta{
   display: flex;

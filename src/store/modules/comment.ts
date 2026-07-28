@@ -15,6 +15,10 @@ const commentSlice = createSlice({
       state.list = action.payload
       localStorage.setItem("comments", JSON.stringify(state.list))
     },
+    addComments:(state,action)=>{
+       state.list.push(action.payload)
+       localStorage.setItem("comments",JSON.stringify(state.list))
+    },
     // 删除评论
     deleteComments: (state, action) => {
       state.list = state.list.filter(item => item.id !== action.payload)
@@ -30,5 +34,5 @@ const commentSlice = createSlice({
     }
   }
 })
-export const { setComments, deleteComments, updateStatus } = commentSlice.actions
+export const { setComments, deleteComments, updateStatus,addComments } = commentSlice.actions
 export default commentSlice.reducer
