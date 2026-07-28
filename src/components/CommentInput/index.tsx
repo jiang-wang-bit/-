@@ -1,12 +1,14 @@
-import {Input,Button,Space,message} from "antd"
+import {Input,Button,Space,message,Popconfirm} from "antd"
 import { useState } from "react"
 import { useDispatch } from "react-redux"
 import { addComments } from "../../store/modules/comment"
 interface Props{
   articleId:number
+  parentId?:number|null
+   onSuccess?:()=>void;
 }
 
-export default function CommentInput({articleId}:Props){
+export default function CommentInput({articleId,parentId,onSuccess}:Props){
   const dispatch = useDispatch()
   const [content,setContent] = useState("")
   const submitComment = ()=>{
@@ -21,17 +23,20 @@ export default function CommentInput({articleId}:Props){
       content,
       status:"待审核",
       time:new Date().toLocaleDateString(),
-      parentId:null
+      parentId:parentId??null
     }
     dispatch(addComments(comment))
     setContent("")
     message.success("评论提交成功,待审核")
+    onSuccess?.()
   }
   return (
     <div style={{marginTop:30}}>
        <h3>发表评论</h3>
        <Input.TextArea rows={4} placeholder="请输入评论" value={content} onChange={e=>setContent(e.target.value)} />
-       <Button type="primary" style={{marginTop:15}} onClick={submitComment}>发布评论</Button>
+       <Popconfirm title="确认发布评论?" description="发布后评论将提交审核" okText="确认" cancelText="取消" onConfirm={submitComment}>
+       <Button type="primary" style={{marginTop:15}}>发布评论</Button>
+       </Popconfirm>
     </div>
   )
 }
