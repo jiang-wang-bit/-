@@ -14,7 +14,8 @@ interface CommentType{
  status:string;
  time:string;
  parentId:number|null;
-
+ like:number;
+ liked:true
 }
 export default function CommentList({articleId}:Props){
  

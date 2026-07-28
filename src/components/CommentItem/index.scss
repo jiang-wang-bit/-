@@ -1,13 +1,18 @@
 .reply-item{
-
   margin-left:40px;
-
   margin-top:15px;
-
   padding:12px;
-
   background:#fafafa;
-
   border-radius:8px;
+}
+
+.comment-actions{
+  display: flex;
+  align-items: center;
+  gap:10px;
+  margin-top: 10px;
+  .ant-btn.ant-btn-text:hover{
+   color: #1677ff;
+}
 
 }

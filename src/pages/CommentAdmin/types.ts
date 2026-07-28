@@ -7,4 +7,6 @@ export interface CommentType{
   status:string;
   time:string;
   parentId:number|null;
+  like:number;
+  liked:boolean
 }

@@ -10,7 +10,9 @@ username:"张三",
 content:"useEffect怎么理解？",
 status:"待审核",
 time:"2026-07-27",
-parentId:null
+parentId:null,
+like:0,
+liked:true
 },
 
 
@@ -22,7 +24,9 @@ username:"admin",
 content:"可以理解为生命周期管理",
 status:"通过",
 time:"2026-07-27",
-parentId:1
+parentId:1,
+like:0,
+liked:true
 },
 
 
@@ -34,7 +38,9 @@ username:"李四",
 content:"Vue3很好用",
 status:"通过",
 time:"2026-07-27",
-parentId:null
+parentId:null,
+like:0,
+liked:true
 }
 
 ]

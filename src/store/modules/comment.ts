@@ -31,8 +31,23 @@ const commentSlice = createSlice({
         comment.status = action.payload.status
         localStorage.setItem("comments", JSON.stringify(state.list))
       }
+    },
+    // 点赞
+    likeComment:(state,action)=>{
+      const comment = state.list.find(item=>item.id===action.payload)
+    
+      if(comment){
+        if(comment.liked){
+          comment.like--
+        }
+        else{
+          comment.like++
+        }
+        comment.liked=!comment.liked
+        localStorage.setItem("comments",JSON.stringify(state.list))
+      }
     }
   }
 })
-export const { setComments, deleteComments, updateStatus,addComments } = commentSlice.actions
+export const { setComments, deleteComments, updateStatus,addComments,likeComment } = commentSlice.actions
 export default commentSlice.reducer
