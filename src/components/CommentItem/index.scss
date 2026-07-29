@@ -16,3 +16,13 @@
 }
 
 }
+
+.reply-action{
+   display: flex;
+  align-items: center;
+  gap:10px;
+  margin-top: 10px;
+  .ant-btn.ant-btn-text:hover{
+   color: #1677ff;
+}
+}

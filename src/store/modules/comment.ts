@@ -38,10 +38,11 @@ const commentSlice = createSlice({
     
       if(comment){
         if(comment.liked){
-          comment.like--
+
+          comment.like = (comment.like ||0)-1
         }
         else{
-          comment.like++
+          comment.like = (comment.like||0)+1
         }
         comment.liked=!comment.liked
         localStorage.setItem("comments",JSON.stringify(state.list))

@@ -3,6 +3,7 @@ import { useState,useEffect,useRef} from "react";
 import "./index.scss"
 import { useDispatch} from "react-redux";
 import CommentInput from "../CommentInput";
+import ReplyItem from "../ReplyItem";
 import {
   UserOutlined,LikeOutlined,MessageOutlined
 } from "@ant-design/icons";
@@ -28,22 +29,31 @@ export default function CommentItem({comment,articleId,comments}:Props){
   const dispatch = useDispatch()
   const [replyId,setReplyId]=useState<number|null>(null)
     const replyRef = useRef<HTMLDivElement>(null)
-  useEffect(()=>{
+    function getReplies(id:number){
+       return comments.filter(
+        item=>item.parentId===id&&item.status==="通过"
+       )
+    }
+     useEffect(()=>{
        function handleClickOutside(event:MouseEvent){
+        const target = event.target as HTMLElement
+        if(target.closest(".ant-popover")){
+          return
+        }
         if(replyRef.current&&!replyRef.current.contains(event.target as Node))
         {
          setReplyId(null)
         }
        }
-       document.addEventListener("mousedown",handleClickOutside)
+       document.addEventListener("click",handleClickOutside)
 
        return()=>{
         document.removeEventListener(
-          "mousedown",handleClickOutside
+          "click",handleClickOutside
         )
        }
   },[])
-  const replies = comments.filter(item=>item.parentId===comment.id&&item.status==="通过")
+  const replies = getReplies(comment.id)
           return (
 
           <Card style={{
@@ -94,80 +104,26 @@ export default function CommentItem({comment,articleId,comments}:Props){
           type="text"
           size="small"
           icon={<MessageOutlined/>}
-          onClick={()=>setReplyId(comment.id)}
+          onClick={(e)=>{e.stopPropagation()
+            setReplyId(comment.id)}
+          }
           >
           回复
           </Button>
-          </div>
 
-          {
-          replyId===comment.id&&(
-            <div ref={replyRef}>
-          <CommentInput
-          articleId={articleId}
-          parentId={comment.id}
-          onSuccess={()=>setReplyId(null)}
-          />
-           </div>
-          )
-          }
+  
+
+          </div>
     
           {
           replies.map(reply=>(
-
-
-                  <div
-          key={reply.id}
-          className="reply-item"
-          >
-
-
-          <Typography.Text strong>
-
-          {reply.username}
-
-          </Typography.Text>
-
-
-          <Typography.Text>
-
-          &nbsp; 回复 &nbsp;
-
-          {comment.username}：
-
-          </Typography.Text>
-
-
-          <Typography.Paragraph>
-
-          {reply.content}
-
-          </Typography.Paragraph>
-
-
-          <Typography.Text
-          type="secondary"
-          >
-
-          {reply.time}
-
-          </Typography.Text>
-
-
-          </div>
-
+        <ReplyItem key={reply.id} reply={reply} articleId={articleId} comments={comments} />
 
           ))
 
           }
-
-
           </div>
-
-
           </Space>
-
-
           </Card>
 
           )

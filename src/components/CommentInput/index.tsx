@@ -6,9 +6,10 @@ interface Props{
   articleId:number
   parentId?:number|null
    onSuccess?:()=>void;
+   parentName?:string;
 }
 
-export default function CommentInput({articleId,parentId,onSuccess}:Props){
+export default function CommentInput({articleId,parentId,onSuccess,parentName}:Props){
   const dispatch = useDispatch()
   const [content,setContent] = useState("")
   const submitComment = ()=>{
@@ -16,6 +17,7 @@ export default function CommentInput({articleId,parentId,onSuccess}:Props){
       message.warning("请输入评论内容")
       return
     }
+
     const comment = {
       id:Date.now(),
       articleId,
@@ -23,7 +25,8 @@ export default function CommentInput({articleId,parentId,onSuccess}:Props){
       content,
       status:"待审核",
       time:new Date().toLocaleDateString(),
-      parentId:parentId??null
+      parentId:parentId??null,
+      parentName:""
     }
     dispatch(addComments(comment))
     setContent("")
