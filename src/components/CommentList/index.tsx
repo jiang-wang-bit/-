@@ -16,6 +16,7 @@ interface CommentType{
  parentId:number|null;
  like:number;
  liked:true
+ parentName:string
 }
 export default function CommentList({articleId}:Props){
  

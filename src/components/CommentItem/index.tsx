@@ -29,11 +29,25 @@ export default function CommentItem({comment,articleId,comments}:Props){
   const dispatch = useDispatch()
   const [replyId,setReplyId]=useState<number|null>(null)
     const replyRef = useRef<HTMLDivElement>(null)
-    function getReplies(id:number){
-       return comments.filter(
-        item=>item.parentId===id&&item.status==="通过"
-       )
+    function getAllReplies(id:number){
+    const result:CommentType[]=[]
+
+    function find(parentId:number){
+    comments.forEach(item=>{
+    if(
+      item.parentId===parentId
+      &&
+      item.status==="通过"
+    ){
+      result.push(item)
+      find(item.id)
     }
+   })
+ }
+ find(id)
+ return result
+}
+    //  点击外部输入框消失
      useEffect(()=>{
        function handleClickOutside(event:MouseEvent){
         const target = event.target as HTMLElement
@@ -53,7 +67,9 @@ export default function CommentItem({comment,articleId,comments}:Props){
         )
        }
   },[])
-  const replies = getReplies(comment.id)
+     const allReplies = getAllReplies(comment.id).sort((a,b)=>new Date(a.time).getTime()-new Date(b.time).getTime())
+     const [showAllReplies,setShowAllReplies] = useState(false)
+     const replies:CommentType[] = showAllReplies?allReplies:allReplies.slice(0,10)
           return (
 
           <Card style={{
@@ -84,6 +100,23 @@ export default function CommentItem({comment,articleId,comments}:Props){
 
 
          <div className="comment-actions">
+          {/* 输入框 */}
+          {
+          replyId===comment.id&&(
+          <div
+            ref={replyRef}
+            onClick={(e)=>e.stopPropagation()}
+          >
+            <CommentInput
+              articleId={articleId}
+              parentId={comment.id}
+              onSuccess={()=>{
+                setReplyId(null)
+              }}
+            />
+          </div>
+        )
+         }
           {/* 发布时间 */}
             <Typography.Text
           type="secondary"
@@ -110,17 +143,22 @@ export default function CommentItem({comment,articleId,comments}:Props){
           >
           回复
           </Button>
-
-  
-
           </div>
-    
+         
+         {/* 初级回复 */}
           {
           replies.map(reply=>(
         <ReplyItem key={reply.id} reply={reply} articleId={articleId} comments={comments} />
-
           ))
-
+          }
+          {
+            allReplies.length>10&&(
+              <Button type="link" size="small" onClick={()=>setShowAllReplies(!showAllReplies)}>
+                {
+                  showAllReplies?"收起回复":`查看全部${allReplies.length}条回复`
+                }
+              </Button>
+            )
           }
           </div>
           </Space>

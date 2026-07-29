@@ -24,7 +24,7 @@ export default function CommentInput({articleId,parentId,onSuccess,parentName}:P
       username:"游客",
       content,
       status:"待审核",
-      time:new Date().toLocaleDateString(),
+      time:new Date().toLocaleString(),
       parentId:parentId??null,
       parentName:""
     }

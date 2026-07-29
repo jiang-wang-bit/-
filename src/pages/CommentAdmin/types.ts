@@ -8,5 +8,6 @@ export interface CommentType{
   time:string;
   parentId:number|null;
   like:number;
-  liked:boolean
+  liked:boolean;
+  parentName:string
 }

@@ -1,7 +1,8 @@
 import { Button,Typography } from "antd"
 import { LikeOutlined,MessageOutlined } from "@ant-design/icons"
 import { useState } from "react"
-import { useDispatch, UseDispatch} from "react-redux"
+import "./index.scss"
+import { useDispatch} from "react-redux"
 import { likeComment } from "../../store/modules/comment"
 import CommentInput from "../CommentInput"
 interface Props{
@@ -12,11 +13,10 @@ interface Props{
 export default function ReplyItem({reply,articleId,comments}:Props){
   const dispatch = useDispatch()
   const [replyId,setReplyId] = useState<number|null>(null)
-  const children = comments.filter(item=>item.parentId ===reply.id&&item.status ==="通过")
+  const parent = comments.find(item=>item.id===reply.parentId)
   return(
+    <div className="reply-wrapper">
       <div className="reply-item">
-
-
           {/* 用户 */}
 
           <Typography.Text strong>
@@ -31,7 +31,7 @@ export default function ReplyItem({reply,articleId,comments}:Props){
 
           &nbsp; 回复 &nbsp;
 
-          {reply.parentName}
+          {parent?.username}
 
           </Typography.Text>
 
@@ -106,20 +106,8 @@ export default function ReplyItem({reply,articleId,comments}:Props){
           />
 
           )}
-          {/* ⭐递归核心 */}
-
-          {
-          children.map(child=>(
-          <ReplyItem
-          key={child.id}
-          reply={child}
-          articleId={articleId}
-          comments={comments}
-
-          />
-
-          ))
-          }
+         
+          </div>
           </div>
 
   )
