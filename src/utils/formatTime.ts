@@ -1,5 +1,4 @@
 export function formatCommentTime(time:string){
-
   const date = new Date(time)
   const now = new Date()
   const diff =
