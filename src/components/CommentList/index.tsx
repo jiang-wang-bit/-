@@ -25,6 +25,17 @@ export default function CommentList({articleId}:Props){
  const articleComments = comments.filter(item=>item.articleId===articleId&&item.status==="通过"&&item.parentId===null)
  const totalComments = comments.filter(item=>item.articleId===articleId&&item.status==="通过").length
  const [showAllComments,setShowAllComments] = useState(false)
+ const [sortType,setSortType] = useState<"latest"|"hot">("latest")
+ const sortedComments = [...articleComments].sort(
+  (a,b)=>{
+    if(sortType==="hot"){
+      return b.like-a.like
+    }
+    return(
+      new Date(b.time).getTime()- new Date(a.time).getTime()
+    )
+  }
+ )
  const showComments = showAllComments?articleComments:articleComments.slice(0,1)
   return(
    
@@ -37,6 +48,17 @@ export default function CommentList({articleId}:Props){
     <Typography.Title level={3}>
       评论 ({totalComments})
     </Typography.Title>
+
+    <div className="comment-sort">
+        <Button type="link" className={sortType==="latest"?"active": ""} onClick={()=>setSortType("latest")} size="small">
+           最新
+        </Button>
+
+        <Button type="link" className={sortType==="hot"?"active":""} onClick={()=>setSortType("hot")} size="small">
+          最热
+        </Button>
+    </div>
+    
     {
       articleComments.length===0
       ?
@@ -44,7 +66,7 @@ export default function CommentList({articleId}:Props){
        description="暂无评论"
       />
       :
-      showComments.map(item=>(
+      sortedComments.map(item=>(
        <CommentItem key={item.id} comment={item} articleId={articleId} comments={comments}/>
       ))
     }
