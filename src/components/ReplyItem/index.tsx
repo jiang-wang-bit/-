@@ -1,6 +1,7 @@
 import { Button,Typography } from "antd"
 import { LikeOutlined,MessageOutlined } from "@ant-design/icons"
 import { useState } from "react"
+import { formatCommentTime } from "../../utils/formatTime"
 import "./index.scss"
 import { useDispatch} from "react-redux"
 import { likeComment } from "../../store/modules/comment"
@@ -53,7 +54,7 @@ export default function ReplyItem({reply,articleId,comments}:Props){
           {/* 时间 */}
 
           <Typography.Text type="secondary">
-          {reply.time}
+          {formatCommentTime(reply.time)}
           </Typography.Text>
           {/* 点赞 */}
           <Button

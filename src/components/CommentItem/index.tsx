@@ -4,6 +4,7 @@ import "./index.scss"
 import { useDispatch} from "react-redux";
 import CommentInput from "../CommentInput";
 import ReplyItem from "../ReplyItem";
+import { formatCommentTime } from "../../utils/formatTime";
 import {
   UserOutlined,LikeOutlined,MessageOutlined
 } from "@ant-design/icons";
@@ -70,6 +71,8 @@ export default function CommentItem({comment,articleId,comments}:Props){
      const allReplies = getAllReplies(comment.id).sort((a,b)=>new Date(a.time).getTime()-new Date(b.time).getTime())
      const [showAllReplies,setShowAllReplies] = useState(false)
      const replies:CommentType[] = showAllReplies?allReplies:allReplies.slice(0,1)
+     console.log(comment.time)
+console.log(formatCommentTime(comment.time))
           return (
 
           <Card style={{
@@ -121,7 +124,7 @@ export default function CommentItem({comment,articleId,comments}:Props){
             <Typography.Text
           type="secondary"
           >
-          {comment.time}
+          {formatCommentTime(comment.time)}
           </Typography.Text>
 
          {/* 点赞按钮 */}
