@@ -19,7 +19,7 @@ interface Article{
   author:string;
   time:string;
 }
-const {Title,Paragraph} = Typography
+const {Title} = Typography
 export default function ArticleDetail(){
 
    const {id}= useParams()

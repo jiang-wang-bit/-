@@ -69,7 +69,7 @@ export default function CommentItem({comment,articleId,comments}:Props){
   },[])
      const allReplies = getAllReplies(comment.id).sort((a,b)=>new Date(a.time).getTime()-new Date(b.time).getTime())
      const [showAllReplies,setShowAllReplies] = useState(false)
-     const replies:CommentType[] = showAllReplies?allReplies:allReplies.slice(0,10)
+     const replies:CommentType[] = showAllReplies?allReplies:allReplies.slice(0,1)
           return (
 
           <Card style={{
@@ -143,6 +143,9 @@ export default function CommentItem({comment,articleId,comments}:Props){
           >
           回复
           </Button>
+          <Typography.Text>
+            {allReplies.length}条回复
+          </Typography.Text>
           </div>
          
          {/* 初级回复 */}
@@ -151,8 +154,10 @@ export default function CommentItem({comment,articleId,comments}:Props){
         <ReplyItem key={reply.id} reply={reply} articleId={articleId} comments={comments} />
           ))
           }
+
+          {/* 收起回复 */}
           {
-            allReplies.length>10&&(
+            allReplies.length>1&&(
               <Button type="link" size="small" onClick={()=>setShowAllReplies(!showAllReplies)}>
                 {
                   showAllReplies?"收起回复":`查看全部${allReplies.length}条回复`

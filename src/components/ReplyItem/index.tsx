@@ -14,15 +14,15 @@ export default function ReplyItem({reply,articleId,comments}:Props){
   const dispatch = useDispatch()
   const [replyId,setReplyId] = useState<number|null>(null)
   const parent = comments.find(item=>item.id===reply.parentId)
+  const children = comments.filter(item=>item.parentId ===reply.id&&item.status==="通过")
+  const childCount = children.length
   return(
     <div className="reply-wrapper">
       <div className="reply-item">
           {/* 用户 */}
 
           <Typography.Text strong>
-
           {reply.username}
-
           </Typography.Text>
 
 
@@ -88,6 +88,12 @@ export default function ReplyItem({reply,articleId,comments}:Props){
           >
           回复
           </Button>
+        
+        {/* 回复数量 */}
+        <Typography.Text type="secondary">
+          {childCount}条回复
+        </Typography.Text>
+      
 
           </div>
 
