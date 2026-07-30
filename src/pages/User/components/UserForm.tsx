@@ -1,10 +1,11 @@
 import {Form,Input,message,Button,Select} from "antd"
 import type {User} from "../../../types/user"
+import { useEffect } from "react"
 interface UserFormProps{
   initialValues?:Partial<User>
-  onSubmit:(values:UserFormProps)=>void
+  onSubmit:(values:UserFormValues)=>void
 }
-interface UserFormValues{
+export interface UserFormValues{
   username:string;
   email:string;
   role:User["role"];
@@ -12,9 +13,22 @@ interface UserFormValues{
 }
 export default function UserForm({initialValues,onSubmit}:UserFormProps){
   const [form] = Form.useForm()
+  useEffect(()=>{
+    if(initialValues){
+      form.setFieldsValue({
+        username:initialValues.username,
+        email:
+        initialValues.email,
+        role:
+        initialValues.role,
+        status:
+        initialValues.status
+      })
+    }
+  },[initialValues,form])
 
   return(
-     <Form form={form} layout="vertical" onFinish={onSubmit} initialValues={initialValues}>
+     <Form form={form} layout="vertical" onFinish={onSubmit}>
       <Form.Item label="用户名" name="username" rules={[{required:true,message:"请输入用户名"}]}>
         <Input placeholder="请输入用户名"></Input>
       </Form.Item>

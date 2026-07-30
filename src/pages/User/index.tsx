@@ -68,7 +68,7 @@ const columns = [
     title:"操作",
     render:(_:any,record:User)=>(
       <Space>
-       <Button type="link" onClick={()=>navigate(`/admin/user/edit/&{record.id}`)}>
+       <Button type="link" onClick={()=>navigate(`/admin/user/edit/${record.id}`)}>
         编辑
        </Button>
        
