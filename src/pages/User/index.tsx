@@ -1,11 +1,9 @@
 import type {User} from "../../types/user"
 import "./index.scss"
-import {Card,Space,Button,Empty,Popconfirm,Tag,message,Table} from "antd"
+import {Space,Button,Empty,Popconfirm,Tag,message,Table} from "antd"
 import { useNavigate } from "react-router-dom"
 import { useState,useEffect } from "react"
 import { getUserList,deleteUser } from "../../api/user"
-import { time } from "echarts"
-import { render } from "@testing-library/react"
 export default function User(){
   const navigate = useNavigate()
   const [users,setUsers] = useState<User[]>([])

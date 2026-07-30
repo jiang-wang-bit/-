@@ -14,6 +14,8 @@ import { Navigate } from "react-router-dom";
 import AuthGuard from "../components/AuthGuard";
 import CreateCategory from "../pages/Category/Create";
 import EditCategory from "../pages/Category/Edit";
+import CreateUser from "../pages/User/Create";
+import EditUser from "../pages/User/Edit";
 const router = createBrowserRouter([
 
 
@@ -103,8 +105,20 @@ const router = createBrowserRouter([
 
       {
         path: "user",
-        element:
-          <User />
+        children:[
+          {
+            index:true,
+            element:<User />
+          },
+          {
+            path:"create",
+            element:<CreateUser/>
+          },
+          {
+            path:"edit/:id",
+            element:<EditUser/>
+          }
+        ]
       },
       {
         path: "comment",
