@@ -31,7 +31,7 @@ export default function EditCategory(){
      }
   }
   return(
-    <div>
+    <div className="category-edit" style={{padding:24}}>
     <Card title="修改分类">
       {
         initialValues&&(

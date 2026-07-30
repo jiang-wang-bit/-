@@ -1,5 +1,5 @@
 import "./index.scss"
-import {Table,Button,Space, message, Popconfirm} from "antd"
+import {Table,Button,Space, message, Popconfirm,Empty} from "antd"
 import { useState,useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getCategoryList,deleteCategory } from "../../api/category";
@@ -11,9 +11,18 @@ interface CategoryType {
 export default function Category(){
   const navigate = useNavigate()
   const [categories,setCategories] = useState<CategoryType[]>([])
+  const [loading,setLoading] = useState(false)
   const loadCategory = async()=>{
-    const res =await getCategoryList()
-    setCategories(res)
+   try{
+      setLoading(true)
+      const res = await getCategoryList()
+      setCategories(res)
+   }
+   catch(err){
+      console.log(err)
+   }finally{
+    setLoading(false)
+   }
   }
   useEffect(()=>{
     loadCategory()
@@ -59,9 +68,9 @@ export default function Category(){
          <h2>分类管理</h2>
          <Button type="primary" onClick={()=>navigate("create")}>新增分类</Button>
         </div>
-        <Table columns={columns} dataSource={categories}/>
-    </div>
-
+        
+       <Table rowKey="id" columns={columns} dataSource={categories} loading={loading} locale={{emptyText:<Empty description="暂无分类"/>}} />
+   </div>
   )
 
 }
