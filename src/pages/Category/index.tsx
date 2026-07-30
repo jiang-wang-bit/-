@@ -1,8 +1,8 @@
 import "./index.scss"
-import {Table,Card,Button,Space} from "antd"
-import { time } from "echarts";
-import { useState } from "react";
+import {Table,Button,Space} from "antd"
+import { useState,useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { getCategoryList } from "../../api/category";
 interface CategoryType {
  id:number;
  name:string;
@@ -10,18 +10,14 @@ interface CategoryType {
 }
 export default function Category(){
   const navigate = useNavigate()
-  const [categories,setCategories] = useState<CategoryType[]>([
-    {
-      id:1,
-      name:"React",
-      createTime:"2026-07-29"
-    },
-    {
-      id:2,
-      name:"python",
-      createTime:"2026-07-29"
-    }
-  ])
+  const [categories,setCategories] = useState<CategoryType[]>([])
+  const loadCategory = async()=>{
+    const res =await getCategoryList()
+    setCategories(res)
+  }
+  useEffect(()=>{
+    loadCategory()
+  },[])
   const columns = [
     {
       title:"ID",
