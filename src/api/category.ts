@@ -34,3 +34,24 @@ export function deleteCategory(id:number){
     true
   )
 }
+
+// 获取分类详情
+export function getCategoryDetail(id:number){
+  const categoryList = getStorage<Category[]>(STORAGE_KEY)
+  const category = categoryList.find(item=>item.id===id)
+  return Promise.resolve(category)
+}
+
+// 修改分类
+export function updateCategory(id:number,data:{name:string}){
+   const categoryList = getStorage<Category[]>(STORAGE_KEY)
+   const index = categoryList.findIndex(item=>item.id===id)
+   if(index!==-1){
+    categoryList[index] ={
+      ...categoryList[index],
+      name:data.name
+    }
+   }
+   setStorage(STORAGE_KEY,categoryList)
+   return Promise.resolve(categoryList[index])
+}

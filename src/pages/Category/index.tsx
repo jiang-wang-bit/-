@@ -1,8 +1,8 @@
 import "./index.scss"
-import {Table,Button,Space} from "antd"
+import {Table,Button,Space, message, Popconfirm} from "antd"
 import { useState,useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getCategoryList } from "../../api/category";
+import { getCategoryList,deleteCategory } from "../../api/category";
 interface CategoryType {
  id:number;
  name:string;
@@ -18,6 +18,12 @@ export default function Category(){
   useEffect(()=>{
     loadCategory()
   },[])
+  // 删除函数
+  const handleDelete = async(id:number)=>{
+    await deleteCategory(id)
+    message.success("删除成功")
+    loadCategory()
+  }
   const columns = [
     {
       title:"ID",
@@ -39,8 +45,10 @@ export default function Category(){
       key:"action",
       render:(_:any,record:CategoryType)=>(
         <Space>
-        <Button type="link">编辑</Button>
+        <Button type="link" onClick={()=>navigate(`/admin/category/edit/${record.id}`)}>编辑</Button>
+        <Popconfirm title="确认删除这个分类吗" onConfirm={()=>handleDelete(record.id)}>
         <Button type="link" danger>删除</Button>
+        </Popconfirm>
         </Space>
       )
     }
