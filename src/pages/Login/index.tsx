@@ -1,34 +1,26 @@
 import { Button, Form, Input, Card, message } from 'antd';
 import './index.scss';
+import type { LoginParams } from '../../types/auth';
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from 'react-redux';
+import { loginApi } from '../../api/auth';
 import { login } from "../../store/modules/auth";
 export default function Login() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const submit = (values: any) => {
-    console.log('Success:', values);
-    if (values.username === 'admin' && values.password === '123456') {
-      message.success('登录成功');
-      const token = "blog-token-123";
-      const userInfo = {
-        username: "admin",
-        role: "管理员",
-        avatar: ""
-      }
-      //  保存token到redux中
-      dispatch(login({ token, userInfo }));
-      // 跳转后台
-      navigate("/admin/dashboard");
-
-      window.location.href = '/admin/dashboard';
-    }
-    else {
-      message.error('用户名或密码错误');
-    }
+  const submit = async (values: LoginParams) => {
+ 
+   try{
+    const res = await loginApi(values)
+    dispatch(login(res))
+    message.success("登录成功")
+   }catch(err){
+    message.error("登录失败")
+   }
   }
 
   return (
+
 
     <div className="login-page">
 

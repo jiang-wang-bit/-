@@ -1,11 +1,9 @@
 import {createSlice} from "@reduxjs/toolkit";
+import { PayloadAction } from "@reduxjs/toolkit";
+import type { UserInfo } from "../../types/auth";
 interface UserState{
   token:string,
-  userInfo:{
-    username:string;
-    role:string;
-    avatar?:string;
-  } | null;
+  userInfo:UserInfo|null
 }
 
 const initialState:UserState = {
@@ -20,7 +18,7 @@ const userSlice = createSlice({
   initialState,
   reducers:{
     // 登录
-    login(state,action){
+    login(state,action:PayloadAction<{token:string,userInfo:UserInfo}>){
       state.token = action.payload.token;
       state.userInfo = action.payload.userInfo
       localStorage.setItem("token",action.payload.token);
