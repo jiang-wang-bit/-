@@ -6,32 +6,42 @@ import { useState,useEffect } from "react"
 import UserSearch from "./components/UserSearch"
 import { getUserList,deleteUser } from "../../api/user"
 
+
 export default function User(){
   const navigate = useNavigate()
   const [users,setUsers] = useState<User[]>([])
+  const [total,setTotal] = useState(0)
+  const [page,setPage] = useState(1)
+  const [pageSize,setPageSize] = useState(10)
   const [loading,setLoading] = useState(false)
+  const [searchParams,setSearchParams] = useState<UserSearchParams>({})
   // 获取用户列表
-  const loadUsers = async(params?:UserSearchParams)=>{
+  const loadUsers = async()=>{
     try{
        setLoading(true)
-       const res = await getUserList(params)
-       setUsers(res)
+       const res = await getUserList({...searchParams,page,pageSize})
+       setUsers(res.list)
+       setTotal(res.total)
     }finally{
       setLoading(false)
     }
   }
   useEffect(()=>{
     loadUsers()
-  },[])
-  
+  },[page,pageSize,searchParams])
+
   // 搜索函数
   const handleSearch = (values:UserSearchParams)=>{
-    loadUsers(values)
+     setSearchParams(values)
+     setPage(1)
   }
   // 删除用户
   const handleDelete = async(id:number)=>{
     await deleteUser(id)
     message.success("删除成功")
+    if(users.length===1&&page>1){
+      setPage(page-1)
+    }
     loadUsers()
   }
 const columns = [
@@ -96,7 +106,13 @@ const columns = [
       <UserSearch onSearch={handleSearch}/>
       <Button type="primary" onClick={()=>navigate("create")}>新增用户</Button>
       </div>
-      <Table rowKey="id" columns={columns} dataSource={users} loading={loading} locale={{emptyText:<Empty description="暂无用户"/>}}/>
+      <Table rowKey="id" pagination={{current:page,pageSize,total, showSizeChanger:true,onChange:(current,size)=>{
+       if(size!==pageSize){
+        setPage(1)
+       }else{
+        setPage(current)
+       }
+      }}} columns={columns} dataSource={users} loading={loading} locale={{emptyText:<Empty description="暂无用户"/>}}/>
     </div>
   )
 }

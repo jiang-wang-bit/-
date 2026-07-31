@@ -9,13 +9,13 @@ export interface User{
 
 
 export interface UserSearchParams{
-
  username?:string;
-
  email?:string;
-
  role?:User["role"];
-
  status?:User["status"];
+}
 
+export interface UserListParams extends UserSearchParams{
+  page:number;
+  pageSize:number
 }

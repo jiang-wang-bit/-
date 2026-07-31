@@ -1,16 +1,21 @@
 import { getStorage,setStorage } from "../utils/storage";
-import type {User,UserSearchParams} from "../types/user"
+import type {User,UserSearchParams,UserListParams} from "../types/user"
 const STORAGE_KEY = "userList"
 // 获取用户列表
-export function getUserList(params?:UserSearchParams){
+export function getUserList(params:UserListParams){
   let users = getStorage<User[]>(STORAGE_KEY)
-  if(params?.username){
+  if(params.username){
     users = users.filter(item=>item.username.includes(params.username!))
   }
-  if(params?.role){
+  if(params.role){
     users = users.filter(item=>item.role===params.role)
   }
-  return Promise.resolve(users)
+  // 总数量
+  const total = users.length
+  // 分页计算
+  const start = (params.page-1)*params.pageSize
+  const list = users.slice(start,start+params.pageSize)
+  return Promise.resolve({list,total})
 }
 
 // 新增用户
