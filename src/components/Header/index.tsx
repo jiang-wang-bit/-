@@ -33,9 +33,9 @@ export default function Header() {
       <Dropdown menu={{ items, onClick: handleClick }} placement="bottomRight">
 
         <div className="user-info">
-          <Avatar icon={<UserOutlined />} />
+          <Avatar src={userInfo?.avatar} icon={!userInfo.avatar&&<UserOutlined />} />
           <div className="username">{userInfo?.username || '用户'}</div>
-          <div className="role">{userInfo?.role}</div>
+          <div className="role">{userInfo?.role||""}</div>
         </div>
       </Dropdown>
     </div>

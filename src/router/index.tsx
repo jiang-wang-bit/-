@@ -16,6 +16,7 @@ import CreateCategory from "../pages/Category/Create";
 import EditCategory from "../pages/Category/Edit";
 import CreateUser from "../pages/User/Create";
 import EditUser from "../pages/User/Edit";
+import FrontLayout from "../layouts/FrontLayout";
 const router = createBrowserRouter([
 
 
@@ -37,13 +38,18 @@ const router = createBrowserRouter([
   // 前台
   {
     path:"/",
-    element:<Home/>
+    element:<FrontLayout/>,
+    children:[
+      {
+        index:true,
+        element:<Home/>
+      }
+    ]
   },
   {
     path:"/article/:id",
     element:<ArticleDetail/>
   },
-
 
   // 后台
   {
