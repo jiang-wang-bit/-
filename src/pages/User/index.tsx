@@ -1,18 +1,20 @@
-import type {User} from "../../types/user"
+import type {User,UserSearchParams} from "../../types/user"
 import "./index.scss"
 import {Space,Button,Empty,Popconfirm,Tag,message,Table} from "antd"
 import { useNavigate } from "react-router-dom"
 import { useState,useEffect } from "react"
+import UserSearch from "./components/UserSearch"
 import { getUserList,deleteUser } from "../../api/user"
+
 export default function User(){
   const navigate = useNavigate()
   const [users,setUsers] = useState<User[]>([])
   const [loading,setLoading] = useState(false)
   // 获取用户列表
-  const loadUsers = async()=>{
+  const loadUsers = async(params?:UserSearchParams)=>{
     try{
        setLoading(true)
-       const res = await getUserList()
+       const res = await getUserList(params)
        setUsers(res)
     }finally{
       setLoading(false)
@@ -21,6 +23,11 @@ export default function User(){
   useEffect(()=>{
     loadUsers()
   },[])
+  
+  // 搜索函数
+  const handleSearch = (values:UserSearchParams)=>{
+    loadUsers(values)
+  }
   // 删除用户
   const handleDelete = async(id:number)=>{
     await deleteUser(id)
@@ -86,9 +93,9 @@ const columns = [
   
       <div className="user-title">
       <h2>用户管理</h2>
+      <UserSearch onSearch={handleSearch}/>
       <Button type="primary" onClick={()=>navigate("create")}>新增用户</Button>
       </div>
-
       <Table rowKey="id" columns={columns} dataSource={users} loading={loading} locale={{emptyText:<Empty description="暂无用户"/>}}/>
     </div>
   )

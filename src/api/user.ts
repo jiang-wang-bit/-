@@ -1,10 +1,15 @@
 import { getStorage,setStorage } from "../utils/storage";
-import type {User} from "../types/user"
+import type {User,UserSearchParams} from "../types/user"
 const STORAGE_KEY = "userList"
-
 // 获取用户列表
-export function getUserList(){
-  const users = getStorage<User[]>(STORAGE_KEY)
+export function getUserList(params?:UserSearchParams){
+  let users = getStorage<User[]>(STORAGE_KEY)
+  if(params?.username){
+    users = users.filter(item=>item.username.includes(params.username!))
+  }
+  if(params?.role){
+    users = users.filter(item=>item.role===params.role)
+  }
   return Promise.resolve(users)
 }
 

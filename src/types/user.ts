@@ -6,3 +6,16 @@ export interface User{
   status:"正常"|"禁用";
   createTime:string
 }
+
+
+export interface UserSearchParams{
+
+ username?:string;
+
+ email?:string;
+
+ role?:User["role"];
+
+ status?:User["status"];
+
+}
