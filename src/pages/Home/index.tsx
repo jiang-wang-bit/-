@@ -11,7 +11,8 @@ export default function Home(){
   title:"React Hooks详解",
   desc:"深入理解useState和useEffect",
   author:"admin",
-  createTime:"2026-07-31"
+  createTime:"2026-07-31",
+   category:"React"
  },
 
 
@@ -20,7 +21,8 @@ export default function Home(){
   title:"TypeScript入门",
   desc:"从JavaScript到TypeScript",
   author:"admin",
-  createTime:"2026-07-30"
+  createTime:"2026-07-30",
+   category:"TypeScript"
  }
 
 
@@ -33,7 +35,10 @@ const hotArticles=[
   title:"React18源码分析",
   desc:"深入理解React架构",
   author:"admin",
-  createTime:"2026-07-29"
+  createTime:"2026-07-29",
+  category:"React",
+  views:9999
+
  },
 
 
@@ -42,7 +47,9 @@ const hotArticles=[
   title:"Webpack原理",
   desc:"模块打包机制解析",
   author:"admin",
-  createTime:"2026-07-28"
+  createTime:"2026-07-28",
+  category:"React",
+  views:999
  }
 
 ]
@@ -78,6 +85,7 @@ const hotArticles=[
           ))
          }
          </div>
+         
          {/* 热门文章 */}
          <div className="hot-section">
           <h2>热门文章</h2>

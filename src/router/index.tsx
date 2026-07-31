@@ -17,6 +17,7 @@ import EditCategory from "../pages/Category/Edit";
 import CreateUser from "../pages/User/Create";
 import EditUser from "../pages/User/Edit";
 import FrontLayout from "../layouts/FrontLayout";
+import ArticleList from "../pages/Front/ArticleList";
 const router = createBrowserRouter([
 
 
@@ -43,6 +44,10 @@ const router = createBrowserRouter([
       {
         index:true,
         element:<Home/>
+      },
+      {
+        path:"article",
+        element:<ArticleList/>
       }
     ]
   },
