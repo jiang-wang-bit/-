@@ -16,6 +16,7 @@ import CreateCategory from "../pages/Category/Create";
 import EditCategory from "../pages/Category/Edit";
 import CreateUser from "../pages/User/Create";
 import EditUser from "../pages/User/Edit";
+import ArticleDetailFront from "../pages/Front/ArticleDetail";
 import FrontLayout from "../layouts/FrontLayout";
 import ArticleList from "../pages/Front/ArticleList";
 const router = createBrowserRouter([
@@ -48,6 +49,10 @@ const router = createBrowserRouter([
       {
         path:"article",
         element:<ArticleList/>
+      },
+      {
+        path:"article/:id",
+        element:<ArticleDetailFront/>
       }
     ]
   },
