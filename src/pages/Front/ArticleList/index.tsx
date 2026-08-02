@@ -1,5 +1,5 @@
 import "./index.scss"
-import {Card,Empty,Pagination} from "antd"
+import {Card,Empty,Pagination,Input} from "antd"
 import { useState } from "react"
 import {useSelector} from "react-redux"
 import CategoryTabs from "../../Home/components/CategoryTabs"
@@ -7,16 +7,30 @@ import type { RootState } from "../../../store"
 import ArticleCard from "../../Home/components/ArticleCard"
 export default function ArticleList(){
   const [page,setPage] = useState(1)
+  const [keyword,setKeyword] = useState("")
+  const [category,setCategory]=useState<number | null>(null)
   const articles = useSelector((state:RootState)=>state.article.list)
+  const filterData = articles.filter(item=>{
+    const matchKeyword = keyword.trim()?(item.title.includes(keyword) )|| (item.content.includes(keyword)):true
+    const matchCategory = category?(item.categoryId)===(category):true
+    return (matchKeyword&&matchCategory)
+  })
+  const pageData = filterData.slice((page-1)*10,page*10)
   return(
     <div className="article-list-page">
-      <CategoryTabs/>
+      <div className="articlelist-title">
+      <CategoryTabs onChange={(id)=>{setCategory(id); setPage(1)}}/>
+      <Input placeholder="搜索文章" value={keyword} onChange={(e)=>{setKeyword(e.target.value)
+        setPage(1)
+      }} style={{width:300}}/>
+      </div>
+
      <Card title="文章列表">
      {
-      articles.length>0?
-      articles.map(item=>(<ArticleCard key={item.id} article={item}/>)):<Empty description="暂无文章"/>
+      pageData.length>0?
+      pageData.map(item=>(<ArticleCard key={item.id} article={item}/>)):<Empty description="暂无文章"/>
      }
-     <Pagination className="pagination" current={page} total={50} pageSize={10} onChange={(page)=>setPage(page)}/>
+     <Pagination className="pagination" current={page} total={filterData.length} pageSize={10} onChange={(page)=>setPage(page)}/>
 
      </Card>
     </div>

@@ -19,6 +19,7 @@ import EditUser from "../pages/User/Edit";
 import ArticleDetailFront from "../pages/Front/ArticleDetail";
 import FrontLayout from "../layouts/FrontLayout";
 import ArticleList from "../pages/Front/ArticleList";
+import CategoryArticle from "../pages/Front/CategoryArticle";
 const router = createBrowserRouter([
 
 
@@ -53,6 +54,10 @@ const router = createBrowserRouter([
       {
         path:"article/:id",
         element:<ArticleDetailFront/>
+      },
+      {
+        path:"category/:id",
+        element:<CategoryArticle/>
       }
     ]
   },
