@@ -1,14 +1,22 @@
 import "./index.scss"
 import {Card,Empty,Pagination,Input} from "antd"
-import { useState } from "react"
+import { useState,useEffect } from "react"
 import {useSelector} from "react-redux"
+import {useSearchParams} from "react-router-dom"
 import CategoryTabs from "../../Home/components/CategoryTabs"
 import type { RootState } from "../../../store"
 import ArticleCard from "../../Home/components/ArticleCard"
 export default function ArticleList(){
   const [page,setPage] = useState(1)
-  const [keyword,setKeyword] = useState("")
+  const [params] = useSearchParams()
+  const keywordFromUrl = params.get("keyword") || ""
+   const [keyword,setKeyword] = useState(keywordFromUrl)
   const [category,setCategory]=useState<number | null>(null)
+   useEffect(()=>{
+  setKeyword(
+   params.get("keyword") || ""
+  )
+ },[params])
   const articles = useSelector((state:RootState)=>state.article.list)
   const filterData = articles.filter(item=>{
     const matchKeyword = keyword.trim()?(item.title.includes(keyword) )|| (item.content.includes(keyword)):true
