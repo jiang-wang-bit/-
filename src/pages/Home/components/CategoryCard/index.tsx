@@ -1,12 +1,8 @@
 import {Tag} from "antd"
-
-
 interface Props{
-
 category:{
  name:string
 }}
-
 
 export default function CategoryCard({
  category}:Props){
@@ -15,6 +11,7 @@ export default function CategoryCard({
       return(
       <Tag
       color="blue"
+      style={{cursor:"pointer"}}
       >
       {category.name}
       </Tag>

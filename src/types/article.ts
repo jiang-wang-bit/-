@@ -10,7 +10,8 @@ export interface ArticleType {
 
  author:string;
 
- category:string;
+
+ categoryId:number;
 
  views:number;
 
@@ -18,6 +19,6 @@ export interface ArticleType {
 
  createTime:string;
 
-  updateTime:string;
+updateTime:string;
 
 }

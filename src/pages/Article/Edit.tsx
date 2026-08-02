@@ -2,12 +2,20 @@ import {Form,Input,Button,Select,Card,message} from "antd"
 import { useNavigate ,useParams, useSearchParams} from "react-router-dom"
 import { UseSelector,useDispatch, useSelector } from "react-redux"
 import { updateArticle } from "../../store/modules/article"
-import { useEffect } from "react"
+import { useEffect,useState } from "react"
+import {getCategoryList} from "../../api/category"
+import type { CategoryType } from "../../types/category"
 export default function Edit(){
   const {id} = useParams()
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const [form] = Form.useForm()
+  const [categories,setCatgories] = useState<CategoryType[]>([])
+  useEffect(()=>{
+     getCategoryList().then(res=> {
+      setCatgories(res)
+     })
+  },[])
   // 获取文章数据
   const article = useSelector(
     (state:any)=>state.article.list.find((item:any)=>String(item.id)===String(id))
@@ -17,7 +25,7 @@ export default function Edit(){
   if(article){
     form.setFieldsValue({
       title:article.title,
-      category:article.category,
+      categoryId:article.categoryId,
       content:article.content,
       status:article.status
     })
@@ -41,12 +49,8 @@ export default function Edit(){
           <Input placeholder="请输入标题" />
          </Form.Item>
 
-         <Form.Item label="文章分类" name="category" rules={[{required:true,message:"请选择分类"}]}>
-           <Select options={[
-              {value:'vue',label:'vue'},
-              {value:'React',label:'React'},
-              {value:'python',label:'python'}
-           ]} />
+         <Form.Item label="文章分类" name="categoryId" rules={[{required:true,message:"请选择分类"}]}>
+           <Select options={categories.map(item=>({value:item.id,label:item.name}))} />
          </Form.Item>
 
          <Form.Item label="文章内容" name="content" rules={[{required:true,message:"请输入内容"}]}>

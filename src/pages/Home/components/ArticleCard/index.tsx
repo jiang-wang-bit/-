@@ -1,6 +1,10 @@
 import {Card,Button,Tag} from "antd"
 import "./index.scss"
 import { useNavigate } from "react-router-dom";
+import {useState,useEffect} from "react"
+import dayjs from "dayjs"
+import {getCategoryList} from "../../../../api/category"
+import type { CategoryType } from "../../../../types/category"
 interface Props{
   article:{
     id:number
@@ -8,12 +12,21 @@ interface Props{
     desc:string,
     author:string,
     createTime:string,
+    categoryId:number;
     category?:string;
     views?:number
   }
 }
 export default function ArticleCard({article}:Props){
   const navigate = useNavigate()
+  const [categories,setCategories] = useState<CategoryType[]>([])
+  useEffect(()=>{
+      getCategoryList().then(res=>{
+         console.log("分类数据",res)
+        setCategories(res)
+      })
+  },[])
+  const category = categories.find(item=>item.id===article.categoryId)
   return(
    <Card className="article-card" hoverable>
      <h3>
@@ -32,14 +45,14 @@ export default function ArticleCard({article}:Props){
         </span>
 
         <span>
-        {article.createTime}
+        {dayjs(article.createTime).format("YYYY-MM-DD")}
         </span>
 
         </div>
 
         <div className="article-bottom">
-          {article.category&&
-          <Tag color="blue">{article.category}</Tag>}
+          {category&&
+          <Tag color="blue">{category.name}</Tag>}
 
           {article.views&&<span>阅读量:{article.views}</span>}
         </div>

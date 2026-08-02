@@ -8,6 +8,9 @@ import {useEffect} from "react"
 import {increaseViews} from "../../../store/modules/article"
 import "./index.scss"
 import { useParams } from "react-router-dom"
+import { useState } from "react"
+import {getCategoryList} from "../../../api/category"
+import type { CategoryType } from "../../../types/category"
 import type { RootState } from "../../../store"
 export default function ArticleDetailFront(){
   const {id} = useParams()
@@ -19,10 +22,16 @@ export default function ArticleDetailFront(){
   },[id])
   const articles = useSelector((state: RootState)=>state.article.list)
  const article= articles.find(item=>item.id===Number(id))
-   if (!article) {
+ const [categories,setCategories] = useState<CategoryType[]>([])
+  useEffect(()=>{
+      getCategoryList().then(res=>{ 
+        setCategories(res)
+      })
+  },[])
+  const category = categories.find(item=>item.id===article?.categoryId)
+    if (!article) {
     return <Card>文章不存在</Card>
   }
-
   return(
     <div className="article-detail">
       <Card>
@@ -47,7 +56,7 @@ export default function ArticleDetailFront(){
         </span>
 
         <Tag color="blue">
-        {article.category}
+        {category?.name}
         </Tag>
 
         </div>

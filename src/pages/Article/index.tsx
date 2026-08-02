@@ -3,17 +3,19 @@ import './index.scss'
 import { useDispatch, useSelector } from "react-redux"
 import { useNavigate } from "react-router-dom"
 import { deleteArticle } from "../../store/modules/article"
-import { useState } from "react"
+import { useState,useEffect} from "react"
+import { getCategoryList } from "../../api/category"
+import type { CategoryType } from "../../types/category"
 import dayjs from "dayjs"
 export default function Article(){
   interface Article {
   id:number;
   title:string;
-  category:string;
+  categoryId:number;
   content:string;
   status:string;
   author:string;
-  time:string;
+  createTime:string;
 }
   const navigate = useNavigate()
   const dispatch = useDispatch()
@@ -22,10 +24,16 @@ export default function Article(){
   const [category,setCategory] = useState("")
   const [page,setPage] = useState(1)
   const [pageSize,setPageSize] = useState(10)
+  const [categories,setCategories] = useState<CategoryType[]>([])
   const data= useSelector((state:any)=>state.article.list) as Article []
 
+  useEffect(()=>{
+    // Assuming you have a function to fetch categories
+    getCategoryList().then(res=>setCategories(res))
+  },[])
+
   const filterData = data.filter(item=>{const matchKeyword = item.title.includes(keyword)
-     const matchCategory = category ? item.category===category:true
+     const matchCategory = category ?String(item.categoryId)===String(category):true
      const matchStatus = status?item.status===status:true
      return (matchKeyword&&matchCategory&&matchStatus)
 })
@@ -45,12 +53,15 @@ export default function Article(){
     },
     {
       title:"分类",
-      dataIndex:"category",
-      render:(text:string)=>(
-        <Tag color={"blue"}>
-          {text}
-        </Tag>
-      )
+      dataIndex:"categoryId",
+      render:(categoryId:number)=>{
+        const category = categories.find(item=>item.id===categoryId)
+        return (
+          <Tag color="blue">
+            {category?.name}
+          </Tag>
+        )
+      }
     },
     {
      title:"状态",
@@ -63,9 +74,9 @@ export default function Article(){
     },
     {
       title:"发布时间",
-      dataIndex:"time",
-      render:(time:string)=>{
-        return dayjs(time).format("YYYY-MM-DD")
+      dataIndex:"createTime",
+      render:(createTime:string)=>{
+        return dayjs(createTime).format("YYYY-MM-DD")
       }
     },
     {
@@ -94,7 +105,7 @@ export default function Article(){
         <h2>文章管理</h2>
         <Input placeholder="搜索文章标题" value={keyword} onChange={e=>{setKeyword(e.target.value) 
           setPage(1)}} style={{width:"400px"}}></Input>
-        <Select placeholder="选择分类" allowClear options={[{label:"React",value:"React"},{label:"python",value:"python"},{label:"vue",value:"vue"}]} onChange={value=>{setCategory(value||"")
+        <Select placeholder="选择分类" allowClear options={categories.map(item=>({label:item.name,value:item.id}))} onChange={value=>{setCategory(value||"")
           setPage(1)
         }}></Select>
         <Select placeholder="文章状态" allowClear options={[{label:"发布",value:"发布"},{label:"草稿",value:"草稿"}]} onChange={value=>{setStatus(value||"")

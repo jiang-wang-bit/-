@@ -1,6 +1,9 @@
 import Banner from "./components/Banner"
 import { Card } from "antd"
 import {useSelector} from "react-redux"
+import { useEffect,useState } from "react"
+import {getCategoryList} from "../../api/category"
+import type { CategoryType } from "../../types/category"
 import type { RootState } from "../../store"
 import ArticleCard from "./components/ArticleCard"
 import CategoryCard from "./components/CategoryCard"
@@ -9,24 +12,12 @@ export default function Home(){
 
   const articles = useSelector((state:RootState)=>state.article.list)
   const hotArticles = [...articles].sort((a,b)=>b.views-a.views).slice(0,5)
-  const categories=[
-
- {
-  id:1,
-  name:"React"
- },
-
- {
-  id:2,
-  name:"Vue"
- },
-
- {
-  id:3,
-  name:"Python"
- }
-
-]
+  const [categories,setCategories] = useState<CategoryType[]>([])
+  useEffect(()=>{
+    getCategoryList().then(res=>{ 
+      setCategories(res)
+    })
+  },[])
   return (
     <div className="home">
       <Banner/>
