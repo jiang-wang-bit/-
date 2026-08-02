@@ -1,4 +1,4 @@
-export interface Article {
+export interface ArticleType {
 
  id:number;
 
@@ -14,6 +14,10 @@ export interface Article {
 
  views:number;
 
+ status:"published"|"draft";
+
  createTime:string;
+
+  updateTime:string;
 
 }

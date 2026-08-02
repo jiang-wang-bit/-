@@ -2,12 +2,14 @@ import {Card,Tag} from "antd"
 import CommentItem from "../../../components/CommentItem"
 import CommentList from "../../../components/CommentList"
 import CommentInput from "../../../components/CommentInput"
-import { articles } from "../../../mock/article"
+import {useSelector} from "react-redux"
 import "./index.scss"
 import { useParams } from "react-router-dom"
+import type { RootState } from "../../../store"
 export default function ArticleDetailFront(){
   const {id} = useParams()
- const article = articles.find(item=>item.id===Number(id))
+  const articles = useSelector((state: RootState)=>state.article.list)
+ const article= articles.find(item=>item.id===Number(id))
    if (!article) {
     return <Card>文章不存在</Card>
   }

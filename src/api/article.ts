@@ -1,3 +1,3 @@
-import type { Article } from "../types/article";
+import type { ArticleType } from "../types/article";
 
 

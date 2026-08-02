@@ -1,11 +1,14 @@
 import Banner from "./components/Banner"
 import { Card } from "antd"
-import { articles } from "../../mock/article"
+import {useSelector} from "react-redux"
+import type { RootState } from "../../store"
 import ArticleCard from "./components/ArticleCard"
 import CategoryCard from "./components/CategoryCard"
 import "./index.scss"
 export default function Home(){
 
+  const articles = useSelector((state:RootState)=>state.article.list)
+  const hotArticles = [...articles].sort((a,b)=>b.views-a.views).slice(0,5)
   const categories=[
 
  {
@@ -32,7 +35,7 @@ export default function Home(){
         <div className="latest-section">
          <h2>最新文章</h2>
          {
-          articles.slice(0,2).map(item=>(
+          articles.slice(0,5).map(item=>(
             <ArticleCard key={item.id} article={item}/>
           ))
          }
@@ -42,7 +45,7 @@ export default function Home(){
          <div className="hot-section">
           <h2>热门文章</h2>
           {
-            articles.filter(item=>item.views).map(item=>(
+            hotArticles.map(item=>(
               <ArticleCard key={item.id} article={item}/>
             ))
           }
