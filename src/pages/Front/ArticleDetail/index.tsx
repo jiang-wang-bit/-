@@ -3,11 +3,20 @@ import CommentItem from "../../../components/CommentItem"
 import CommentList from "../../../components/CommentList"
 import CommentInput from "../../../components/CommentInput"
 import {useSelector} from "react-redux"
+import {useDispatch} from "react-redux"
+import {useEffect} from "react"
+import {increaseViews} from "../../../store/modules/article"
 import "./index.scss"
 import { useParams } from "react-router-dom"
 import type { RootState } from "../../../store"
 export default function ArticleDetailFront(){
   const {id} = useParams()
+  const dispatch = useDispatch()
+  useEffect(()=>{
+    if(id){
+      dispatch(increaseViews(Number(id)))
+    }
+  },[id])
   const articles = useSelector((state: RootState)=>state.article.list)
  const article= articles.find(item=>item.id===Number(id))
    if (!article) {

@@ -4,7 +4,6 @@ interface ArticleState{
   list:ArticleType[];
 }
 const defaultArticles = [{
-  
       id:1,
       title:"React学习",
       desc:"react hooks学习",
@@ -23,7 +22,11 @@ const articleSlice = createSlice({
   initialState,
   reducers:{
       addArticle:(state,action)=>{
-        state.list.push(action.payload)
+        state.list.push({
+          ...action.payload,
+          views:action.payload.views||0
+        })
+
         localStorage.setItem("articles",JSON.stringify(state.list))
       },
       deleteArticle:(state,action)=>{
@@ -36,9 +39,17 @@ const articleSlice = createSlice({
           state.list[index] = action.payload
         }
         localStorage.setItem("articles",JSON.stringify(state.list))
+      },
+      // 增加阅读量
+      increaseViews:(state,action)=>{
+        const article = state.list.find(item=>item.id===action.payload)
+        if(article){
+          article.views = (article.views||0)+1
+        }
+        localStorage.setItem("articles",JSON.stringify(state.list))
       }
   }
 
 })
-export const{addArticle,deleteArticle,updateArticle} = articleSlice.actions
+export const{addArticle,deleteArticle,updateArticle,increaseViews} = articleSlice.actions
 export default articleSlice.reducer
