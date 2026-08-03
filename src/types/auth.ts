@@ -6,6 +6,8 @@ export interface UserInfo{
 
  avatar?:string;
 
+ email?:string;
+
 }
 
 export interface LoginParams{

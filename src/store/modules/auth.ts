@@ -32,8 +32,19 @@ const userSlice = createSlice({
         "token"
       );
       localStorage.removeItem("userInfo");
+    },
+    // 更新用户信息
+    updateUserInfo:(state,action:PayloadAction<Partial<UserInfo>>)=>{
+     if(state.userInfo){
+      state.userInfo = {
+        ...state.userInfo,
+        ...action.payload
+      }
+      localStorage.setItem("userInfo",JSON.stringify(state.userInfo))
+     }
     }
-}})
+  }
+})
 // 导出方法
-export const {login,logout} = userSlice.actions;
+export const {login,logout,updateUserInfo} = userSlice.actions;
 export default userSlice.reducer;
