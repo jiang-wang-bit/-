@@ -22,12 +22,14 @@ export default function Home(){
   },[])
   return (
     <div className="home">
-      <Banner/>
-      
-      {/* 搜索 */}
+
+       {/* 搜索 */}
       <Input.Search placeholder="搜索文章" onSearch={(value)=>{
         navigate(`/article?keyword=${value}`)
-      }}/>
+      }} style={{ marginBottom: 16,width:300 }}/>
+      
+      <Banner/>
+      
       <section className="article-wrapper">
         <div className="latest-section">
          <h2>最新文章</h2>

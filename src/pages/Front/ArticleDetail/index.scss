@@ -38,3 +38,26 @@ white-space:pre-line;
 
 
 }
+
+.article-switch{
+
+ margin-top:30px;
+
+ display:flex;
+
+ justify-content:space-between;
+
+
+ button{
+
+  max-width:300px;
+
+  overflow:hidden;
+
+  text-overflow:ellipsis;
+
+  white-space:nowrap;
+
+ }
+
+}

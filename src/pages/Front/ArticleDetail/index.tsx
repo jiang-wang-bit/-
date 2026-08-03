@@ -1,4 +1,4 @@
-import {Card,Tag} from "antd"
+import {Card,Tag,Button} from "antd"
 import CommentItem from "../../../components/CommentItem"
 import CommentList from "../../../components/CommentList"
 import CommentInput from "../../../components/CommentInput"
@@ -7,7 +7,7 @@ import {useDispatch} from "react-redux"
 import {useEffect} from "react"
 import {increaseViews} from "../../../store/modules/article"
 import "./index.scss"
-import { useParams } from "react-router-dom"
+import { useParams,useNavigate } from "react-router-dom"
 import { useState } from "react"
 import {getCategoryList} from "../../../api/category"
 import type { CategoryType } from "../../../types/category"
@@ -15,6 +15,7 @@ import type { RootState } from "../../../store"
 export default function ArticleDetailFront(){
   const {id} = useParams()
   const dispatch = useDispatch()
+  const navigate = useNavigate()
   useEffect(()=>{
     if(id){
       dispatch(increaseViews(Number(id)))
@@ -22,6 +23,10 @@ export default function ArticleDetailFront(){
   },[id])
   const articles = useSelector((state: RootState)=>state.article.list)
  const article= articles.find(item=>item.id===Number(id))
+  //  获取当前文章位置
+ const currentIndex = articles.findIndex(item=>item.id===article?.id)
+ const prevArticle = articles[currentIndex-1]
+ const nextArticle = articles[currentIndex+1]
  const [categories,setCategories] = useState<CategoryType[]>([])
   useEffect(()=>{
       getCategoryList().then(res=>{ 
@@ -68,6 +73,11 @@ export default function ArticleDetailFront(){
         </div>
 
       </Card>
+
+      <div className="article-switch">
+        <Button disabled={!prevArticle} onClick={()=>navigate(`/article/${prevArticle.id}`)}>上一篇</Button>
+        <Button disabled={!nextArticle} onClick={()=>navigate(`/article/${nextArticle.id}`)}>下一篇</Button>
+      </div>
 
       <div className="comment-area">
        <CommentInput articleId={article.id}/>
