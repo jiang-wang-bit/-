@@ -61,3 +61,26 @@ white-space:pre-line;
  }
 
 }
+
+.recommend-card{
+
+ margin-top:30px;
+
+
+}
+
+.recommend-item{
+
+ padding:12px 0;
+
+ cursor:pointer;
+
+ border-bottom:1px solid #eee;
+
+ &:hover{
+
+  color:#1677ff;
+
+ }
+
+}

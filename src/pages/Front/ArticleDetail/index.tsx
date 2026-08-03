@@ -22,7 +22,8 @@ export default function ArticleDetailFront(){
     }
   },[id])
   const articles = useSelector((state: RootState)=>state.article.list)
- const article= articles.find(item=>item.id===Number(id))
+   const article= articles.find(item=>item.id===Number(id))
+  const recommendArticles = articles.filter(item=>item.categoryId===article?.categoryId && item.id!==article?.id).slice(0,3)
   //  获取当前文章位置
  const currentIndex = articles.findIndex(item=>item.id===article?.id)
  const prevArticle = articles[currentIndex-1]
@@ -78,6 +79,17 @@ export default function ArticleDetailFront(){
         <Button disabled={!prevArticle} onClick={()=>navigate(`/article/${prevArticle.id}`)}>上一篇</Button>
         <Button disabled={!nextArticle} onClick={()=>navigate(`/article/${nextArticle.id}`)}>下一篇</Button>
       </div>
+
+      {/* 相关文章推荐 */}
+      <Card title="相关文章推荐" className="recommend-card">
+       {
+        recommendArticles.length>0?recommendArticles.map(item=>(
+          <div key={item.id} className="recommend-item" onClick={()=>navigate(`/article/${item.id}`)}>
+            {item.title}
+          </div>
+        )) : <p>暂无相关文章</p>
+       }
+      </Card>
 
       <div className="comment-area">
        <CommentInput articleId={article.id}/>
