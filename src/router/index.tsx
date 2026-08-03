@@ -20,6 +20,7 @@ import ArticleDetailFront from "../pages/Front/ArticleDetail";
 import FrontLayout from "../layouts/FrontLayout";
 import ArticleList from "../pages/Front/ArticleList";
 import CategoryArticle from "../pages/Front/CategoryArticle";
+import Favorite from "../pages/Front/Favorite";
 const router = createBrowserRouter([
 
 
@@ -58,6 +59,10 @@ const router = createBrowserRouter([
       {
         path:"category/:id",
         element:<CategoryArticle/>
+      },
+      {
+        path:"favorite",
+        element:<Favorite/>
       }
     ]
   },

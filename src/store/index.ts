@@ -3,11 +3,13 @@ import userReducer from "./modules/auth";
 import Article from "../pages/Article";
 import articleReducer from "./modules/article"
 import commentReducer from "./modules/comment"
+import favoriteReducer from "./modules/favorite"
 export const store = configureStore({
   reducer: {
     user: userReducer,
     article: articleReducer,
-    comment:commentReducer
+    comment:commentReducer,
+    favorite:favoriteReducer
   }
 });
 

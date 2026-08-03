@@ -16,6 +16,10 @@ export default function FrontHeader(){
     {
       key:"category",
       label:"分类"
+    },
+    {
+      key:"favorite",
+      label:"我的收藏"
     }
   ]
   return(
