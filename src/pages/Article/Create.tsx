@@ -1,14 +1,15 @@
 import {Form,Input,Button,Select,Card,message} from "antd"
 import { useNavigate } from "react-router-dom"
 import "./create.scss"
-import { useDispatch } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 import {useState,useEffect} from "react"
+import type { RootState } from "../../store"
 import {getCategoryList} from "../../api/category"
 import type { CategoryType } from "../../types/category"
 import { addArticle } from "../../store/modules/article"
-import Category from "../Category"
 export default function Create(){
   const dispatch = useDispatch()
+  const userInfo = useSelector((state:RootState)=>state.user.userInfo)
   const [form] = Form.useForm()
   const [categories,setCatgories] = useState<CategoryType[]>([])
   useEffect(()=>{
@@ -26,7 +27,7 @@ export default function Create(){
       content:values.content,
       categoryId:values.categoryId,
       status:values.status,
-      author:"admin",
+      author:userInfo?.username,
       createTime:new Date().toISOString()
     }
     dispatch(addArticle(article))

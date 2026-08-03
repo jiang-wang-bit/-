@@ -25,8 +25,8 @@ import Profile from "../pages/Front/UserCenter/Profile";
 import MyComments from "../pages/Front/UserCenter/Comments";
 import MyArticles from "../pages/Front/UserCenter/Articles";
 import Favorite from "../pages/Front/UserCenter/Favorite";
+import ArticleEdit from "../pages/Front/UserCenter/ArticleEdit";
 const router = createBrowserRouter([
-
 
   // 根路径
   {
@@ -66,7 +66,10 @@ const router = createBrowserRouter([
       },
       {
         path:"user",
-        element:<UserCenter/>,
+        element:
+        <AuthGuard>
+        <UserCenter/>
+        </AuthGuard>,
        children:[
         {
           index:true,
@@ -87,6 +90,10 @@ const router = createBrowserRouter([
         {
           path:"articles",
           element:<MyArticles/>
+        },
+        {
+          path:"articles/edit/:id",
+          element:<ArticleEdit/>
         }
        ]
       }
