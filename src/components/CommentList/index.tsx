@@ -1,27 +1,16 @@
-
+import type { CommentType } from "../../types/comment";
 import { useSelector } from "react-redux"
 import{Button, Divider,Empty,Typography} from "antd"
 import CommentItem from "../CommentItem";
+import type { RootState } from "../../store";
 import "./index.scss"
 import { useState } from "react";
 interface Props {
   articleId:number;
 }
-interface CommentType{
- id:number;
- articleId:number;
- username:string;
- content:string;
- status:string;
- time:string;
- parentId:number|null;
- like:number;
- liked:true
- parentName:string
-}
 export default function CommentList({articleId}:Props){
  
- const comments = useSelector((state:any)=>state.comment.list as CommentType [])
+ const comments = useSelector((state:RootState)=>state.comment.list)
  const articleComments = comments.filter(item=>item.articleId===articleId&&item.status==="通过"&&item.parentId===null)
  const totalComments = comments.filter(item=>item.articleId===articleId&&item.status==="通过").length
  const [showAllComments,setShowAllComments] = useState(false)
@@ -36,7 +25,7 @@ export default function CommentList({articleId}:Props){
     )
   }
  )
- const showComments = showAllComments?articleComments:articleComments.slice(0,1)
+ const showComments = showAllComments?sortedComments:sortedComments.slice(0,1)
   return(
    
   <div className="comment-list">
@@ -66,7 +55,7 @@ export default function CommentList({articleId}:Props){
        description="暂无评论"
       />
       :
-      sortedComments.map(item=>(
+      showComments.map(item=>(
        <CommentItem key={item.id} comment={item} articleId={articleId} comments={comments}/>
       ))
     }

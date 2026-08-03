@@ -1,4 +1,4 @@
-import { CommentType } from "../../pages/CommentAdmin/types";
+import type { CommentType} from "../../types/comment";
 import { createSlice } from "@reduxjs/toolkit";
 interface CommentState {
   list: CommentType[]

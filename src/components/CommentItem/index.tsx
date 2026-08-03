@@ -12,6 +12,7 @@ import { likeComment } from "../../store/modules/comment";
 
 interface CommentType{
 id:number;
+articleTitle:string;
 articleId:number;
 username:string;
 content:string;
@@ -111,6 +112,7 @@ console.log(formatCommentTime(comment.time))
             onClick={(e)=>e.stopPropagation()}
           >
             <CommentInput
+             articleTitle={comment.articleTitle}
               articleId={articleId}
               parentId={comment.id}
               onSuccess={()=>{

@@ -105,6 +105,7 @@ export default function ReplyItem({reply,articleId,comments}:Props){
           replyId===reply.id && (
 
           <CommentInput
+          articleTitle={reply.articleTitle}
           articleId={articleId}
           parentId={reply.id}
           parentName = {reply.username}

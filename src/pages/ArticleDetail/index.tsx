@@ -61,7 +61,7 @@ export default function ArticleDetail(){
         </div>
 
         <Divider/>
-        <CommentInput articleId={article.id} />
+        <CommentInput articleId={article.id} articleTitle={article.title}/>
         <CommentList articleId={article.id} />
 
       </Card>

@@ -1,16 +1,19 @@
 import {Input,Button,Space,message,Popconfirm} from "antd"
 import { useState } from "react"
-import { useDispatch } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
+import type { RootState } from "../../store"
 import { addComments } from "../../store/modules/comment"
 interface Props{
+  articleTitle?:string;
   articleId:number
   parentId?:number|null
    onSuccess?:()=>void;
    parentName?:string;
 }
 
-export default function CommentInput({articleId,parentId,onSuccess,parentName}:Props){
+export default function CommentInput({articleId,parentId,onSuccess,parentName,articleTitle}:Props){
   const dispatch = useDispatch()
+  const userInfo = useSelector((state:RootState)=>state.user.userInfo)
   const [content,setContent] = useState("")
   const submitComment = ()=>{
     if(!content.trim()){
@@ -21,12 +24,16 @@ export default function CommentInput({articleId,parentId,onSuccess,parentName}:P
     const comment = {
       id:Date.now(),
       articleId,
-      username:"游客",
+      articleTitle,
+      userId:userInfo?.id,
+      username:userInfo?.username||"游客",
       content,
       status:"待审核",
       time:new Date().toLocaleString(),
       parentId:parentId??null,
-      parentName:""
+      parentName:parentName||"",
+      like:0,
+      liked:false
     }
     dispatch(addComments(comment))
     setContent("")

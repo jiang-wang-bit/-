@@ -4,6 +4,7 @@ export function loginApi(data:LoginParams){
     return Promise.resolve({
       token:"blog-token-123",
       userInfo:{
+        id:1,
         username:"admin",
         role:"管理员",
         avatar:""

@@ -2,6 +2,7 @@ export interface CommentType{
   id:number;
   articleId:number;
   articleTitle:string;
+  userId:number
   username:string;
   content:string;
   status:string;

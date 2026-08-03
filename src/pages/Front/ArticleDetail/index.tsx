@@ -110,7 +110,7 @@ const isFavorite = favorites.includes(article.id)
       </Card>
 
       <div className="comment-area">
-       <CommentInput articleId={article.id}/>
+       <CommentInput articleId={article.id} articleTitle={article.title}/>
        <CommentList articleId={article.id}/>
        </div>
     </div>
