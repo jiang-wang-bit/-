@@ -36,7 +36,7 @@ export default function MyArticles() {
           <Button type="link" onClick={()=>navigate(`/user/articles/edit/${record.id}`)}>编辑</Button>
 
           <Popconfirm title="确定删除吗" onConfirm={()=>dispatch(deleteArticle(record.id))}>
-            <Button>删除</Button>
+            <Button type="link">删除</Button>
           </Popconfirm>
         </Space>
       )
