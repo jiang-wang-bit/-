@@ -1,7 +1,6 @@
 import { Menu } from "antd"
 import { useNavigate } from "react-router-dom"
 import "./index.scss"
-import { lazy } from "react"
 export default function FrontHeader(){
   const navigate = useNavigate()
   const items = [
@@ -10,16 +9,20 @@ export default function FrontHeader(){
       label:"首页"
     },
     {
-      key:"article",
+      key:"/article",
       label:"文章"
     },
     {
-      key:"category",
+      key:"/category",
       label:"分类"
     },
     {
-      key:"favorite",
+      key:"/user/favorite",
       label:"我的收藏"
+    },
+    {
+      key:"/user",
+      label:"用户中心"
     }
   ]
   return(

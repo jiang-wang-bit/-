@@ -20,7 +20,11 @@ import ArticleDetailFront from "../pages/Front/ArticleDetail";
 import FrontLayout from "../layouts/FrontLayout";
 import ArticleList from "../pages/Front/ArticleList";
 import CategoryArticle from "../pages/Front/CategoryArticle";
-import Favorite from "../pages/Front/Favorite";
+import UserCenter from "../pages/Front/UserCenter";
+import Profile from "../pages/Front/UserCenter/Profile";
+import MyComments from "../pages/Front/UserCenter/Comments";
+import MyArticles from "../pages/Front/UserCenter/Articles";
+import Favorite from "../pages/Front/UserCenter/Favorite";
 const router = createBrowserRouter([
 
 
@@ -61,8 +65,30 @@ const router = createBrowserRouter([
         element:<CategoryArticle/>
       },
       {
-        path:"favorite",
-        element:<Favorite/>
+        path:"user",
+        element:<UserCenter/>,
+       children:[
+        {
+          index:true,
+          element:<Profile/>
+        },
+        {
+          path:"profile",
+          element:<Profile/>
+        },
+        {
+          path:"favorite",
+          element:<Favorite/>
+        },
+        {
+          path:"comments",
+          element:<MyComments/>
+        },
+        {
+          path:"articles",
+          element:<MyArticles/>
+        }
+       ]
       }
     ]
   },
