@@ -53,9 +53,8 @@ export default function Comment(){
 ]
   return (
     <div className="comment-page">
-    <Card title="评论管理">
+     <h2>评论管理</h2>
      <Table columns={columns} dataSource={datalist} rowKey="id"></Table>
-    </Card>
     </div>
   )
 }

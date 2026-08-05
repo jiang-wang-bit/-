@@ -37,12 +37,19 @@ export default function FrontHeader(){
     {
       key:"logout",
       label:"退出登录"
+    },
+    {
+      key:"dashboard",
+      label:"返回后台"
     }
   ]
 
   const handleUserClick = ({key}:any)=>{
     if(key==="profile"){
       navigate("/user")
+    }
+    if(key==="dashboard"){
+      navigate("/admin/dashboard")
     }
     if(key==="logout"){
       dispatch(logout())
@@ -52,7 +59,6 @@ export default function FrontHeader(){
   return(
     <header className="front-header">
       <div className="logo">my logo</div>
-      <Menu mode="horizontal" items={items} onClick={({key})=>navigate(key)}/>
       <div className="header-user">
         <Dropdown menu={{items:useMenu,onClick:handleUserClick}}>
            <div className="user-info">

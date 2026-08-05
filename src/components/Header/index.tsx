@@ -14,6 +14,10 @@ export default function Header() {
     {
       key: 'logout',
       label: '退出登录'
+    },
+    {
+      key:"front",
+      label:"返回前台"
     }
   ];
   const handleClick = ({ key }: any) => {
@@ -21,6 +25,9 @@ export default function Header() {
       dispatch(logout());
       navigate('/login');
       console.log("logout")
+    }
+    if(key==="front"){
+      navigate("/")
     }
   }
   return (

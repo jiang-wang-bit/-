@@ -14,7 +14,7 @@ export default function Login() {
     const res = await loginApi(values)
     dispatch(login(res))
     message.success("登录成功")
-    navigate("/admin/dashboard")
+    navigate("/portal")
    }catch(err){
     message.error("登录失败")
    }

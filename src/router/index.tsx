@@ -27,16 +27,22 @@ import MyArticles from "../pages/Front/UserCenter/Articles";
 import Favorite from "../pages/Front/UserCenter/Favorite";
 import ArticleEdit from "../pages/Front/UserCenter/ArticleEdit";
 import MyCategory from "../pages/Front/Category";
+import Portal from "../pages/Portal";
 const router = createBrowserRouter([
 
   // 根路径
   {
     path: "/",
     element:
-      <Navigate to="/login" />
+      <Navigate to="/portal" />
   },
-
-
+  {
+    path:"/portal",
+    element:
+    <AuthGuard>
+    <Portal/>
+    </AuthGuard>
+  },
 
   // 登录
   {

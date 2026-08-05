@@ -37,8 +37,7 @@ export default function MyCategory(){
           )
           }}
           >
-
-                  
+            
           <div className="category-left">
 
           <div className="category-name">
@@ -59,7 +58,6 @@ export default function MyCategory(){
           <div className="category-arrow">
           进入 →
           </div>
-
 
           </Card>
           )
