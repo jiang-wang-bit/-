@@ -24,7 +24,6 @@ export default function Header() {
     if (key === 'logout') {
       dispatch(logout());
       navigate('/login');
-      console.log("logout")
     }
     if(key==="front"){
       navigate("/")

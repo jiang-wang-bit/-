@@ -29,7 +29,7 @@ export default function FrontHeader(){
     },
   ]
   // 用户菜单
-  const useMenu = [
+  const userMenu = [
     {
       key:"profile",
       label:"个人中心"
@@ -38,10 +38,11 @@ export default function FrontHeader(){
       key:"logout",
       label:"退出登录"
     },
+     ...(userInfo?.role==="admin"?[
     {
       key:"dashboard",
       label:"返回后台"
-    }
+    }]:[])
   ]
 
   const handleUserClick = ({key}:any)=>{
@@ -53,14 +54,15 @@ export default function FrontHeader(){
     }
     if(key==="logout"){
       dispatch(logout())
-      navigate("/")
+      navigate("/login")
     }
   }
   return(
     <header className="front-header">
       <div className="logo">my logo</div>
+      <Menu items={items} mode="horizontal" onClick={({key})=>navigate(key)}/>
       <div className="header-user">
-        <Dropdown menu={{items:useMenu,onClick:handleUserClick}}>
+        <Dropdown menu={{items:userMenu,onClick:handleUserClick}}>
            <div className="user-info">
             <Avatar size={35} src={userInfo?.avatar} icon={<UserOutlined/>}/>
             <span>{userInfo?.username||"游客"}</span>

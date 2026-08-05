@@ -28,6 +28,7 @@ import Favorite from "../pages/Front/UserCenter/Favorite";
 import ArticleEdit from "../pages/Front/UserCenter/ArticleEdit";
 import MyCategory from "../pages/Front/Category";
 import Portal from "../pages/Portal";
+import AdminGuard from "../components/AdminGuard";
 const router = createBrowserRouter([
 
   // 根路径
@@ -121,7 +122,9 @@ const router = createBrowserRouter([
 
     element:
       <AuthGuard>
+        <AdminGuard>
         <AdminLayout />
+        </AdminGuard>
       </AuthGuard>,
 
 

@@ -39,7 +39,7 @@ export default function Portal(){
 
         {
 
-        userInfo?.role==="管理员"
+        userInfo?.role==="admin"
 
         &&
         <Button

@@ -1,8 +1,9 @@
 export interface UserInfo{
   id:number
+  
  username:string;
 
- role:string;
+ role:"admin"|"user";
 
  avatar?:string;
 

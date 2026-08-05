@@ -12,7 +12,14 @@ export default function Login() {
  
    try{
     const res = await loginApi(values)
-    dispatch(login(res))
+    const userInfo = {
+      ...res.userInfo,
+      role:res.userInfo.role as "admin" | 'user'
+    }
+    dispatch(login({
+      token:res.token,
+      userInfo
+    }))
     message.success("登录成功")
     navigate("/portal")
    }catch(err){
