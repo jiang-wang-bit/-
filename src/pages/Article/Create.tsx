@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom"
 import "./create.scss"
 import { useDispatch, useSelector } from "react-redux"
 import {useState,useEffect} from "react"
+import MDEditor from "@uiw/react-md-editor"
 import type { RootState } from "../../store"
 import {getCategoryList} from "../../api/category"
 import type { CategoryType } from "../../types/category"
@@ -12,6 +13,7 @@ export default function Create(){
   const userInfo = useSelector((state:RootState)=>state.user.userInfo)
   const [form] = Form.useForm()
   const [categories,setCatgories] = useState<CategoryType[]>([])
+  const [content,setContent] = useState("")
   useEffect(()=>{
      getCategoryList().then(res=>
      {
@@ -24,7 +26,7 @@ export default function Create(){
     const article = {
       id:Date.now(),
       title:values.title,
-      content:values.content,
+      content:content,
       categoryId:values.categoryId,
       status:values.status,
       author:userInfo?.username,
@@ -47,7 +49,9 @@ export default function Create(){
          </Form.Item>
 
          <Form.Item label="文章内容" name="content" rules={[{required:true,message:"请输入内容"}]}>
-          <Input.TextArea placeholder="请输入文章内容" rows={8}/>
+        <MDEditor value={content} onChange={(value)=>{
+          setContent(value||"")
+        }}/>
          </Form.Item>
 
          <Form.Item label="状态" name="status" initialValue="发布">

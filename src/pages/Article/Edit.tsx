@@ -1,9 +1,10 @@
 import {Form,Input,Button,Select,Card,message} from "antd"
-import { useNavigate ,useParams, useSearchParams} from "react-router-dom"
-import { UseSelector,useDispatch, useSelector } from "react-redux"
+import { useNavigate ,useParams} from "react-router-dom"
+import { useDispatch, useSelector } from "react-redux"
 import { updateArticle } from "../../store/modules/article"
 import { useEffect,useState } from "react"
 import {getCategoryList} from "../../api/category"
+import MDEditor from "@uiw/react-md-editor"
 import type { CategoryType } from "../../types/category"
 export default function Edit(){
   const {id} = useParams()
@@ -20,22 +21,24 @@ export default function Edit(){
   const article = useSelector(
     (state:any)=>state.article.list.find((item:any)=>String(item.id)===String(id))
   )
+  const [content,setContent] = useState("")
     // 回填表单
   useEffect(()=>{
   if(article){
     form.setFieldsValue({
       title:article.title,
       categoryId:article.categoryId,
-      content:article.content,
       status:article.status
     })
+    setContent(article.content)
   }
-},[article])
+},[article,form])
     //  提交表单
     const submit = (values:any)=>{
     dispatch(updateArticle({
       ...article,
-      ...values
+      ...values,
+      content
   }))
     message.success("修改成功")
     navigate("/admin/article")
@@ -53,8 +56,10 @@ export default function Edit(){
            <Select options={categories.map(item=>({value:item.id,label:item.name}))} />
          </Form.Item>
 
-         <Form.Item label="文章内容" name="content" rules={[{required:true,message:"请输入内容"}]}>
-          <Input.TextArea placeholder="请输入文章内容" rows={8}/>
+         <Form.Item label="文章内容" rules={[{required:true,message:"请输入内容"}]}>
+         <MDEditor value={content} onChange={(value)=>{
+          setContent(value||"")
+         }}/>
          </Form.Item>
 
          <Form.Item label="状态" name="status" initialValue="发布">
