@@ -11,6 +11,7 @@ interface Props{
     title:string;
     desc:string,
     author:string,
+    cover:string,
     createTime:string,
     categoryId:number;
     category?:string;
@@ -28,7 +29,7 @@ export default function ArticleCard({article}:Props){
   },[])
   const category = categories.find(item=>item.id===article.categoryId)
   return(
-   <Card className="article-card" hoverable>
+   <Card className="article-card" hoverable cover={article.cover&&<img src={article.cover} className="article-cover" alt={article.title}/>}>
      <h3>
       {article.title}
       </h3>
@@ -54,7 +55,7 @@ export default function ArticleCard({article}:Props){
           {category&&
           <Tag color="blue">{category.name}</Tag>}
 
-          {article.views&&<span>阅读量:{article.views}</span>}
+          {article.views!==undefined&&<span>阅读量:{article.views}</span>}
         </div>
          
          <div className="article-action">

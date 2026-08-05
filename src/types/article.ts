@@ -10,6 +10,7 @@ export interface ArticleType {
 
  author:string;
 
+ cover:string
 
  categoryId:number;
 

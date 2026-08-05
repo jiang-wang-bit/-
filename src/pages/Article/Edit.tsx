@@ -6,12 +6,14 @@ import { useEffect,useState } from "react"
 import {getCategoryList} from "../../api/category"
 import MDEditor from "@uiw/react-md-editor"
 import type { CategoryType } from "../../types/category"
+import MarkDownEditor from "../../components/MarkDownEditor"
 export default function Edit(){
   const {id} = useParams()
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const [form] = Form.useForm()
   const [categories,setCatgories] = useState<CategoryType[]>([])
+  const [cover,setCover] = useState("")
   useEffect(()=>{
      getCategoryList().then(res=> {
       setCatgories(res)
@@ -31,6 +33,7 @@ export default function Edit(){
       status:article.status
     })
     setContent(article.content)
+    setCover(article.cover||"")
   }
 },[article,form])
     //  提交表单
@@ -38,7 +41,8 @@ export default function Edit(){
     dispatch(updateArticle({
       ...article,
       ...values,
-      content
+      content,
+      cover
   }))
     message.success("修改成功")
     navigate("/admin/article")
@@ -57,9 +61,7 @@ export default function Edit(){
          </Form.Item>
 
          <Form.Item label="文章内容" rules={[{required:true,message:"请输入内容"}]}>
-         <MDEditor value={content} onChange={(value)=>{
-          setContent(value||"")
-         }}/>
+          <MarkDownEditor value={content} onChange={setContent}/>
          </Form.Item>
 
          <Form.Item label="状态" name="status" initialValue="发布">
