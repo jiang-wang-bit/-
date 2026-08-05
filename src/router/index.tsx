@@ -26,6 +26,7 @@ import MyComments from "../pages/Front/UserCenter/Comments";
 import MyArticles from "../pages/Front/UserCenter/Articles";
 import Favorite from "../pages/Front/UserCenter/Favorite";
 import ArticleEdit from "../pages/Front/UserCenter/ArticleEdit";
+import MyCategory from "../pages/Front/Category";
 const router = createBrowserRouter([
 
   // 根路径
@@ -63,6 +64,10 @@ const router = createBrowserRouter([
       {
         path:"category/:id",
         element:<CategoryArticle/>
+      },
+      {
+        path:"category",
+        element:<MyCategory/>
       },
       {
         path:"user",
