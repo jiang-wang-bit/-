@@ -62,13 +62,50 @@ const handleBatchOffline = ()=>{
 
   const [categories,setCategories] = useState<CategoryType[]>([])
   const data= useSelector((state:any)=>state.article.list) as ArticleType []
+  const selectedArticles = data.filter(item=>selectedRowKeys.includes(item.id))
+  // 判断发布
+  const canPublish = selectedArticles.some(
+ item=>item.status==="draft" ||
+ item.status==="offline"
+)
+  // 判断下架
+  const canOffline = selectedArticles.some(
+ item=>item.status==="published"
+)
+// 删除
+ const canDelete = selectedArticles.length>0
+//  多篇操作
+ const batchItems=[]
+   if(canPublish){
+      batchItems.push({
+        key:"publish",
+        label:"批量发布"
+      })
+
+      }
+      if(canOffline){
+
+      batchItems.push({
+        key:"offline",
+        label:"批量下架"
+      })
+
+      }
+      if(canDelete){
+
+      batchItems.push({
+        key:"delete",
+        label:"批量删除"
+      })
+      }
+
 
   useEffect(()=>{
     // Assuming you have a function to fetch categories
     getCategoryList().then(res=>setCategories(res))
   },[])
 
-  const filterData = data.filter(item=>{const matchKeyword = item.title.includes(keyword)
+     const filterData = data.filter(item=>{const matchKeyword = item.title.includes(keyword)
      const matchCategory = category ?String(item.categoryId)===String(category):true
      const matchStatus = statusFilter?item.status===statusFilter:true
      return (matchKeyword&&matchCategory&&matchStatus)
@@ -137,29 +174,46 @@ const handleBatchOffline = ()=>{
     {
       title:"操作",
       render:(record:any)=>{
-       const actionItems = [
-        {
-          key:"preview",
-          label:"预览"
-        },
+     const actionItems:any[]=[
         {
           key:"edit",
           label:"编辑"
-        },
-        {
-          key:"delete",
-          label:"删除"
-        },
-        record.status==="draft"?
-        {
-          key:"publish",
-          label:"发布"
-        }:
-        {
-          key:"unpublish",
-          label:"下架"
         }
-       ]
+      ]
+      if(record.status==="draft"){
+        actionItems.push(
+          {
+            key:"preview",
+            label:"预览"
+          },
+          {
+            key:"publish",
+            label:"发布"
+          }
+        )
+      }
+      if(record.status==="publish"){
+        actionItems.push({
+          key:"offline",
+          label:"下架"
+        })
+      }
+      if(record.status==="offline"){
+        actionItems.push(
+          {
+            key:"preview",
+            label:"预览"
+          },
+          {
+            key:"publish",
+            lable:"重新发布"
+          }
+        )
+      }
+      actionItems.push({
+        key:"delete",
+        label:"删除"
+      })
        
        const handleAction = ({key}:any)=>{
         if(key==="preview"){
@@ -171,7 +225,7 @@ const handleBatchOffline = ()=>{
         if(key==="publish"){
           dispatch(publishArticle(record.id))
         }
-        if(key==="unpublish"){
+        if(key==="offline"){
           dispatch(offlineArticle(record.id))
         }
         if(key==="delete"){
@@ -205,11 +259,25 @@ const handleBatchOffline = ()=>{
           selectedRowKeys.length>0&&
           <div className="batch-action">
             <span>已选择{selectedRowKeys.length}篇文章</span>
-            <Popconfirm title="确定批量删除吗" onConfirm={handleBatchDelete}>
-              <Button danger>批量删除</Button>
-            </Popconfirm>
-            <Button type="primary" onClick={handleBatchPublish}>批量发布</Button>
-            <Button onClick={handleBatchOffline}>批量下架</Button>
+           <Dropdown menu={{
+            items:batchItems,
+            onClick:({key})=>{
+                if(key==="publish"){
+                handleBatchPublish()
+              }
+              if(key==="offline"){
+                handleBatchOffline()
+              }
+              if(key==="delete"){
+                handleBatchDelete()
+              }
+            }
+           }}>
+             <Button>
+              批量操作 ▼
+              </Button>
+
+           </Dropdown>
           </div>
         }
       </div>
