@@ -18,11 +18,6 @@ export default function UserMenu(){
       label:"个人资料"
     },
     {
-      key:"articles",
-      icon:<FileTextOutlined />,
-      label:"我的文章"
-    },
-    {
       key:"favorite",
       icon:<HeartOutlined />,
       label:"我的收藏"

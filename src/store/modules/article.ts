@@ -3,19 +3,18 @@ import type {ArticleType} from "../../types/article"
 interface ArticleState{
   list:ArticleType[];
 }
-const defaultArticles = [{
-      id:1,
-      title:"React学习",
-      desc:"react hooks学习",
-      category:"React",
-      content:"react hooks",
-      status:"发布",
-      time:"2026-07-26",
-      author:"admin",
-      views:100
-}]
+let list: ArticleType[] = []
+const str = localStorage.getItem("articles")
+if(str){
+  try {
+    list = JSON.parse(str)
+  } catch (e) {
+    // json解析失败，兜底空数组
+    list = []
+  }
+}
 const initialState:ArticleState={
-     list:JSON.parse(localStorage.getItem("articles")||JSON.stringify(defaultArticles))
+     list
 }
 const articleSlice = createSlice({
   name:"article",

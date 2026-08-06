@@ -10,44 +10,48 @@ import {
 } from "@ant-design/icons";
 import { useSelector } from 'react-redux';
 import dayjs from 'dayjs';
+import { getCategoryList } from '../../api/category';
+import { useState,useEffect } from 'react';
+import type { CategoryType } from '../../types/category';
 import PieChart from '../../components/Charts/pieCharts';
-interface Article {
-  id:number;
-  title:string;
-  category:string;
-  content:string;
-  status:string;
-  author:string;
-  time:string;
-}
+import type { ArticleType } from '../../types/article';
 export default function Dashboard(){
   // 获取文章
-  const articles = useSelector((state:any)=>state.article.list as Article[])
+  const articles = useSelector((state:any)=>state.article.list as ArticleType[])
   // 已发布文章
-  const publishArticles = articles.filter(item=>item.status==="发布")
+  const publishArticles = articles.filter(item=>item.status==="published")
   // 发布文章趋势数据
    const trendMap = publishArticles.reduce((acc:Record<string, number>,item)=>{
-    const date = dayjs(item.time).format("YYYY-MM-DD")
+    const date = dayjs(item.createTime).format("YYYY-MM-DD")
     // 数量累加
     acc[date] = (acc[date] || 0) +1
     return acc
    },{})
+  //  获取分类
+  const [categories,setCategories] = useState<CategoryType[]>([])
+  useEffect(()=>{
+       getCategoryList().then(res=>{
+        setCategories(res)
+       })
+  },[])
+
     const chartData = Object.keys(trendMap).map(date=>({
       date,
       count:trendMap[date]
     }))
+
   // 草稿文章
-  const draftArticles = articles.filter(item=>item.status==="草稿")
+  const draftArticles = articles.filter(item=>item.status==="draft")
   // 全部文章数量
   const articleCount = articles.length
   // 分类数量
-  const categoryCount = new Set(
-  articles.map(item => item.category).filter(Boolean)
-).size
+  const categoryCount = categories.length
   // 分类统计
    const categoryMap = articles.reduce((acc:any,item)=>{
-    const category = item.category
-    acc[category] = (acc[category]||0)+1
+    const category = categories.find(c=>c.id===item.categoryId)
+    if(category){
+      acc[category.name] = (acc[category.name]||0) +1
+    }
     return acc
    },{})
    const piedata = Object.keys(categoryMap).map(item=>({
@@ -65,7 +69,7 @@ export default function Dashboard(){
     },
     {
       title:"发布时间",
-      dataIndex:"time",
+      dataIndex:"createTime",
       render:(time:string)=>{
         return dayjs(time).format("YYYY-MM-DD")
       }
@@ -74,7 +78,7 @@ export default function Dashboard(){
   // 同步最近发布的文章
   const data = [...publishArticles].sort(
     (a,b)=>
-     dayjs(b.time).unix()-dayjs(a.time).unix()
+     dayjs(b.createTime).unix()-dayjs(a.createTime).unix()
   ).slice(0,5)
 
   return (
@@ -124,6 +128,7 @@ export default function Dashboard(){
        <Table columns={columns} dataSource={data} pagination={false} rowKey="id">
        </Table>
        </Card>
+
        <Row gutter={16}>
         <Col span={12}>
        <Card title="数据趋势" className='chart-card'>

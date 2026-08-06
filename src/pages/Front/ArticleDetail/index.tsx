@@ -1,5 +1,4 @@
 import {Card,Tag,Button} from "antd"
-import CommentItem from "../../../components/CommentItem"
 import CommentList from "../../../components/CommentList"
 import CommentInput from "../../../components/CommentInput"
 import {useSelector} from "react-redux"
@@ -11,18 +10,22 @@ import {increaseViews} from "../../../store/modules/article"
 import "./index.scss"
 import { useParams,useNavigate } from "react-router-dom"
 import { useState } from "react"
+import { useLocation } from "react-router-dom"
 import {getCategoryList} from "../../../api/category"
 import type { CategoryType } from "../../../types/category"
 import type { RootState } from "../../../store"
 export default function ArticleDetailFront(){
   const {id} = useParams()
+  const location = useLocation()
+  const isPreview = location.pathname.includes("/preview")
+  const userInfo = useSelector((state:RootState)=>state.user.userInfo)
   const dispatch = useDispatch()
   const navigate = useNavigate()
   useEffect(()=>{
-    if(id){
+    if(id&&!isPreview){
       dispatch(increaseViews(Number(id)))
     }
-  },[id])
+  },[id,isPreview])
   const articles = useSelector((state: RootState)=>state.article.list)
   //  收藏状态
 const favorites = useSelector((state:RootState)=>state.favorite.list)
@@ -35,7 +38,12 @@ const [categories,setCategories] = useState<CategoryType[]>([])
    const article= articles.find(item=>item.id===Number(id))
      if (!article) {
     return <Card>文章不存在</Card>
-  }
+      }
+    if(article.status==="draft"&&!isPreview&&userInfo?.role!=="admin"){
+      return(
+        <Card>文章不存在</Card>
+      )
+    }
   const recommendArticles = articles.filter(item=>item.categoryId===article?.categoryId && item.id!==article?.id).slice(0,3)
   //  获取当前文章位置
  const currentIndex = articles.findIndex(item=>item.id===article?.id)
@@ -46,10 +54,25 @@ const isFavorite = favorites.includes(article.id)
   return(
     <div className="article-detail">
       <Card>
+        <div className="article-cover-wrapper">
+         {
+          article.cover&&
+          <img src={article.cover} className="artilce-cover"/> 
+        }
+        </div>
+        {/* 标题 */}
         <h1>
      {article.title}
         </h1>
-
+        <div className="preview-wrapper">
+        {
+          isPreview&&
+          <Tag color="orange">⚠️预览模式</Tag>
+        }
+        </div>
+    
+       {
+        !isPreview&&
         <Button type={isFavorite ? "primary" : "default"} onClick={() => {
           if (isFavorite) {
             dispatch(removeFavorite(article.id))
@@ -60,6 +83,7 @@ const isFavorite = favorites.includes(article.id)
           {isFavorite ?  "❤️ 已收藏":
  "🤍 收藏文章"}
         </Button>
+         }
 
         <div className="article-info">
         <span>
@@ -94,7 +118,7 @@ const isFavorite = favorites.includes(article.id)
       </Card>
 
       <div className="article-switch">
-        <Button disabled={!prevArticle} onClick={()=>{if(prevArticle) navigate(`/article/${prevArticle.id}`)}}>上一篇</Button>
+        <Button disabled={!prevArticle} onClick={()=>{if(prevArticle) navigate(isPreview?`/article/${prevArticle.id}/preview`:`/article/${prevArticle.id}`)}}>上一篇</Button>
         <Button disabled={!nextArticle} onClick={()=>{if(nextArticle) navigate(`/article/${nextArticle.id}`)}}>下一篇</Button>
       </div>
 
@@ -108,11 +132,12 @@ const isFavorite = favorites.includes(article.id)
         )) : <p>暂无相关文章</p>
        }
       </Card>
-
+     {!isPreview&&
       <div className="comment-area">
        <CommentInput articleId={article.id} articleTitle={article.title}/>
        <CommentList articleId={article.id}/>
        </div>
+     }
     </div>
   )
 }

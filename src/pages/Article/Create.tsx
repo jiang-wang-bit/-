@@ -33,7 +33,8 @@ export default function Create(){
       categoryId:values.categoryId,
       status:values.status,
       author:userInfo?.username,
-      createTime:new Date().toISOString()
+      createTime:new Date().toISOString(),
+      views:0
     }
     dispatch(addArticle(article))
     message.success("文章创建成功")
@@ -57,7 +58,7 @@ export default function Create(){
             return false
           }}>
             {
-              cover?<img src={cover} style={{width:240,height:140,objectFit:"cover"}}/>:<Button>上传封面</Button>
+              cover?<img src={cover} style={{width:240,height:140,objectFit:"cover",borderRadius:8}}/>:<Button>上传封面</Button>
             }
           </Upload>
          </Form.Item>
@@ -70,10 +71,10 @@ export default function Create(){
         <MarkDownEditor value={content} onChange={setContent}/>
          </Form.Item>
 
-         <Form.Item label="状态" name="status" initialValue="发布">
+         <Form.Item label="状态" name="status" initialValue="published">
           <Select options={[
-            {value:"发布",label:"发布"},
-            {value:"草稿",label:"草稿"}
+            {value:"published",label:"发布"},
+            {value:"draft",label:"草稿"}
           ]}/>
          </Form.Item>
          <Button type="primary" htmlType="submit" className="save-btn">保存文章</Button>

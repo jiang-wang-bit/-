@@ -6,26 +6,18 @@ import { deleteArticle } from "../../store/modules/article"
 import { useState,useEffect} from "react"
 import { getCategoryList } from "../../api/category"
 import type { CategoryType } from "../../types/category"
+import type { ArticleType } from "../../types/article"
 import dayjs from "dayjs"
 export default function Article(){
-  interface Article {
-  id:number;
-  title:string;
-  categoryId:number;
-  content:string;
-  status:string;
-  author:string;
-  createTime:string;
-}
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const [keyword,setKeyword] = useState("")
-  const [status,setStatus] = useState("")
+  const [statusFilter,setStatusFilter] = useState("")
   const [category,setCategory] = useState("")
   const [page,setPage] = useState(1)
   const [pageSize,setPageSize] = useState(10)
   const [categories,setCategories] = useState<CategoryType[]>([])
-  const data= useSelector((state:any)=>state.article.list) as Article []
+  const data= useSelector((state:any)=>state.article.list) as ArticleType []
 
   useEffect(()=>{
     // Assuming you have a function to fetch categories
@@ -34,7 +26,7 @@ export default function Article(){
 
   const filterData = data.filter(item=>{const matchKeyword = item.title.includes(keyword)
      const matchCategory = category ?String(item.categoryId)===String(category):true
-     const matchStatus = status?item.status===status:true
+     const matchStatus = statusFilter?item.status===statusFilter:true
      return (matchKeyword&&matchCategory&&matchStatus)
 })
   const tableData = filterData.slice((page-1)*pageSize,page*pageSize)
@@ -45,7 +37,10 @@ export default function Article(){
     },
     {
       title:"文章标题",
-      dataIndex:"title"
+      dataIndex:"title",
+      render:(title:string,record:any)=>(
+        <Button onClick={()=>navigate(`/article/${record.id}`)}>{title}</Button>
+      )
     },
     {
       title:"作者",
@@ -67,8 +62,12 @@ export default function Article(){
      title:"状态",
      dataIndex:"status",
      render:(text:string)=>(
-      <Tag color={text==="发布"?"green":"orange"}>
-        {text}
+      <Tag color={text==="published"?"green":"orange"}>
+        {
+      text==="published"
+      ?"发布"
+      :"草稿"
+       }
       </Tag>
      )
     },
@@ -83,6 +82,13 @@ export default function Article(){
       title:"操作",
       render:(record:any)=>(
         <Space>
+          {
+            record.status==="draft"&&
+            <Button type="link" onClick={(e)=>{
+              e.stopPropagation()
+              navigate(`/article/${record.id}/preview`)
+            }}>预览</Button>
+          }
         <Button type="link" onClick={(e)=> {e.stopPropagation()
           navigate(`/admin/article/edit/${record.id}`)}}>
         编辑
@@ -108,12 +114,12 @@ export default function Article(){
         <Select placeholder="选择分类" allowClear options={categories.map(item=>({label:item.name,value:item.id}))} onChange={value=>{setCategory(value||"")
           setPage(1)
         }}></Select>
-        <Select placeholder="文章状态" allowClear options={[{label:"发布",value:"发布"},{label:"草稿",value:"草稿"}]} onChange={value=>{setStatus(value||"")
+        <Select placeholder="文章状态" allowClear options={[{label:"发布",value:"发布"},{label:"草稿",value:"草稿"}]} onChange={value=>{setStatusFilter(value||"")
           setPage(1)
         }}></Select>
         <Button type="primary" onClick={()=>navigate("/admin/article/create")}>新增文章</Button>
       </div>
-    <Table columns={columns} dataSource={tableData} rowKey="id" onRow={(record)=>{return{onClick:()=>{navigate(`/article/${record.id}`)}}}}pagination={{current:page,pageSize:pageSize,total:filterData.length,onChange:(page,pageSize)=>{setPage(page)
+    <Table columns={columns} dataSource={tableData} rowKey="id" pagination={{current:page,pageSize:pageSize,total:filterData.length,onChange:(page,pageSize)=>{setPage(page)
       setPageSize(pageSize)}}} />
      </div>
 

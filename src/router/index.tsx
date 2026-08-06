@@ -23,9 +23,7 @@ import CategoryArticle from "../pages/Front/CategoryArticle";
 import UserCenter from "../pages/Front/UserCenter";
 import Profile from "../pages/Front/UserCenter/Profile";
 import MyComments from "../pages/Front/UserCenter/Comments";
-import MyArticles from "../pages/Front/UserCenter/Articles";
 import Favorite from "../pages/Front/UserCenter/Favorite";
-import ArticleEdit from "../pages/Front/UserCenter/ArticleEdit";
 import MyCategory from "../pages/Front/Category";
 import Portal from "../pages/Portal";
 import AdminGuard from "../components/AdminGuard";
@@ -69,6 +67,10 @@ const router = createBrowserRouter([
         element:<ArticleDetailFront/>
       },
       {
+        path:"article/:id/preview",
+        element:<ArticleDetailFront/>
+      },
+      {
         path:"category/:id",
         element:<CategoryArticle/>
       },
@@ -98,14 +100,6 @@ const router = createBrowserRouter([
         {
           path:"comments",
           element:<MyComments/>
-        },
-        {
-          path:"articles",
-          element:<MyArticles/>
-        },
-        {
-          path:"articles/edit/:id",
-          element:<ArticleEdit/>
         }
        ]
       }

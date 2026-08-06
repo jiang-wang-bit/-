@@ -13,6 +13,7 @@ export default function Home(){
 
   const articles = useSelector((state:RootState)=>state.article.list)
   const hotArticles = [...articles].sort((a,b)=>b.views-a.views).slice(0,5)
+  const latestArticles = [...articles].sort((a,b)=>{return new Date(b.createTime).getTime()-new Date(a.createTime).getTime()}).slice(0,5)
   const [categories,setCategories] = useState<CategoryType[]>([])
   const navigate = useNavigate()
   useEffect(()=>{
@@ -27,14 +28,14 @@ export default function Home(){
       <Input.Search placeholder="搜索文章" onSearch={(value)=>{
         navigate(`/article?keyword=${value}`)
       }} style={{ marginBottom: 16,width:300 }}/>
-      
+
       <Banner/>
       
       <section className="article-wrapper">
         <div className="latest-section">
          <h2>最新文章</h2>
          {
-          articles.slice(0,5).map(item=>(
+          latestArticles.map(item=>(
             <ArticleCard key={item.id} article={item}/>
           ))
          }

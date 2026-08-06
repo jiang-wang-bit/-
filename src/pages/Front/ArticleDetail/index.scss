@@ -5,7 +5,10 @@ max-width:900px;
 
 margin:30px auto;
 
-
+.preview-wrapper{
+  display: flex;
+  justify-content: center;
+}
 
 .article-info{
 
@@ -21,7 +24,26 @@ margin:20px 0;
 
 }
 
+.article-cover-wrapper{
+  width:100%;
+  display:flex;
+  justify-content:center;
+}
 
+.article-cover{
+
+width:700px;
+
+height:400px;
+
+object-fit:cover;
+
+border-radius:12px;
+
+margin-bottom:20px;
+
+
+}
 
 .article-content{
 

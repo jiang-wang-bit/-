@@ -20,7 +20,7 @@ export default function Favorite() {
             {
               favoriteArticles.map(item=>(
                 <Card key={item.id}>
-                   <h3>{item.title}</h3>
+                   <h3>标题: {item.title}</h3>
                    <p>{item.content.slice(0,100)}</p>
                    <Button type="link" onClick={()=>navigate(`/article/${item.id}`)}>
                   查看文章 </Button>
