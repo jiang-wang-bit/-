@@ -46,9 +46,22 @@ const articleSlice = createSlice({
           article.views = (article.views||0)+1
         }
         localStorage.setItem("articles",JSON.stringify(state.list))
+      },
+      publishArticle:(state,action)=>{
+         const article = state.list.find(item=>item.id===action.payload)
+         if(article)
+         {
+          article.status="published"
+         }
+      },
+      unpublishArticle:(state,action)=>{
+         const article = state.list.find(item=>item.id===action.payload)
+         if(article){
+          article.status="draft"
+         }
       }
   }
 
 })
-export const{addArticle,deleteArticle,updateArticle,increaseViews} = articleSlice.actions
+export const{addArticle,deleteArticle,updateArticle,increaseViews,unpublishArticle,publishArticle} = articleSlice.actions
 export default articleSlice.reducer

@@ -28,13 +28,13 @@ export default function ArticleDetailFront(){
   },[id,isPreview])
   const articles = useSelector((state: RootState)=>state.article.list)
   //  收藏状态
-const favorites = useSelector((state:RootState)=>state.favorite.list)
-const [categories,setCategories] = useState<CategoryType[]>([])
- useEffect(()=>{
-      getCategoryList().then(res=>{ 
-        setCategories(res)
-      })
-  },[])
+    const favorites = useSelector((state:RootState)=>state.favorite.list)
+    const [categories,setCategories] = useState<CategoryType[]>([])
+    useEffect(()=>{
+          getCategoryList().then(res=>{ 
+            setCategories(res)
+          })
+      },[])
    const article= articles.find(item=>item.id===Number(id))
      if (!article) {
     return <Card>文章不存在</Card>
@@ -49,8 +49,8 @@ const [categories,setCategories] = useState<CategoryType[]>([])
  const currentIndex = articles.findIndex(item=>item.id===article?.id)
  const prevArticle = articles[currentIndex-1]
  const nextArticle = articles[currentIndex+1]
-const isFavorite = favorites.includes(article.id)
-  const category = categories.find(item=>item.id===article?.categoryId)
+ const isFavorite = favorites.includes(article.id)
+ const category = categories.find(item=>item.id===article?.categoryId)
   return(
     <div className="article-detail">
       <Card>
@@ -67,8 +67,9 @@ const isFavorite = favorites.includes(article.id)
         <div className="preview-wrapper">
         {
           isPreview&&
-          <Tag color="orange">⚠️预览模式</Tag>
+          <Tag color="orange" className="tag-preview">预览模式</Tag>
         }
+        <Button type="link" onClick={()=>navigate("/admin/article")}>退出预览</Button>
         </div>
     
        {

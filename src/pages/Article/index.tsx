@@ -1,9 +1,10 @@
-import {Table,Button,Tag,Space,Popconfirm,Input,Select} from "antd"
+import {Table,Button,Tag,Space,Popconfirm,Input,Select,Dropdown} from "antd"
 import './index.scss'
 import { useDispatch, useSelector } from "react-redux"
 import { useNavigate } from "react-router-dom"
 import { deleteArticle } from "../../store/modules/article"
 import { useState,useEffect} from "react"
+import { publishArticle,unpublishArticle } from "../../store/modules/article"
 import { getCategoryList } from "../../api/category"
 import type { CategoryType } from "../../types/category"
 import type { ArticleType } from "../../types/article"
@@ -65,7 +66,7 @@ export default function Article(){
       <Tag color={text==="published"?"green":"orange"}>
         {
       text==="published"
-      ?"发布"
+      ?"已发布"
       :"草稿"
        }
       </Tag>
@@ -80,27 +81,54 @@ export default function Article(){
     },
     {
       title:"操作",
-      render:(record:any)=>(
-        <Space>
-          {
-            record.status==="draft"&&
-            <Button type="link" onClick={(e)=>{
-              e.stopPropagation()
-              navigate(`/article/${record.id}/preview`)
-            }}>预览</Button>
-          }
-        <Button type="link" onClick={(e)=> {e.stopPropagation()
-          navigate(`/admin/article/edit/${record.id}`)}}>
-        编辑
-        </Button>
-        <Popconfirm title="确定删除这篇文章吗" onConfirm={()=>dispatch(deleteArticle(record.id))}>
-        <Button danger type="link" onClick={(e)=>{e.stopPropagation()}}>
-          删除
-        </Button>
-        </Popconfirm>
-
-        </Space>
-      )
+      render:(record:any)=>{
+       const actionItems = [
+        {
+          key:"preview",
+          label:"预览"
+        },
+        {
+          key:"edit",
+          label:"编辑"
+        },
+        {
+          key:"delete",
+          label:"删除"
+        },
+        record.status==="draft"?
+        {
+          key:"publish",
+          label:"发布"
+        }:
+        {
+          key:"unpublish",
+          label:"下架"
+        }
+       ]
+       
+       const handleAction = ({key}:any)=>{
+        if(key==="preview"){
+          navigate(`/article/preview/${record.id}`)
+        }
+        if(key==="edit"){
+          navigate(`/admin/article/edit/${record.id}`)
+        }
+        if(key==="publish"){
+          dispatch(publishArticle(record.id))
+        }
+        if(key==="unpublish"){
+          dispatch(unpublishArticle(record.id))
+        }
+        if(key==="delete"){
+          dispatch(deleteArticle(record.id))
+        }
+       }
+       return(
+        <Dropdown menu={{items:actionItems,onClick:handleAction}}>
+           <Button size="small">更多 ▼</Button>
+        </Dropdown>
+       )
+      }
     }
    ]
 
