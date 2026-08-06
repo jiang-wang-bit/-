@@ -16,7 +16,7 @@ export interface ArticleType {
 
  views:number;
 
- status:"published"|"draft";
+ status:"published"|"draft"|"offline";
 
  createTime:string;
 

@@ -17,7 +17,7 @@ export default function ArticleList(){
    params.get("keyword") || ""
   )
  },[params])
-  const articles = useSelector((state:RootState)=>state.article.list)
+  const articles = useSelector((state:RootState)=>state.article.list).filter(item=>item.status==="published")
   const filterData = articles.filter(item=>{
     const matchKeyword = keyword.trim()?(item.title.includes(keyword) )|| (item.content.includes(keyword)):true
     const matchCategory = category?(item.categoryId)===(category):true

@@ -10,7 +10,7 @@ import type {ArticleType} from "../../../types/article"
 export default function CategoryArticle(){
   const {id} = useParams()
   const navigate = useNavigate()
-  const articles = useSelector((state: RootState) => state.article.list) as ArticleType[]
+  const articles = useSelector((state: RootState) => state.article.list).filter(item=>item.status==="published") as ArticleType[]
   const [category,setCategory] = useState<CategoryType>()
   useEffect(()=>{
     if(id){

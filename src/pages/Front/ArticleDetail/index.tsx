@@ -39,7 +39,7 @@ export default function ArticleDetailFront(){
      if (!article) {
     return <Card>文章不存在</Card>
       }
-    if(article.status==="draft"&&!isPreview&&userInfo?.role!=="admin"){
+    if(article.status==="draft"||article.status==="offline"&&!isPreview&&userInfo?.role!=="admin"){
       return(
         <Card>文章不存在</Card>
       )
@@ -64,14 +64,15 @@ export default function ArticleDetailFront(){
         <h1>
      {article.title}
         </h1>
-        <div className="preview-wrapper">
         {
-          isPreview&&
+         isPreview&&
+          <div className="preview-wrapper">
           <Tag color="orange" className="tag-preview">预览模式</Tag>
-        }
-        <Button type="link" onClick={()=>navigate("/admin/article")}>退出预览</Button>
+          <Button type="link" onClick={()=>navigate("/admin/article")}>退出预览</Button>
         </div>
-    
+  
+        }
+      
        {
         !isPreview&&
         <Button type={isFavorite ? "primary" : "default"} onClick={() => {
@@ -120,14 +121,14 @@ export default function ArticleDetailFront(){
 
       <div className="article-switch">
         <Button disabled={!prevArticle} onClick={()=>{if(prevArticle) navigate(isPreview?`/article/${prevArticle.id}/preview`:`/article/${prevArticle.id}`)}}>上一篇</Button>
-        <Button disabled={!nextArticle} onClick={()=>{if(nextArticle) navigate(`/article/${nextArticle.id}`)}}>下一篇</Button>
+        <Button disabled={!nextArticle} onClick={()=>{if(nextArticle) navigate(isPreview?`/article/${nextArticle.id}/preview`:`/article/${nextArticle.id}`)}}>下一篇</Button>
       </div>
 
       {/* 相关文章推荐 */}
       <Card title="相关文章推荐" className="recommend-card">
        {
         recommendArticles.length>0?recommendArticles.map(item=>(
-          <div key={item.id} className="recommend-item" onClick={()=>navigate(`/article/${item.id}`)}>
+          <div key={item.id} className="recommend-item" onClick={()=>navigate(isPreview?`/article/${item.id}/preview`:`/article/${item.id}`)}>
             {item.title}
           </div>
         )) : <p>暂无相关文章</p>

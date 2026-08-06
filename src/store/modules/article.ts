@@ -16,6 +16,12 @@ if(str){
 const initialState:ArticleState={
      list
 }
+const saveArticles=(list:ArticleType[])=>{
+  localStorage.setItem(
+    "articles",
+    JSON.stringify(list)
+  )
+}
 const articleSlice = createSlice({
   name:"article",
   initialState,
@@ -26,18 +32,18 @@ const articleSlice = createSlice({
           views:action.payload.views||0
         })
 
-        localStorage.setItem("articles",JSON.stringify(state.list))
+       saveArticles(state.list)
       },
       deleteArticle:(state,action)=>{
         state.list = state.list.filter(item=>String(item.id)!==String(action.payload))
-        localStorage.setItem("articles",JSON.stringify(state.list))
+       saveArticles(state.list)
       },
       updateArticle:(state,action)=>{
         const index = state.list.findIndex(item=>item.id === action.payload.id)
         if (index!==-1){
           state.list[index] = action.payload
         }
-        localStorage.setItem("articles",JSON.stringify(state.list))
+        saveArticles(state.list)
       },
       // 增加阅读量
       increaseViews:(state,action)=>{
@@ -45,23 +51,27 @@ const articleSlice = createSlice({
         if(article){
           article.views = (article.views||0)+1
         }
-        localStorage.setItem("articles",JSON.stringify(state.list))
+        saveArticles(state.list)
       },
+      // 发布
       publishArticle:(state,action)=>{
          const article = state.list.find(item=>item.id===action.payload)
          if(article)
          {
           article.status="published"
          }
+        saveArticles(state.list)
       },
-      unpublishArticle:(state,action)=>{
+      // 下架
+      offlineArticle:(state,action)=>{
          const article = state.list.find(item=>item.id===action.payload)
          if(article){
-          article.status="draft"
+          article.status="offline"
          }
+       saveArticles(state.list)
       }
   }
 
 })
-export const{addArticle,deleteArticle,updateArticle,increaseViews,unpublishArticle,publishArticle} = articleSlice.actions
+export const{addArticle,deleteArticle,updateArticle,increaseViews,offlineArticle,publishArticle} = articleSlice.actions
 export default articleSlice.reducer

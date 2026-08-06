@@ -9,7 +9,7 @@ import "./index.scss"
 export default function MyCategory(){
   const navigate = useNavigate()
   const [categories,setCategories] = useState<CategoryType[]>([])
-  const articles = useSelector((state:RootState)=>state.article.list)
+  const articles = useSelector((state:RootState)=>state.article.list).filter(item=>item.status==="published")
   useEffect(()=>{
     getCategoryList().then(res=>{
       setCategories(res)

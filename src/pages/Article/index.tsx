@@ -1,10 +1,10 @@
-import {Table,Button,Tag,Space,Popconfirm,Input,Select,Dropdown} from "antd"
+import {Table,Button,Tag,Space,Popconfirm,Input,Select,Dropdown, message} from "antd"
 import './index.scss'
 import { useDispatch, useSelector } from "react-redux"
 import { useNavigate } from "react-router-dom"
 import { deleteArticle } from "../../store/modules/article"
 import { useState,useEffect} from "react"
-import { publishArticle,unpublishArticle } from "../../store/modules/article"
+import { publishArticle,offlineArticle } from "../../store/modules/article"
 import { getCategoryList } from "../../api/category"
 import type { CategoryType } from "../../types/category"
 import type { ArticleType } from "../../types/article"
@@ -17,6 +17,49 @@ export default function Article(){
   const [category,setCategory] = useState("")
   const [page,setPage] = useState(1)
   const [pageSize,setPageSize] = useState(10)
+  // 批量删除
+  const [selectedRowKeys,setSelectedRowKeys] = useState<number[]>([])
+  // 批量删除函数
+  const handleBatchDelete = ()=>{
+    if(selectedRowKeys.length===0){
+      message.warning("请选择文章")
+      return
+    }
+    selectedRowKeys.forEach(id=>{
+      dispatch(deleteArticle(id))
+    })
+    message.success(`删除${selectedRowKeys.length}篇文章成功`)
+    setSelectedRowKeys([])
+  }
+
+// 批量发布函数
+const handleBatchPublish = ()=>{
+  if(selectedRowKeys.length===0){
+    message.warning("请选择文章")
+    return
+  }
+  selectedRowKeys.forEach(id=>{
+    dispatch(publishArticle(id))
+  })
+   message.success(
+  "批量发布成功")
+ setSelectedRowKeys([])
+}
+
+// 批量下架函数
+const handleBatchOffline = ()=>{
+  if(selectedRowKeys.length===0){
+    message.warning("请选择文章")
+    return
+  }
+  selectedRowKeys.forEach(id=>{
+    dispatch(offlineArticle(id))
+  })
+  message.success(`成功下架${selectedRowKeys.length}篇文章`)
+  setSelectedRowKeys([])
+}
+
+
   const [categories,setCategories] = useState<CategoryType[]>([])
   const data= useSelector((state:any)=>state.article.list) as ArticleType []
 
@@ -62,15 +105,27 @@ export default function Article(){
     {
      title:"状态",
      dataIndex:"status",
-     render:(text:string)=>(
-      <Tag color={text==="published"?"green":"orange"}>
-        {
-      text==="published"
-      ?"已发布"
-      :"草稿"
-       }
-      </Tag>
-     )
+     render:(text:string)=>{
+      let color = ""
+      let label = ""
+      switch(text){
+        case "published":
+          color="green"
+          label="已发布"
+          break;
+        case "draft":
+          color="orange"
+          label="草稿"
+          break;
+        case "offline":
+          color="red"
+          label="已下架"
+          break;
+      }
+         return(
+        <Tag color={color}>{label}</Tag>
+      )
+     }
     },
     {
       title:"发布时间",
@@ -117,7 +172,7 @@ export default function Article(){
           dispatch(publishArticle(record.id))
         }
         if(key==="unpublish"){
-          dispatch(unpublishArticle(record.id))
+          dispatch(offlineArticle(record.id))
         }
         if(key==="delete"){
           dispatch(deleteArticle(record.id))
@@ -146,9 +201,25 @@ export default function Article(){
           setPage(1)
         }}></Select>
         <Button type="primary" onClick={()=>navigate("/admin/article/create")}>新增文章</Button>
+        {
+          selectedRowKeys.length>0&&
+          <div className="batch-action">
+            <span>已选择{selectedRowKeys.length}篇文章</span>
+            <Popconfirm title="确定批量删除吗" onConfirm={handleBatchDelete}>
+              <Button danger>批量删除</Button>
+            </Popconfirm>
+            <Button type="primary" onClick={handleBatchPublish}>批量发布</Button>
+            <Button onClick={handleBatchOffline}>批量下架</Button>
+          </div>
+        }
       </div>
     <Table columns={columns} dataSource={tableData} rowKey="id" pagination={{current:page,pageSize:pageSize,total:filterData.length,onChange:(page,pageSize)=>{setPage(page)
-      setPageSize(pageSize)}}} />
+      setPageSize(pageSize)}}} rowSelection={{selectedRowKeys,
+        onChange:(keys)=>{
+         setSelectedRowKeys(
+     keys.map(key=>Number(key))
+   )
+      }}}/>
      </div>
 
   )

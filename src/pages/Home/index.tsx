@@ -11,7 +11,7 @@ import CategoryCard from "./components/CategoryCard"
 import "./index.scss"
 export default function Home(){
 
-  const articles = useSelector((state:RootState)=>state.article.list)
+  const articles = useSelector((state:RootState)=>state.article.list).filter(item=>item.status==="published")
   const hotArticles = [...articles].sort((a,b)=>b.views-a.views).slice(0,5)
   const latestArticles = [...articles].sort((a,b)=>{return new Date(b.createTime).getTime()-new Date(a.createTime).getTime()}).slice(0,5)
   const [categories,setCategories] = useState<CategoryType[]>([])
