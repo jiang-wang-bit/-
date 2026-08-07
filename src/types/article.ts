@@ -16,7 +16,11 @@ export interface ArticleType {
 
  views:number;
 
- status:"published"|"draft"|"offline";
+ status:"published"|"draft"|"offline"|"trash";
+
+
+ beforeDeleteStatus?:
+  Exclude<ArticleType["status"],"trash">;
 
  createTime:string;
 

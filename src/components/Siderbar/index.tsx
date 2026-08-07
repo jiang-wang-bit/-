@@ -6,6 +6,7 @@ import {
   FileTextOutlined,
   UserOutlined,
   AppstoreOutlined,
+  DeleteOutlined ,
    MessageOutlined
 } from "@ant-design/icons";
 const {Sider} = Layout;
@@ -34,6 +35,11 @@ const items = [
     key:"/admin/comment",
     icon:<MessageOutlined/>,
     label:"评论管理"
+  },
+  {
+    key:"/admin/trash",
+    icon:<DeleteOutlined/>,
+    label:"回收站"
   }
 ]
 export default function Sidebar(){

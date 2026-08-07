@@ -27,6 +27,7 @@ import Favorite from "../pages/Front/UserCenter/Favorite";
 import MyCategory from "../pages/Front/Category";
 import Portal from "../pages/Portal";
 import AdminGuard from "../components/AdminGuard";
+import Trash from "../pages/Trash";
 const router = createBrowserRouter([
 
   // 根路径
@@ -190,6 +191,10 @@ const router = createBrowserRouter([
       {
         path: "comment",
         element: <Comment />
+      },
+      {
+        path:"trash",
+        element:<Trash/>
       }
 
 

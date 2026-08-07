@@ -8,6 +8,7 @@ import { publishArticle,offlineArticle } from "../../store/modules/article"
 import { getCategoryList } from "../../api/category"
 import type { CategoryType } from "../../types/category"
 import type { ArticleType } from "../../types/article"
+import type { RootState } from "../../store"
 import dayjs from "dayjs"
 export default function Article(){
   const navigate = useNavigate()
@@ -61,7 +62,7 @@ const handleBatchOffline = ()=>{
 
 
   const [categories,setCategories] = useState<CategoryType[]>([])
-  const data= useSelector((state:any)=>state.article.list) as ArticleType []
+  const data= useSelector((state:RootState)=>state.article.list).filter(item=>item.status!=="trash")
   const selectedArticles = data.filter(item=>selectedRowKeys.includes(item.id))
   // 判断发布
   const canPublish = selectedArticles.some(
@@ -192,7 +193,7 @@ const handleBatchOffline = ()=>{
           }
         )
       }
-      if(record.status==="publish"){
+      if(record.status==="published"){
         actionItems.push({
           key:"offline",
           label:"下架"
@@ -206,13 +207,13 @@ const handleBatchOffline = ()=>{
           },
           {
             key:"publish",
-            lable:"重新发布"
+            label:"重新发布"
           }
         )
       }
       actionItems.push({
         key:"delete",
-        label:"删除"
+        label:"移入回收站"
       })
        
        const handleAction = ({key}:any)=>{
@@ -251,7 +252,7 @@ const handleBatchOffline = ()=>{
         <Select placeholder="选择分类" allowClear options={categories.map(item=>({label:item.name,value:item.id}))} onChange={value=>{setCategory(value||"")
           setPage(1)
         }}></Select>
-        <Select placeholder="文章状态" allowClear options={[{label:"发布",value:"发布"},{label:"草稿",value:"草稿"}]} onChange={value=>{setStatusFilter(value||"")
+        <Select placeholder="文章状态" allowClear options={[{label:"发布",value:"published"},{label:"草稿",value:"draft"}]} onChange={value=>{setStatusFilter(value||"")
           setPage(1)
         }}></Select>
         <Button type="primary" onClick={()=>navigate("/admin/article/create")}>新增文章</Button>

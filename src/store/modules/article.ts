@@ -34,8 +34,20 @@ const articleSlice = createSlice({
 
        saveArticles(state.list)
       },
+      // 移动到回收站
       deleteArticle:(state,action)=>{
-        state.list = state.list.filter(item=>String(item.id)!==String(action.payload))
+       const article = state.list.find(item=>item.id===action.payload)
+       if(article){
+        if(article.status!=="trash"){
+        article.beforeDeleteStatus=article.status
+      }
+        article.status="trash"
+       }
+       saveArticles(state.list)
+      },
+      // 彻底删除
+      forceDeleteArticle:(state,action)=>{
+         state.list = state.list.filter(item=>String(item.id)!==String(action.payload))
        saveArticles(state.list)
       },
       updateArticle:(state,action)=>{
@@ -73,5 +85,5 @@ const articleSlice = createSlice({
   }
 
 })
-export const{addArticle,deleteArticle,updateArticle,increaseViews,offlineArticle,publishArticle} = articleSlice.actions
+export const{addArticle,deleteArticle,updateArticle,increaseViews,offlineArticle,publishArticle,forceDeleteArticle} = articleSlice.actions
 export default articleSlice.reducer
