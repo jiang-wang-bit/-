@@ -37,3 +37,33 @@ export function updateArticleStatus(id:number,status:string){
     }
   )
 }
+// 获取点赞状态api
+export async function getLikeStatus(id:number){
+  const res = await request.get(`/article/${id}/like`)
+  return res.data
+}
+// 点赞
+export async function likeArticle(id:number){
+  const res = await request.post(`/article/${id}/like`)
+  return res.data
+}
+// 取消点赞
+export async function unlikeArticle(id:number){
+  const res = await request.delete(`/article/${id}/like`)
+  return res.data
+}
+//获取收藏状态
+export async function getFavoriteStatus(id:number){
+  const res = await request.get(`/article/${id}/favorite`)
+  return res.data
+}
+// 收藏文章
+export async function favoriteArticle(id:number){
+  const res = await request.post(`/article/${id}/favorite`)
+  return res.data
+}
+// 取消收藏
+export async function unfavoriteArticle(id:number){
+  const res = await request.delete(`/article/${id}/favorite`)
+  return res.data
+}

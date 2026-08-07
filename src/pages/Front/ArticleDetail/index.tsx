@@ -4,9 +4,8 @@ import CommentInput from "../../../components/CommentInput"
 import {useSelector} from "react-redux"
 import {useDispatch} from "react-redux"
 import {useEffect} from "react"
-import { getArticleDetail,getArticleList } from "../../../api/article"
+import { getArticleDetail,getArticleList,getLikeStatus,unlikeArticle,likeArticle,getFavoriteStatus,unfavoriteArticle,favoriteArticle } from "../../../api/article"
 import ReactMarkdown from "react-markdown"
-import { addFavorite,removeFavorite } from "../../../store/modules/favorite"
 import {increaseViews} from "../../../store/modules/article"
 import "./index.scss"
 import { useParams,useNavigate } from "react-router-dom"
@@ -21,8 +20,12 @@ export default function ArticleDetailFront(){
   const location = useLocation()
   const isPreview = location.pathname.includes("/preview")
   const userInfo = useSelector((state:RootState)=>state.user.userInfo)
-  const dispatch = useDispatch()
   const navigate = useNavigate()
+    // 文章点赞
+    const [liked,setLiked] = useState(false)
+    const [likeCount,setLikeCount] = useState(0)
+    // 文章收藏
+    const [favorited,setFavorited] = useState(false)
 
   // useEffect(()=>{
   //   if(id&&!isPreview){
@@ -30,10 +33,18 @@ export default function ArticleDetailFront(){
   //   }
   // },[id,isPreview])
   // const articles = useSelector((state: RootState)=>state.article.list)
-  //  收藏状态
-    const favorites = useSelector((state:RootState)=>state.favorite.list)
     const [categories,setCategories] = useState<CategoryType[]>([])
-  const [articles,setArticles] = useState<ArticleType[]>([])
+    const [articles,setArticles] = useState<ArticleType[]>([])
+     const visibelArticles = articles.filter(item=>item.status==="published")
+   const [article,setArticle] = useState<ArticleType|null>(null)
+  //  获取文章
+     useEffect(()=>{
+     if(!id) return
+     getArticleDetail(Number(id)).then(res=>
+      setArticle(res)
+     )
+    },[id])
+    // 获取分类以及所有文章
     useEffect(()=>{
           getCategoryList().then(res=>{ 
             setCategories(res)
@@ -44,17 +55,17 @@ export default function ArticleDetailFront(){
           }
           )
       },[])
-      const visibelArticles = articles.filter(item=>item.status==="published")
-  //  const article= articles.find(item=>item.id===Number(id))
-    //  获取文章
- 
-    const [article,setArticle] = useState<ArticleType|null>(null)
-    useEffect(()=>{
-     if(!id) return
-     getArticleDetail(Number(id)).then(res=>
-      setArticle(res)
-     )
-    },[id])
+     // 文章点赞+点赞
+     useEffect(()=>{
+        if(!article) return
+        Promise.all([getFavoriteStatus(article.id),getLikeStatus(article.id)]).then(([like,favorite])=>{
+          setLiked(like.liked)
+          setLikeCount(like.count)
+          setFavorited(favorite.favorited)
+    
+        })
+     },[article])
+
 
      if (!article) {
     return <Card>文章不存在</Card>
@@ -69,7 +80,6 @@ export default function ArticleDetailFront(){
  const currentIndex = visibelArticles.findIndex(item=>item.id===article?.id)
  const prevArticle = visibelArticles[currentIndex-1]
  const nextArticle = visibelArticles[currentIndex+1]
- const isFavorite = favorites.includes(article.id)
  const category = categories.find(item=>item.id===article?.categoryId)
   return(
     <div className="article-detail">
@@ -84,28 +94,43 @@ export default function ArticleDetailFront(){
         <h1>
      {article.title}
         </h1>
+        {/* 预览模式 */}
         {
          isPreview&&
           <div className="preview-wrapper">
           <Tag color="orange" className="tag-preview">预览模式</Tag>
           <Button type="link" onClick={()=>navigate("/admin/article")}>退出预览</Button>
         </div>
-  
         }
-      
-       {
-        !isPreview&&
-        <Button type={isFavorite ? "primary" : "default"} onClick={() => {
-          if (isFavorite) {
-            dispatch(removeFavorite(article.id))
-          } else {
-            dispatch(addFavorite(article.id))
+        {/* 收藏按钮 */}
+        <Button type={favorited?"primary":"default"} onClick={async()=>{
+          if(favorited){
+            const res = await unfavoriteArticle(article.id)
+            setFavorited(res.favorited)
+          }else{
+            const res = await favoriteArticle(article.id)
+            setFavorited(res.favorited)
           }
         }}>
-          {isFavorite ?  "❤️ 已收藏":
- "🤍 收藏文章"}
+          {favorited?"❤️ 已收藏":"🤍 收藏文章"}
         </Button>
-         }
+
+         {/* 点赞按钮 */}
+         <Button type={liked?"primary":"default"} onClick={async()=>{
+           if(liked){
+            const res = await unlikeArticle(article.id)
+            setLiked(false)
+            setLikeCount(res.count)
+           }
+           else{
+            const res = await likeArticle(article.id)
+            setLiked(true)
+            setLikeCount(res.count)
+           }
+         }}>
+          👍{liked?"已点赞":"点赞"}
+          ({likeCount})
+         </Button>
 
         <div className="article-info">
         <span>
