@@ -1,84 +1,100 @@
 import {Table,Button,Tag,Space,Popconfirm,Input,Select,Dropdown, message} from "antd"
 import './index.scss'
-import { useDispatch, useSelector } from "react-redux"
 import { useNavigate } from "react-router-dom"
-import { deleteArticle } from "../../store/modules/article"
-import { useState,useEffect} from "react"
-import { publishArticle,offlineArticle } from "../../store/modules/article"
+import { useState,useEffect,useMemo} from "react"
 import { getCategoryList } from "../../api/category"
+import { getArticleList,updateArticleStatus} from "../../api/article"
 import type { CategoryType } from "../../types/category"
 import type { ArticleType } from "../../types/article"
+import type { MenuProps } from "antd"
 import type { RootState } from "../../store"
 import dayjs from "dayjs"
 export default function Article(){
   const navigate = useNavigate()
-  const dispatch = useDispatch()
   const [keyword,setKeyword] = useState("")
   const [statusFilter,setStatusFilter] = useState("")
   const [category,setCategory] = useState("")
   const [page,setPage] = useState(1)
   const [pageSize,setPageSize] = useState(10)
+  const loadArticles = ()=>{
+  getArticleList().then(res=>
+    setData(res)
+  )
+}
   // 批量删除
   const [selectedRowKeys,setSelectedRowKeys] = useState<number[]>([])
   // 批量删除函数
-  const handleBatchDelete = ()=>{
+  const handleBatchDelete =async ()=>{
     if(selectedRowKeys.length===0){
       message.warning("请选择文章")
       return
     }
-    selectedRowKeys.forEach(id=>{
-      dispatch(deleteArticle(id))
-    })
+   for(const id of selectedRowKeys){
+    await updateArticleStatus(id,"trash")
+   }
     message.success(`删除${selectedRowKeys.length}篇文章成功`)
+    loadArticles()
     setSelectedRowKeys([])
   }
 
 // 批量发布函数
-const handleBatchPublish = ()=>{
+const handleBatchPublish = async()=>{
   if(selectedRowKeys.length===0){
     message.warning("请选择文章")
     return
   }
-  selectedRowKeys.forEach(id=>{
-    dispatch(publishArticle(id))
-  })
-   message.success(
-  "批量发布成功")
- setSelectedRowKeys([])
+  for(const id of selectedRowKeys){
+    await updateArticleStatus(id,"published")
+  }
+  message.success("批量发布成功")
+  loadArticles()
+  setSelectedRowKeys([])
 }
 
 // 批量下架函数
-const handleBatchOffline = ()=>{
+const handleBatchOffline = async()=>{
   if(selectedRowKeys.length===0){
     message.warning("请选择文章")
     return
   }
-  selectedRowKeys.forEach(id=>{
-    dispatch(offlineArticle(id))
-  })
+  for(const id of selectedRowKeys)
+  {
+    await updateArticleStatus(id,"offline")
+  }
   message.success(`成功下架${selectedRowKeys.length}篇文章`)
+  loadArticles()
   setSelectedRowKeys([])
 }
 
 
   const [categories,setCategories] = useState<CategoryType[]>([])
-  const data= useSelector((state:RootState)=>state.article.list).filter(item=>item.status!=="trash")
-  const selectedArticles = data.filter(item=>selectedRowKeys.includes(item.id))
+  const [data,setData] = useState<ArticleType[]>([])
+  // const data= useSelector((state:RootState)=>state.article.list).filter(item=>item.status!=="trash")
+  const selectedArticles = useMemo(()=>{
+    return data.filter(item=>selectedRowKeys.includes(item.id))
+  },[data,selectedRowKeys])
   // 判断发布
-  const canPublish = selectedArticles.some(
- item=>item.status==="draft" ||
- item.status==="offline"
-)
+  const canPublish = useMemo(()=>{
+    return selectedArticles.some(
+    item=>item.status==="draft" ||
+    item.status==="offline"
+    )
+  },[selectedArticles])
+
   // 判断下架
-  const canOffline = selectedArticles.some(
+  const canOffline = useMemo(()=>{
+   return selectedArticles.some(
  item=>item.status==="published"
 )
-// 删除
+  },[selectedArticles])
+  // 删除
  const canDelete = selectedArticles.length>0
+
 //  多篇操作
- const batchItems=[]
+ const batchItems:MenuProps["items"]=useMemo(()=>{
+  const items:MenuProps["items"]= []
    if(canPublish){
-      batchItems.push({
+      items.push({
         key:"publish",
         label:"批量发布"
       })
@@ -86,7 +102,7 @@ const handleBatchOffline = ()=>{
       }
       if(canOffline){
 
-      batchItems.push({
+      items.push({
         key:"offline",
         label:"批量下架"
       })
@@ -94,16 +110,19 @@ const handleBatchOffline = ()=>{
       }
       if(canDelete){
 
-      batchItems.push({
+      items.push({
         key:"delete",
         label:"批量删除"
       })
       }
+      return items
 
+ },[canPublish,canOffline,canDelete])
 
   useEffect(()=>{
     // Assuming you have a function to fetch categories
     getCategoryList().then(res=>setCategories(res))
+    loadArticles()
   },[])
 
      const filterData = data.filter(item=>{const matchKeyword = item.title.includes(keyword)
@@ -159,6 +178,9 @@ const handleBatchOffline = ()=>{
           color="red"
           label="已下架"
           break;
+        case "trash":
+          color="gray"
+          label="回收站"
       }
          return(
         <Tag color={color}>{label}</Tag>
@@ -224,13 +246,22 @@ const handleBatchOffline = ()=>{
           navigate(`/admin/article/edit/${record.id}`)
         }
         if(key==="publish"){
-          dispatch(publishArticle(record.id))
+          updateArticleStatus(record.id,"published").then(()=>{
+            message.success("发布成功")
+            loadArticles()
+          })
         }
         if(key==="offline"){
-          dispatch(offlineArticle(record.id))
+          updateArticleStatus(record.id,"offline").then(()=>{
+            message.success("下架成功")
+            loadArticles()
+          })
         }
         if(key==="delete"){
-          dispatch(deleteArticle(record.id))
+           updateArticleStatus(record.id,"trash").then(()=>{
+            message.success("已移入回收站")
+            loadArticles()
+           })
         }
        }
        return(

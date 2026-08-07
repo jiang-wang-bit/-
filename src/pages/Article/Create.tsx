@@ -1,6 +1,7 @@
 import {Form,Input,Button,Select,Card,message,Upload} from "antd"
 import { useNavigate } from "react-router-dom"
 import "./create.scss"
+import { createArtilcle } from "../../api/article"
 import { useDispatch, useSelector } from "react-redux"
 import {useState,useEffect} from "react"
 import MDEditor from "@uiw/react-md-editor"
@@ -24,21 +25,26 @@ export default function Create(){
      )
   },[])
   const navigate = useNavigate()
-  const submit = (values:any)=>{
+  const submit = async(values:any)=>{
     const article = {
-      id:Date.now(),
+      // id:Date.now(),
       title:values.title,
       content:content,
       cover,
       categoryId:values.categoryId,
       status:values.status,
       author:userInfo?.username,
-      createTime:new Date().toISOString(),
-      views:0
+      // createTime:new Date().toISOString(),
     }
-    dispatch(addArticle(article))
-    message.success("文章创建成功")
-    navigate("/admin/article")
+    try{
+      await createArtilcle(article)
+      message.success("文章创建成功")
+      navigate("/admin/article")
+    }catch(error)
+    {
+      message.error("文章创建失败")
+    }
+    
   }
   return (
     <div className="article-create">

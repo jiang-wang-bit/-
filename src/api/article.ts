@@ -1,15 +1,17 @@
 import { articles } from "../mock/article";
 import request from "../request";
+import { ArticleType } from "../types/article";
 // 获取文章列表
-export function getArticleList(){
-  return request.get("/articles")
+export async function getArticleList(){
+  const res=  await request.get<ArticleType[]>("/articles")
+ return res.data
 }
 // 文章详情
 export function getArticleDetail(id:number){
   return request.get(`article/${id}`)
 }
 // 创建文章
-export function createArtilce(data:any){
+export function createArtilcle(data:any){
   return request.post(
     "/articles",
     data
