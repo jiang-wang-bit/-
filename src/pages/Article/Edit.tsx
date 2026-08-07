@@ -1,17 +1,16 @@
 import {Form,Input,Button,Select,Card,message,Upload} from "antd"
 import { useNavigate ,useParams} from "react-router-dom"
-import { useDispatch, useSelector } from "react-redux"
-import { updateArticle } from "../../store/modules/article"
+import { getArticleDetail, updateArticleApi } from "../../api/article"
 import { useEffect,useState } from "react"
 import "./index.scss"
 import {getCategoryList} from "../../api/category"
 import MDEditor from "@uiw/react-md-editor"
 import type { CategoryType } from "../../types/category"
 import MarkDownEditor from "../../components/MarkDownEditor"
+import { ArticleType } from "../../types/article"
 export default function Edit(){
   const {id} = useParams()
   const navigate = useNavigate()
-  const dispatch = useDispatch()
   const [form] = Form.useForm()
   const [categories,setCatgories] = useState<CategoryType[]>([])
   useEffect(()=>{
@@ -20,33 +19,41 @@ export default function Edit(){
      })
   },[])
   // 获取文章数据
-  const article = useSelector(
-    (state:any)=>state.article.list.find((item:any)=>String(item.id)===String(id))
-  )
+  const [article,setArticle] =  useState<ArticleType | null>(null)
   const [content,setContent] = useState("")
   const [cover,setCover] = useState("")
+
     // 回填表单
   useEffect(()=>{
-  if(article){
+   getArticleDetail(Number(id)).then((res)=>{
+    setArticle(res)
     form.setFieldsValue({
-      title:article.title,
-      categoryId:article.categoryId,
-      status:article.status
+      titel:res.title,
+      categoryId:res.categoryId,
+      status:res.status
     })
-    setContent(article.content)
-    setCover(article.cover||"")
-  }
-},[article,form])
+    setContent(res.content)
+    setCover(res.cover)
+   })
+},[id])
+
     //  提交表单
-    const submit = (values:any)=>{
-    dispatch(updateArticle({
-      ...article,
-      ...values,
+    const submit = async(values:any)=>{
+    const article = {
+      title:values.title,
       content,
-      cover
-  }))
-    message.success("修改成功")
-    navigate("/admin/article")
+      cover,
+      status:values.status,
+      categoryId:values.categoryId,
+      updateTime:new Date().toISOString()
+    }
+    try{
+      await updateArticleApi(Number(id),article)
+      message.success("修改成功")
+     navigate("/admin/article")
+    }catch(error){
+      message.error("修改失败")
+    }
   }
 
   return (
@@ -80,7 +87,7 @@ export default function Edit(){
           <MarkDownEditor value={content} onChange={setContent}/>
          </Form.Item>
 
-         <Form.Item label="状态" name="status" initialValue="published">
+         <Form.Item label="状态" name="status">
           <Select options={[
             {value:"published",label:"发布"},
             {value:"draft",label:"草稿"}

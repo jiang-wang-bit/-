@@ -4,6 +4,7 @@ import CommentInput from "../../../components/CommentInput"
 import {useSelector} from "react-redux"
 import {useDispatch} from "react-redux"
 import {useEffect} from "react"
+import { getArticleDetail,getArticleList } from "../../../api/article"
 import ReactMarkdown from "react-markdown"
 import { addFavorite,removeFavorite } from "../../../store/modules/favorite"
 import {increaseViews} from "../../../store/modules/article"
@@ -12,6 +13,7 @@ import { useParams,useNavigate } from "react-router-dom"
 import { useState } from "react"
 import { useLocation } from "react-router-dom"
 import {getCategoryList} from "../../../api/category"
+import type { ArticleType } from "../../../types/article"
 import type { CategoryType } from "../../../types/category"
 import type { RootState } from "../../../store"
 export default function ArticleDetailFront(){
@@ -21,34 +23,52 @@ export default function ArticleDetailFront(){
   const userInfo = useSelector((state:RootState)=>state.user.userInfo)
   const dispatch = useDispatch()
   const navigate = useNavigate()
-  useEffect(()=>{
-    if(id&&!isPreview){
-      dispatch(increaseViews(Number(id)))
-    }
-  },[id,isPreview])
-  const articles = useSelector((state: RootState)=>state.article.list)
+
+  // useEffect(()=>{
+  //   if(id&&!isPreview){
+  //     dispatch(increaseViews(Number(id)))
+  //   }
+  // },[id,isPreview])
+  // const articles = useSelector((state: RootState)=>state.article.list)
   //  收藏状态
     const favorites = useSelector((state:RootState)=>state.favorite.list)
     const [categories,setCategories] = useState<CategoryType[]>([])
+  const [articles,setArticles] = useState<ArticleType[]>([])
     useEffect(()=>{
           getCategoryList().then(res=>{ 
             setCategories(res)
           })
+          getArticleList().then(res=>
+          {
+            setArticles(res)
+          }
+          )
       },[])
-   const article= articles.find(item=>item.id===Number(id))
+      const visibelArticles = articles.filter(item=>item.status==="published")
+  //  const article= articles.find(item=>item.id===Number(id))
+    //  获取文章
+ 
+    const [article,setArticle] = useState<ArticleType|null>(null)
+    useEffect(()=>{
+     if(!id) return
+     getArticleDetail(Number(id)).then(res=>
+      setArticle(res)
+     )
+    },[id])
+
      if (!article) {
     return <Card>文章不存在</Card>
       }
-    if(article.status==="draft"||article.status==="offline"&&!isPreview&&userInfo?.role!=="admin"){
+    if((article.status==="draft"||article.status==="offline")&&!isPreview&&userInfo?.role!=="admin"){
       return(
         <Card>文章不存在</Card>
       )
     }
-  const recommendArticles = articles.filter(item=>item.categoryId===article?.categoryId && item.id!==article?.id).slice(0,3)
+  const recommendArticles = articles.filter(item=>item.categoryId===article?.categoryId && item.id!==article?.id&&item.status==="published").slice(0,3)
   //  获取当前文章位置
- const currentIndex = articles.findIndex(item=>item.id===article?.id)
- const prevArticle = articles[currentIndex-1]
- const nextArticle = articles[currentIndex+1]
+ const currentIndex = visibelArticles.findIndex(item=>item.id===article?.id)
+ const prevArticle = visibelArticles[currentIndex-1]
+ const nextArticle = visibelArticles[currentIndex+1]
  const isFavorite = favorites.includes(article.id)
  const category = categories.find(item=>item.id===article?.categoryId)
   return(

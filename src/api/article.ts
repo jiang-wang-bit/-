@@ -8,7 +8,7 @@ export async function getArticleList(){
 }
 // 文章详情
 export function getArticleDetail(id:number){
-  return request.get(`article/${id}`)
+  return request.get(`article/${id}`).then(res=>res.data)
 }
 // 创建文章
 export function createArtilcle(data:any){

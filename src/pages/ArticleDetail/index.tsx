@@ -2,6 +2,7 @@ import { useParams } from "react-router-dom"
 import "./index.scss"
 import CommentList from "../../components/CommentList";
 import { useSelector } from "react-redux"
+import { getArticleDetail } from "../../api/article";
 import { getCategoryList } from "../../api/category";
 import { useState,useEffect } from "react";
 import {Card,Typography,Tag,Avatar,Space,Divider} from "antd"
@@ -18,8 +19,16 @@ const {Title} = Typography
 export default function ArticleDetail(){
 
    const {id}= useParams()
-   const articles = useSelector((state:any)=>state.article.list as ArticleType [])
-   const article = articles.find(item=>item.id===Number(id))
+  //  const articles = useSelector((state:any)=>state.article.list as ArticleType [])
+  //  const article = articles.find(item=>item.id===Number(id))
+  //  获取文章
+  const [article,setArticle] = useState<ArticleType|null>(null)
+  useEffect(()=>{
+   if(!id) return
+   getArticleDetail(Number(id)).then(res=>
+    setArticle(res)
+   )
+  },[id])
   //  分类
   const [categories,setCategories] = useState<CategoryType[]>([])
   useEffect(()=>{
@@ -31,7 +40,7 @@ export default function ArticleDetail(){
   const category = categories.find(item=>item.id===article?.categoryId)
    if(!article){
     return(
-      <Card>文章不存在</Card>
+      <Card>加载中...</Card>
     )
    }
 
