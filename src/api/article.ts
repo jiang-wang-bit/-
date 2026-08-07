@@ -67,3 +67,8 @@ export async function unfavoriteArticle(id:number){
   const res = await request.delete(`/article/${id}/favorite`)
   return res.data
 }
+// 增加文章阅读量
+export async function increaseArticleView(id:number){
+  const res = await request.post(`/article/${id}/view`)
+  return res.data
+}

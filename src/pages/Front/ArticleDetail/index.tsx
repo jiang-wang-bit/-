@@ -2,11 +2,9 @@ import {Card,Tag,Button} from "antd"
 import CommentList from "../../../components/CommentList"
 import CommentInput from "../../../components/CommentInput"
 import {useSelector} from "react-redux"
-import {useDispatch} from "react-redux"
 import {useEffect} from "react"
-import { getArticleDetail,getArticleList,getLikeStatus,unlikeArticle,likeArticle,getFavoriteStatus,unfavoriteArticle,favoriteArticle } from "../../../api/article"
+import { getArticleDetail,getArticleList,getLikeStatus,unlikeArticle,likeArticle,getFavoriteStatus,unfavoriteArticle,favoriteArticle,increaseArticleView} from "../../../api/article"
 import ReactMarkdown from "react-markdown"
-import {increaseViews} from "../../../store/modules/article"
 import "./index.scss"
 import { useParams,useNavigate } from "react-router-dom"
 import { useState } from "react"
@@ -26,17 +24,10 @@ export default function ArticleDetailFront(){
     const [likeCount,setLikeCount] = useState(0)
     // 文章收藏
     const [favorited,setFavorited] = useState(false)
-
-  // useEffect(()=>{
-  //   if(id&&!isPreview){
-  //     dispatch(increaseViews(Number(id)))
-  //   }
-  // },[id,isPreview])
-  // const articles = useSelector((state: RootState)=>state.article.list)
     const [categories,setCategories] = useState<CategoryType[]>([])
     const [articles,setArticles] = useState<ArticleType[]>([])
-     const visibelArticles = articles.filter(item=>item.status==="published")
-   const [article,setArticle] = useState<ArticleType|null>(null)
+    const visibelArticles = articles.filter(item=>item.status==="published")
+    const [article,setArticle] = useState<ArticleType|null>(null)
   //  获取文章
      useEffect(()=>{
      if(!id) return
@@ -58,13 +49,36 @@ export default function ArticleDetailFront(){
      // 文章点赞+点赞
      useEffect(()=>{
         if(!article) return
-        Promise.all([getFavoriteStatus(article.id),getLikeStatus(article.id)]).then(([like,favorite])=>{
+        Promise.all([getLikeStatus(article.id),getFavoriteStatus(article.id)]).then(([like,favorite])=>{
           setLiked(like.liked)
           setLikeCount(like.count)
           setFavorited(favorite.favorited)
     
         })
      },[article])
+    //  增加阅读量
+    useEffect(()=>{
+      if(!id||isPreview)
+      return
+      const key=
+      `article_view_${id}`
+       const viewed =
+      localStorage.getItem(key)
+
+      if(!viewed){
+        increaseArticleView(Number(id)).then(res=>{
+          setArticle(prev=>{
+            if(!prev) return prev
+            return{
+              ...prev,
+              views:res.views
+            }
+          })
+        localStorage.setItem(key,"true")
+        })
+
+      }
+    },[id,isPreview])
 
 
      if (!article) {
