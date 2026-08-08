@@ -1,23 +1,21 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# python缓存
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.py[cod]
 
-# dependencies
-/node_modules
-/.pnp
-.pnp.js
+# 虚拟环境
+.venv/
+venv/
 
-# testing
-/coverage
-
-# production
-/build
-
-# misc
-.DS_Store
+# 环境变量
+.env
 .env.local
-.env.development.local
-.env.test.local
-.env.production.local
 
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+# 日志
+*.log
+
+# ide
+.vscode/
+.idea/
