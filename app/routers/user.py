@@ -1,6 +1,6 @@
 from fastapi import APIRouter,Depends,HTTPException
 from sqlalchemy.orm import Session
-from app.database import SessionLocal
+from app.database import get_db
 from app.models.user import User
 from app.schemas.user import (UserCreate,UserResponse,UserUpdate)
 
@@ -9,13 +9,6 @@ router = APIRouter(
   tags=["用户管理"]
 )
 
-# 数据库连接
-def get_db():
-  db = SessionLocal()
-  try:
-    yield db
-  finally:
-    db.close()
 
 # 获取用户列表
 @router.get("",response_model=list[UserResponse])

@@ -1,0 +1,26 @@
+from app.database import Base
+from sqlalchemy import Integer,ForeignKey,DateTime,UniqueConstraint
+from sqlalchemy.orm import mapped_column,Mapped
+from datetime import datetime
+class ArticleLike(Base):
+  __tablename__ = "article_lieks"
+  __table_args__=(
+    UniqueConstraint(
+      "user_id",
+      "article_id"
+    ),
+  )
+  id:Mapped[int] = mapped_column(
+    Integer,
+    primary_key=True
+  )
+  user_id:Mapped[int] = mapped_column(
+    ForeignKey("users.id")
+  )
+  article_id:Mapped[int] = mapped_column(
+    ForeignKey("articles.id")
+  )
+  create_time:Mapped[datetime] = mapped_column(
+    DateTime,
+    default=datetime.now
+  )
