@@ -3,7 +3,7 @@ from sqlalchemy import Integer,ForeignKey,DateTime,UniqueConstraint
 from sqlalchemy.orm import mapped_column,Mapped
 from datetime import datetime
 class ArticleLike(Base):
-  __tablename__ = "article_lieks"
+  __tablename__ = "article_likes"
   __table_args__=(
     UniqueConstraint(
       "user_id",
