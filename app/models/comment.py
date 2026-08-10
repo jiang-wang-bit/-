@@ -30,6 +30,10 @@ class Comment(Base):
     String(20),
     default="normal"
   )
+  likes:Mapped[int] = mapped_column(
+    Integer,
+    default=0
+  )
   create_time:Mapped[datetime] = mapped_column(
     DateTime,
     default=datetime.now
