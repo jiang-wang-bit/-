@@ -9,6 +9,7 @@ from app.models.favorites import ArticleFavorite
 from app.routers import article_like
 from app.routers import article_favorite
 from app.routers import article_view
+from app.routers import comment
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
@@ -18,6 +19,7 @@ app.include_router(article.router)
 app.include_router(article_like.router)
 app.include_router(article_favorite.router)
 app.include_router(article_view.router)
+app.include_router(comment.router)
 
 @app.get("/")
 def root():

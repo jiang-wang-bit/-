@@ -1,4 +1,4 @@
-from fastapi import APIRouter,Depends,Request
+from fastapi import APIRouter,Depends,Request,HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.article_view import ArticleView
@@ -13,27 +13,30 @@ router = APIRouter(
 
 # 增加阅读量
 @router.post("/{article_id}/view")
-def increase_view(article_id:int,request:Request,db:Session=Depends(get_db)):
-   article = db.query(Article).filter(Article.id==article_id).first()
-   if not article:
-     return{
-        "message":"文章不存在"
-     }
-   ip =request.client.host
+def increase_view(article_id:int,request:Request,user_id:int,db:Session=Depends(get_db)):
+    article = db.query(Article).get(article_id)
+    if not article:
+        raise HTTPException(status_code=404, detail="文章不存在")
+    
+    ip = request.client.host
+    time_limit = datetime.now() - timedelta(minutes=5)
+    exits = db.query(ArticleView).filter(ArticleView.article_id==article_id,ArticleView.ip ==ip,ArticleView.create_time>=time_limit).first()
+    if exits:
+        article = db.query(Article).filter(Article.id ==article_id).first()
+        return{
+          "views":article.views,
+          "message":"重复访问"
+        }
 
-   view = ArticleView(
-      article_id=article_id,
-      ip=ip
-   )
-   last_view = db.query(ArticleView).filter(ArticleView.ip==ip,ArticleView.article_id==article_id).order_by(ArticleView.create_time.desc()).first()
-   if last_view:
-      if datetime.now() - last_view.create_time < timedelta(minutes=5):
-         return{
-            "message":"重复访问"
-         }
-      
-   db.add(view)
-   db.commit()
-   return{
-      "views":article.views
-   }
+    view = ArticleView(
+        article_id=article_id,
+        user_id=user_id,
+        ip=ip)
+    db.add(view)
+    article=db.query(Article).filter(Article.id==article_id).first()
+    article.views+=1
+    db.commit()
+    db.refresh(article)
+    return{
+        "views":article.views
+    }
