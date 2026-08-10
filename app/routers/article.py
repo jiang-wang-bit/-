@@ -2,7 +2,7 @@ from fastapi import APIRouter,Depends,HTTPException
 from app.schemas.article import (ArticleCreate,ArticleResponse,ArticleUpdate,ArticleStatus,BatchDelete)
 from app.models.article import Article
 from app.database import get_db
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session,joinedload
 
 router = APIRouter(
   prefix="/articles",
@@ -12,9 +12,26 @@ router = APIRouter(
 # 获得文章
 @router.get("",response_model=list[ArticleResponse])
 def get_articles(db:Session=Depends(get_db)):
-  articles = db.query(Article).all()
-  return articles
-
+  articles = db.query(Article).options(joinedload(Article.category)).all()
+  return [
+        {
+            "id":article.id,
+            "title":article.title,
+            "content":article.content,
+            "cover":article.cover,
+            "author":article.author,
+            "category_id":article.category_id,
+            "category_name":
+                article.category.name 
+                if article.category else None,
+            "status":article.status,
+            "views":article.views,
+            "likes":article.likes,
+            "create_time":article.create_time,
+            "update_time":article.update_time
+        }
+        for article in articles
+    ]
 # 新增文章
 @router.post("",response_model=ArticleResponse)
 def create_article(data:ArticleCreate,db:Session=Depends(get_db)):

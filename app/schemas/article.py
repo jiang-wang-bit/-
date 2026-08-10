@@ -36,6 +36,8 @@ class ArticleResponse(BaseModel):
 
     category_id:int
 
+    category_name:str|None=None
+
     status:str
 
     views:int

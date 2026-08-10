@@ -30,7 +30,8 @@ class Article(Base):
 
 
   category_id: Mapped[int] = mapped_column(
-      ForeignKey("categories.id")
+      ForeignKey("categories.id"),
+       nullable=False
   )
 
   category:Mapped["Category"] = relationship(back_populates="articles")

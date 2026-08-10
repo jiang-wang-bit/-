@@ -16,7 +16,7 @@ def get_categories(db:Session=Depends(get_db)):
   return categories
 
 # 获取单个分类
-router.get("/{id}",response_model=CategoryResponse)
+@router.get("/{id}",response_model=CategoryResponse)
 def get_category(id:int,db:Session=Depends(get_db)):
   category = db.query(Category).filter(Category.id==id).first()
   if not category:
@@ -27,7 +27,7 @@ def get_category(id:int,db:Session=Depends(get_db)):
   return category
 
 # 创建分类
-router.post("",response_model=CategoryResponse)
+@router.post("",response_model=CategoryResponse)
 def create_category(data:CategoryCreate,db:Session=Depends(get_db)):
   exits = db.query(Category).filter(Category.name==data.name)
   if exits:
