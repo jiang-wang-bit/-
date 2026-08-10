@@ -21,7 +21,6 @@ class ArticleStatus(BaseModel):
 
 # 批量删除:
 class BatchDelete(BaseModel):
-
     ids:list[int]
 
 class ArticleResponse(BaseModel):

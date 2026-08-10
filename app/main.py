@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from app.models.user import User
 from app.models import article
 from app.database import Base,engine
@@ -20,6 +21,15 @@ app.include_router(article_like.router)
 app.include_router(article_favorite.router)
 app.include_router(article_view.router)
 app.include_router(comment.router)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000"
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/")
 def root():

@@ -35,7 +35,7 @@ class Article(Base):
 
   status: Mapped[str] = mapped_column(
       String(20),
-      default="draft"
+      default="published"
   )
 
   old_status:Mapped[str] = mapped_column(
