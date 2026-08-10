@@ -1,6 +1,7 @@
-from sqlalchemy import String,Integer,TEXT,DateTime
-from sqlalchemy.orm import mapped_column,Mapped
+from sqlalchemy import String,Integer,TEXT,DateTime,ForeignKey
+from sqlalchemy.orm import mapped_column,Mapped,relationship
 from datetime import datetime
+# from app.models.category import Category
 from app.database import Base
 
 class Article(Base):
@@ -29,8 +30,10 @@ class Article(Base):
 
 
   category_id: Mapped[int] = mapped_column(
-      Integer
+      ForeignKey("categories.id")
   )
+
+  category:Mapped["Category"] = relationship(back_populates="articles")
 
 
   status: Mapped[str] = mapped_column(
