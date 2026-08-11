@@ -28,7 +28,7 @@ class Comment(Base):
   )
   status:Mapped[str] = mapped_column(
     String(20),
-    default="normal"
+    default="pending"
   )
   likes:Mapped[int] = mapped_column(
     Integer,

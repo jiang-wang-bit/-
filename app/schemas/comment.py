@@ -5,6 +5,27 @@ class CommentCreate(BaseModel):
   content:str
   parent_id:int|None=None
 
+class CommentStatusUpdate(BaseModel):
+
+    status:str
+
+class CommentFrontResponse(BaseModel):
+
+    id:int
+
+    content:str
+
+    user_id:int
+
+    parent_id:int | None=None
+
+    create_time:datetime
+
+    likes:int
+
+
+    class Config:
+        from_attributes=True
 
 class CommentResponse(BaseModel):
 
@@ -16,13 +37,17 @@ class CommentResponse(BaseModel):
 
     content:str
 
-    parent_id:int|None
+    parent_id:int|None=None
 
     status:str
 
     likes:int
 
     create_time:datetime
+
+    article_title:str|None=None
+
+    username:str|None=None
 
 
     class Config:
