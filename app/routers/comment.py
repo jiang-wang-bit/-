@@ -2,6 +2,7 @@ from fastapi import APIRouter,Depends,HTTPException
 from sqlalchemy.orm import Session
 from app.models.comment import Comment
 from app.models.article import Article
+from app.models.comment_like import CommentLike
 from app.models.user import User
 from app.schemas.comment import CommentCreate,CommentResponse,CommentStatusUpdate,CommentFrontResponse
 from app.database import get_db
@@ -103,32 +104,86 @@ def update_comment_status(id:int,data:CommentStatusUpdate,db:Session=Depends(get
 
 # 评论点赞
 @router.post("/{id}/like")
-def like_comment(id:int,db:Session=Depends(get_db)):
-   comment = db.query(Comment).filter(Comment.id==id).first()
-   if not comment:
-        raise HTTPException(
-            404,
-            "评论不存在"
-        )
-   comment.likes +=1
-   db.commit()
-   return{
-     "likes":comment.likes
-   }
+def like_comment(
+    id:int,
+    user_id:int,
+    db:Session=Depends(get_db)
+):
+
+
+    exists=db.query(CommentLike)\
+    .filter(
+        CommentLike.comment_id==id,
+        CommentLike.user_id==user_id
+    ).first()
+
+
+    if exists:
+        return {
+            "message":"已经点赞"
+        }
+
+
+
+    like=CommentLike(
+        comment_id=id,
+        user_id=user_id
+    )
+
+
+    db.add(like)
+
+
+    comment=db.query(Comment)\
+    .filter(Comment.id==id)\
+    .first()
+    comment.likes+=1
+
+    db.commit()
+
+    return {
+        "likes":comment.likes,
+        "liked":True
+    }
 
 # 取消点赞
 @router.delete("/{id}/like")
-def unlike_comment(id:int,db:Session=Depends(get_db)):
+def unlike_comment(
+    id:int,
+    user_id:int,
+    db:Session=Depends(get_db)
+):
+
+    like=db.query(CommentLike)\
+    .filter(
+        CommentLike.comment_id==id,
+        CommentLike.user_id==user_id
+    ).first()
+
+    if like:
+
+        db.delete(like)
+        comment=db.query(Comment)\
+        .filter(Comment.id==id)\
+        .first()
+
+        if comment.likes>0:
+            comment.likes-=1
+
+        db.commit()
+
+
+    return {
+        "likes":comment.likes,
+        "liked":False
+    }
+
+# 查询点赞状态接口
+@router.get("/{id}/like-status")
+def get_comment_like_status(id:int,user_id:int,db:Session=Depends(get_db)):
+   like = db.query(CommentLike).filter(CommentLike.comment_id==id,CommentLike.user_id==user_id).first()
    comment = db.query(Comment).filter(Comment.id==id).first()
-   if not comment:
-           raise HTTPException(
-               404,
-               "评论不存在"
-           )
-   if comment.likes>0:
-      comment.likes -=1
-   db.commit()
    return{
+      "liked":like is not None,
       "likes":comment.likes
    }
-   
