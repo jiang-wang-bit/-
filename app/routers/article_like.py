@@ -31,7 +31,7 @@ def like_article(article_id:int,user_id:int,db:Session=Depends(get_db)):
   )
   db.add(like)
   db.commit()
-  count = db.query(ArticleLike).filter(ArticleLike.article_id==article_id).count
+  count = db.query(ArticleLike).filter(ArticleLike.article_id==article_id).count()
   return{
     "liked":True,
     "count":count
