@@ -17,9 +17,13 @@ class CommentFrontResponse(BaseModel):
 
     user_id:int
 
+    article_id:int
+
     parent_id:int | None=None
 
     create_time:datetime
+
+    status:str
 
     likes:int
 

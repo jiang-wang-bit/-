@@ -24,7 +24,8 @@ def create_comment(data:CommentCreate,db:Session=Depends(get_db)):
     article_id = data.article_id,
     user_id=2,
     content=data.content,
-    parent_id=data.parent_id
+    parent_id=data.parent_id,
+    status="pending"
   )
   db.add(comment)
   db.commit()
