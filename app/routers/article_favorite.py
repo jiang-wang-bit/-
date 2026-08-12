@@ -50,3 +50,4 @@ def favorite_status(article_id:int,user_id:int,db:Session=Depends(get_db)):
   return{
     "favorited":True if favorite else False
   }
+
