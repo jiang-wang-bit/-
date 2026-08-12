@@ -1,4 +1,4 @@
-from sqlalchemy import String,Integer,DateTime
+from sqlalchemy import String,Integer,DateTime,Text
 from sqlalchemy.orm import Mapped,mapped_column
 from app.database import Base
 from datetime import datetime
@@ -17,7 +17,7 @@ class User(Base):
     unique=True,
     nullable=False
   )
-  
+
   email:Mapped[str] = mapped_column(
     String(100)
   )
@@ -42,4 +42,9 @@ class User(Base):
   create_time:Mapped[datetime] = mapped_column(
       DateTime,
       default=datetime.now
+  )
+
+  avatar:Mapped[str] = mapped_column(
+    Text,
+    nullable=True
   )
