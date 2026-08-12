@@ -13,7 +13,7 @@ router = APIRouter(
 
 # 增加阅读量
 @router.post("/{article_id}/view")
-def increase_view(article_id:int,request:Request,user_id:int,db:Session=Depends(get_db)):
+def increase_view(article_id:int,user_id:int,request:Request,db:Session=Depends(get_db)):
     article = db.query(Article).get(article_id)
     if not article:
         raise HTTPException(status_code=404, detail="文章不存在")
