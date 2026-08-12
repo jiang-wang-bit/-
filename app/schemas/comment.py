@@ -56,3 +56,17 @@ class CommentResponse(BaseModel):
 
     class Config:
         from_attributes=True
+
+class MyCommentResponse(BaseModel):
+
+    id:int
+
+    content:str
+
+    articleId:int
+
+    articleTitle:str
+
+    status:str
+
+    time:datetime

@@ -70,4 +70,8 @@ class Article(Base):
       default=datetime.now,
       onupdate=datetime.now
   )
+  comments = relationship(
+        "Comment",
+        back_populates="article"
+    )
 

@@ -1,5 +1,5 @@
 from sqlalchemy import Integer,String,DateTime,ForeignKey
-from sqlalchemy.orm import Mapped,mapped_column
+from sqlalchemy.orm import Mapped,mapped_column,relationship
 from app.database import Base
 from datetime import datetime
 
@@ -14,6 +14,10 @@ class Comment(Base):
     ForeignKey("articles.id"),
     nullable=False
   )
+  article = relationship(
+        "Article",
+        back_populates="comments"
+    )
   user_id:Mapped[int] = mapped_column(
     ForeignKey("users.id"),
     nullable=False
