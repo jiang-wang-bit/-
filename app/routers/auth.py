@@ -4,7 +4,7 @@ from app.database import get_db
 from app.models.user import User
 from app.schemas.auth import LoginRequest,LoginResponse,UserCreate
 from app.utils.jwt import create_access_token
-from passlib.context import CryptContext
+from app.utils.password import pwd_context
 
 router = APIRouter(
   prefix="/auth",
@@ -12,10 +12,6 @@ router = APIRouter(
 )
 
 
-pwd_context = CryptContext(
-    schemes=["bcrypt"],
-    deprecated="auto"
-)
 
 @router.post("/login",response_model=LoginResponse)
 def login(data:LoginRequest,db:Session=Depends(get_db)):
