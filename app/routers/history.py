@@ -1,9 +1,11 @@
-from fastapi import APIRouter,Depends
+from fastapi import APIRouter,Depends,HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.article import Article
 from app.models.article_history import ArticleHistory
 from datetime import datetime
+from app.dependencies.auth import get_current_user
+from app.models.user import User
 router = APIRouter(
   prefix="/user",
   tags=["阅读历史"]
@@ -13,7 +15,7 @@ router = APIRouter(
 @router.post("/history")
 def add_history(
     article_id:int,
-    user_id:int,
+    user:User=Depends(get_current_user),
     db:Session=Depends(get_db)
 ):
 
@@ -30,7 +32,7 @@ def add_history(
 
 
     exists = db.query(ArticleHistory).filter(
-        ArticleHistory.user_id==user_id,
+        ArticleHistory.user_id==user.id,
         ArticleHistory.article_id==article_id
     ).first()
 
@@ -42,7 +44,7 @@ def add_history(
     else:
 
         history = ArticleHistory(
-            user_id=user_id,
+            user_id=user.id,
             article_id=article_id
         )
 
@@ -58,6 +60,6 @@ def add_history(
     
 # 获取阅读历史
 @router.get("/history")
-def get_history(user_id:int,db:Session=Depends(get_db)):
-  articles = db.query(Article).join(ArticleHistory,ArticleHistory.article_id==Article.id).filter(ArticleHistory.user_id==user_id).order_by(ArticleHistory.create_time.desc()).all()
+def get_history(user:User=Depends(get_current_user),db:Session=Depends(get_db)):
+  articles = db.query(Article).join(ArticleHistory,ArticleHistory.article_id==Article.id).filter(ArticleHistory.user_id==user.id).order_by(ArticleHistory.create_time.desc()).all()
   return articles

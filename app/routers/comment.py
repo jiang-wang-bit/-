@@ -6,6 +6,8 @@ from app.models.comment_like import CommentLike
 from app.models.user import User
 from app.schemas.comment import CommentCreate,CommentResponse,CommentStatusUpdate,CommentFrontResponse
 from app.database import get_db
+from app.dependencies.auth import get_current_user
+from app.models.user import User
 
 router = APIRouter(
   prefix="/comments",
@@ -14,7 +16,7 @@ router = APIRouter(
 
 # 发表评论
 @router.post("")
-def create_comment(data:CommentCreate,db:Session=Depends(get_db)):
+def create_comment(data:CommentCreate,db:Session=Depends(get_db),user:User=Depends(get_current_user)):
   article = db.query(Article).filter(Article.id==data.article_id).first()
   if not article:
     raise HTTPException(
@@ -23,7 +25,7 @@ def create_comment(data:CommentCreate,db:Session=Depends(get_db)):
     )
   comment = Comment(
     article_id = data.article_id,
-    user_id=2,
+    user_id=user.id,
     content=data.content,
     parent_id=data.parent_id,
     status="pending"

@@ -5,6 +5,8 @@ from app.models.article_view import ArticleView
 from app.models.article import Article
 from datetime import timedelta
 from datetime import datetime
+from app.dependencies.auth import get_current_user
+from app.models.user import User
 
 router = APIRouter(
     prefix="/articles",
@@ -13,7 +15,7 @@ router = APIRouter(
 
 # 增加阅读量
 @router.post("/{article_id}/view")
-def increase_view(article_id:int,user_id:int,request:Request,db:Session=Depends(get_db)):
+def increase_view(article_id:int,request:Request,db:Session=Depends(get_db),user:User=Depends(get_current_user)):
     article = db.query(Article).get(article_id)
     if not article:
         raise HTTPException(status_code=404, detail="文章不存在")
@@ -30,7 +32,7 @@ def increase_view(article_id:int,user_id:int,request:Request,db:Session=Depends(
 
     view = ArticleView(
         article_id=article_id,
-        user_id=user_id,
+        user_id=user.id,
         ip=ip)
     db.add(view)
     article=db.query(Article).filter(Article.id==article_id).first()

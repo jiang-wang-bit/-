@@ -11,7 +11,7 @@ from app.routers import article_like
 from app.routers import article_favorite
 from app.routers import article_view
 from app.routers import comment
-from app.routers import category,profile,favorite,user_comment,user_like,history
+from app.routers import category,profile,favorite,user_comment,user_like,history,auth
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
@@ -28,6 +28,7 @@ app.include_router(favorite.router)
 app.include_router(user_comment.router)
 app.include_router(user_like.router)
 app.include_router(history.router)
+app.include_router(auth.router)
 # 跨域问题
 app.add_middleware(
     CORSMiddleware,

@@ -2,7 +2,9 @@ from fastapi import APIRouter,Depends,HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.article import Article
+from app.models.user import User
 from app.models.favorites import ArticleFavorite
+from app.dependencies.auth import get_current_user
 router = APIRouter(
   prefix="/articles",
   tags=["文章收藏"]
@@ -10,20 +12,20 @@ router = APIRouter(
 
 # 收藏
 @router.post("/{article_id}/favorite")
-def favorite_article(article_id:int,user_id:int,db:Session=Depends(get_db)):
+def favorite_article(article_id:int,user:User=Depends(get_current_user),db:Session=Depends(get_db)):
   article = db.query(Article).filter(Article.id==article_id).first()
   if not article:
     raise HTTPException(
       status_code=404,
       detail="文章不存在"
     )
-  exists = db.query(ArticleFavorite).filter(ArticleFavorite.article_id==article_id,ArticleFavorite.user_id==user_id).first()
+  exists = db.query(ArticleFavorite).filter(ArticleFavorite.article_id==article_id,ArticleFavorite.user_id==user.id).first()
   if exists:
     return{
       "favorited":True
     }
   favorite = ArticleFavorite(
-    user_id=user_id,
+    user_id=user.id,
     article_id=article_id
   )
   db.add(favorite)
@@ -34,8 +36,8 @@ def favorite_article(article_id:int,user_id:int,db:Session=Depends(get_db)):
 
 # 取消收藏
 @router.delete("/{article_id}/favorite")
-def unfavorite_article(article_id:int,user_id:int,db:Session=Depends(get_db)):
-  favorite = db.query(ArticleFavorite).filter(ArticleFavorite.user_id==user_id,ArticleFavorite.article_id==article_id).first()
+def unfavorite_article(article_id:int,user:User=Depends(get_current_user),db:Session=Depends(get_db)):
+  favorite = db.query(ArticleFavorite).filter(ArticleFavorite.user_id==user.id,ArticleFavorite.article_id==article_id).first()
   if favorite:
     db.delete(favorite)
     db.commit()
@@ -45,8 +47,8 @@ def unfavorite_article(article_id:int,user_id:int,db:Session=Depends(get_db)):
 
 # 查询收藏状态
 @router.get("/{article_id}/favorite/status")
-def favorite_status(article_id:int,user_id:int,db:Session=Depends(get_db)):
-  favorite = db.query(ArticleFavorite).filter(ArticleFavorite.user_id==user_id,ArticleFavorite.article_id==article_id).first()
+def favorite_status(article_id:int,user:User=Depends(get_current_user),db:Session=Depends(get_db)):
+  favorite = db.query(ArticleFavorite).filter(ArticleFavorite.user_id==user.id,ArticleFavorite.article_id==article_id).first()
   return{
     "favorited":True if favorite else False
   }
