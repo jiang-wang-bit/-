@@ -10,3 +10,8 @@ class LoginResponse(BaseModel):
   token:str
   user:dict
 
+# 用户注册
+class UserCreate(BaseModel):
+  username:str
+  password:str
+  email:str
