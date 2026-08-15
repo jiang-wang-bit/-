@@ -5,7 +5,10 @@ from app.models.user import User
 from app.schemas.profile import UserProfileUpdate,UserProfileResponse
 from app.dependencies.auth import get_current_user
 from app.schemas.profile import PasswordUpdate
-from app.utils.password import pwd_context
+from app.utils.password import (
+    hash_password,
+    verify_password
+)
 router = APIRouter(
   prefix="/profile",
   tags=["用户中心"]
@@ -59,13 +62,13 @@ def update_password(data:PasswordUpdate,current_user:User=Depends(get_current_us
          status_code=404,
          detail="用户不存在"
       )
-   if not pwd_context.verify(data.old_password,user.password):
+   if not verify_password(data.old_password,user.password):
       raise HTTPException(
          status_code=400,
          detail="旧密码错误"
       )
   #  新密码加密
-   user.password = pwd_context.hash(data.new_password)
+   user.password = hash_password(data.new_password)
    db.commit()
    return{
       "message":"密码修改成功"

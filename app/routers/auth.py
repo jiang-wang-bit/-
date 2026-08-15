@@ -4,8 +4,11 @@ from app.database import get_db
 from app.models.user import User
 from app.schemas.auth import LoginRequest,LoginResponse,UserCreate
 from app.utils.jwt import create_access_token
-from app.utils.password import pwd_context
-
+from app.utils.password import hash_password
+from app.utils.password import (
+    hash_password,
+    verify_password
+)
 router = APIRouter(
   prefix="/auth",
   tags=["认证"]
@@ -24,7 +27,7 @@ def login(data:LoginRequest,db:Session=Depends(get_db)):
     detail="用户不存在"
   )
 
-  if not pwd_context.verify(
+  if not verify_password(
     data.password,
     user.password
 ):
@@ -62,18 +65,18 @@ def register(data:UserCreate,db:Session=Depends(get_db)):
       status_code=400,
       detail="用户名已经存在"
     )
- 
-
+  
+  print("密码:", data.password)
+  print("密码长度:", len(data.password))
   # 密码加密
-  password_hash = (
-    pwd_context.hash(data.password)
-  )
+  password_hash = hash_password(data.password)
 
   user = User(
     username=data.username,
     password=password_hash,
     email=data.email,
     role="user",
+    status="active",
     avatar=""
   )
 

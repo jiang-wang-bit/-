@@ -19,6 +19,11 @@ class Category(Base):
       unique=True
   )
 
+  status:Mapped[str] = mapped_column(
+    String(20),
+    default="active"
+  )
+
   description: Mapped[str | None] = mapped_column(
       String(200),
       nullable=True

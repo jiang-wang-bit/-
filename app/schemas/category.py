@@ -21,6 +21,10 @@ class CategoryResponse(BaseModel):
 
   create_time: datetime
 
+  status:str
+
+  article_count:int=0
+
 
   model_config = ConfigDict(
       from_attributes=True
