@@ -5,7 +5,7 @@ from datetime import datetime
 class UserCreate(BaseModel):
   username:str
   email:str
-  password:str
+  password:str|None=None
   role:str = "user"
   status:str = "active"
 
@@ -15,6 +15,7 @@ class UserUpdate(BaseModel):
   email:str
   role:str
   status:str
+  password:str
 
 # 返回用户数据
 class UserResponse(BaseModel):
@@ -26,3 +27,10 @@ class UserResponse(BaseModel):
   create_time:datetime
   class Config:
     from_attributes = True
+
+
+class UserListResponse(BaseModel):
+
+    list:list[UserResponse]
+
+    total:int

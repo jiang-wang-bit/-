@@ -30,3 +30,10 @@ def get_current_user(token:str=Depends(oauth2_scheme),db:Session=Depends(get_db)
 
 
   return user
+
+def require_admin(user:User=Depends(get_current_user)):
+   if user.role!="admin":
+      raise HTTPException(
+         status_code=403,
+         detail="没有管理员权限"
+      )
