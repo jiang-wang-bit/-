@@ -1,4 +1,4 @@
-from fastapi import APIRouter,Depends,HTTPException
+from fastapi import APIRouter,Depends,HTTPException,Query
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from app.database import get_db
@@ -20,9 +20,13 @@ def get_deleted_categories(
 
 # 获取分类列表
 @router.get("",response_model=list[CategoryResponse])
-def get_categories(db:Session=Depends(get_db)):
+def get_categories(keyword:str|None=Query(None),db:Session=Depends(get_db)):
+  query = (db.query(Category,func.count(Article.id).label("article_count")).outerjoin(Article,Article.category_id==Category.id))
+  if keyword:
+     query = query.filter(Category.name.like(f"%{keyword}%"))
+
   result = (
-     db.query(Category,func.count(Article.id).label("article_count")).outerjoin(Article,Article.category_id==Category.id).filter(Category.status=="active").group_by(Category.id).order_by(Category.create_time.desc()).all()
+    query.group_by(Category.id).order_by(Category.create_time.desc()).all()
   )
   data=[]
   for category,count in result:
