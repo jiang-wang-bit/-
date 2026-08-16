@@ -4,7 +4,7 @@ from sqlalchemy import func
 from app.database import get_db
 from app.models.category import Category
 from app.models.article import Article
-from app.schemas.category import (CategoryCreate,CategoryResponse,CategoryUpdate)
+from app.schemas.category import (CategoryCreate,CategoryListResponse,CategoryResponse,CategoryUpdate)
 
 router = APIRouter(
   prefix="/categories",
@@ -19,15 +19,20 @@ def get_deleted_categories(
    return categories
 
 # 获取分类列表
-@router.get("",response_model=list[CategoryResponse])
-def get_categories(keyword:str|None=Query(None),db:Session=Depends(get_db)):
+@router.get("",response_model=CategoryListResponse)
+def get_categories(page:int=Query(1),pageSize:int=Query(10),keyword:str|None=Query(None),db:Session=Depends(get_db)):
   query = (db.query(Category,func.count(Article.id).label("article_count")).outerjoin(Article,Article.category_id==Category.id))
+
+#   搜索
   if keyword:
      query = query.filter(Category.name.like(f"%{keyword}%"))
 
+   # 总数量
+  total = (query.group_by(Category.id).count())
+
   result = (
-    query.group_by(Category.id).order_by(Category.create_time.desc()).all()
-  )
+    query.group_by(Category.id).order_by(Category.create_time.desc()).offset((page-1)*pageSize).limit(pageSize).all()
+    )
   data=[]
   for category,count in result:
      data.append({
@@ -45,7 +50,10 @@ def get_categories(keyword:str|None=Query(None),db:Session=Depends(get_db)):
             "article_count":count
 
         })
-  return data
+  return {
+     "list":data,
+     "total":total
+  }
 
 # 获取单个分类
 @router.get("/{id}",response_model=CategoryResponse)

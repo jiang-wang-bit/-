@@ -29,3 +29,9 @@ class CategoryResponse(BaseModel):
   model_config = ConfigDict(
       from_attributes=True
   )
+
+class CategoryListResponse(BaseModel):
+
+    list:list[CategoryResponse]
+
+    total:int
