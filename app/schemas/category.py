@@ -6,6 +6,7 @@ class CategoryCreate(BaseModel):
   name:str
   description:str|None=None
 
+
 # 修改分类
 class CategoryUpdate(BaseModel):
   name:str
@@ -22,6 +23,7 @@ class CategoryResponse(BaseModel):
   create_time: datetime
 
   status:str
+
 
   article_count:int=0
 

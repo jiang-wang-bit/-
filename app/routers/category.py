@@ -45,6 +45,8 @@ def get_categories(page:int=Query(1),pageSize:int=Query(10),keyword:str|None=Que
 
             "status":category.status,
 
+            
+
             "create_time":category.create_time,
 
             "article_count":count
@@ -73,7 +75,7 @@ def create_category(data:CategoryCreate,db:Session=Depends(get_db)):
       db.query(Category)
       .filter(
           Category.name==data.name,
-          Category.status=="active"
+          Category.status=="active",
       )
       .first()
   )
@@ -104,7 +106,7 @@ def create_category(data:CategoryCreate,db:Session=Depends(get_db)):
   category = Category(
     name=data.name,
     description = data.description,
-    status="active"
+    status="active",
   )
   db.add(category)
   db.commit()

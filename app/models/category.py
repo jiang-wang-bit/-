@@ -24,6 +24,7 @@ class Category(Base):
     default="active"
   )
 
+
   description: Mapped[str | None] = mapped_column(
       String(200),
       nullable=True

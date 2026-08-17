@@ -1,5 +1,5 @@
 from sqlalchemy import Integer,ForeignKey,DateTime,String
-from sqlalchemy.orm import mapped_column,Mapped
+from sqlalchemy.orm import mapped_column,Mapped,relationship
 from datetime import datetime
 from app.database import Base
 
@@ -28,3 +28,7 @@ class ArticleView(Base):
     DateTime,
     default=datetime.now
   )
+  article = relationship(
+        "Article",
+        back_populates="view_records"
+    )

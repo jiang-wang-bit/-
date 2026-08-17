@@ -1,5 +1,5 @@
 from sqlalchemy import Integer,DateTime,ForeignKey,UniqueConstraint
-from sqlalchemy.orm import Mapped,mapped_column
+from sqlalchemy.orm import Mapped,mapped_column,relationship
 from app.database import Base
 from datetime import datetime
 
@@ -26,3 +26,7 @@ class ArticleFavorite(Base):
         DateTime,
         default=datetime.now
     )
+  article = relationship(
+      "Article",
+      back_populates="favorites"
+  )

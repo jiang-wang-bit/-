@@ -1,6 +1,6 @@
 from app.database import Base
 from sqlalchemy import Integer,ForeignKey,DateTime,UniqueConstraint
-from sqlalchemy.orm import mapped_column,Mapped
+from sqlalchemy.orm import mapped_column,Mapped,relationship
 from datetime import datetime
 class ArticleLike(Base):
   __tablename__ = "article_likes"
@@ -24,3 +24,7 @@ class ArticleLike(Base):
     DateTime,
     default=datetime.now
   )
+  article = relationship(
+        "Article",
+        back_populates="like_records",
+    )

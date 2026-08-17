@@ -42,3 +42,7 @@ class Comment(Base):
     DateTime,
     default=datetime.now
   )
+  article = relationship(
+        "Article",
+        back_populates="comments"
+    )

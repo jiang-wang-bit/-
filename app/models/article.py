@@ -3,6 +3,7 @@ from sqlalchemy.orm import mapped_column,Mapped,relationship
 from datetime import datetime
 # from app.models.category import Category
 from app.database import Base
+from app.models.favorites import ArticleFavorite
 
 class Article(Base):
   __tablename__ = "articles"
@@ -74,4 +75,39 @@ class Article(Base):
         "Comment",
         back_populates="article"
     )
+  favorites=relationship("ArticleFavorite",
+                         cascade="all,delete-orphan",
+                         back_populates="article",
+                         passive_deletes=True)
+  comments = relationship(
+      "Comment",
+      cascade="all, delete-orphan",
+      back_populates="article",
+      passive_deletes=True
+  )
+
+
+  like_records = relationship(
+      "ArticleLike",
+      cascade="all, delete-orphan",
+      back_populates="article",
+      passive_deletes=True
+  )
+
+
+  histories = relationship(
+      "ArticleHistory",
+      cascade="all, delete-orphan",
+      back_populates="article",
+      passive_deletes=True
+  )
+
+
+  view_records = relationship(
+        "ArticleView",
+        cascade="all, delete-orphan",
+        back_populates="article",
+        passive_deletes=True
+    )
+
 

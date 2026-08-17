@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Mapped,mapped_column
+from sqlalchemy.orm import Mapped,mapped_column,relationship
 from sqlalchemy import Integer,ForeignKey,DateTime
 from datetime import datetime
 from app.database import Base
@@ -25,3 +25,7 @@ class ArticleHistory(Base):
     DateTime,
     default=datetime.now
   )
+  article = relationship(
+        "Article",
+        back_populates="histories"
+    )

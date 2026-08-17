@@ -12,7 +12,7 @@ router = APIRouter(
 # 获得文章
 @router.get("",response_model=list[ArticleResponse])
 def get_articles(db:Session=Depends(get_db)):
-  articles = db.query(Article).options(joinedload(Article.category)).all()
+  articles = db.query(Article).options(joinedload(Article.category)).filter(Article.status!="trash").all()
   return [
         {
             "id":article.id,
@@ -46,6 +46,13 @@ def create_article(data:ArticleCreate,db:Session=Depends(get_db)):
   db.commit()
   db.refresh(article)
   return article
+
+
+# 获得回收站文章
+@router.get("/trash",response_model=list[ArticleResponse])
+def get_trash_article(db:Session=Depends(get_db)):
+  articles = db.query(Article).filter(Article.status=="trash").all()
+  return articles
 
 # 获取文章详情
 @router.get("/{article_id}",response_model=ArticleResponse)
@@ -85,17 +92,13 @@ def delete_article(article_id:int,db:Session=Depends(get_db)):
       status_code=404,
       detail="文章不存在"
     )
+
   article.status = "trash"
   db.commit()
   return{
     "message":"已移入回收站"
   }
 
-# 获得回收站文章
-@router.get("/trash",response_model=list[ArticleResponse])
-def get_trash_article(db:Session=Depends(get_db)):
-  articles = db.query(Article).filter(Article.status=="trash").all()
-  return articles
 
 # 恢复文章
 @router.patch("/{article_id}/restore")
@@ -114,13 +117,14 @@ def restore_article(article_id:int,db:Session=Depends(get_db)):
   }
 
 # 批量恢复文章
-@router.patch("/batch/retore")
+@router.patch("/batch/restore")
 def batch_restore(ids:list[int],db:Session=Depends(get_db)):
   articles = db.query(Article).filter(Article.id.in_(ids))
   for article in articles:
     article.status=(article.old_status or "draft")
     article.old_status=None
-    return{
+  db.commit()
+  return{
       "message":"批量恢复成功"
     }
 
@@ -159,6 +163,10 @@ def update_article_status(article_id:int,data:ArticleStatus,db:Session=Depends(g
         status_code=404,
         detail="文章不存在"
       )
+   
+   if data.status=="trash":
+      article.old_status = article.status
+
    article.status = data.status
    db.commit()
    return{
