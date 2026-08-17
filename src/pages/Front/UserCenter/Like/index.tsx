@@ -1,31 +1,27 @@
 import {Card,Empty,Button,Space} from "antd"
+import { getUserLikes } from "../../../../api/user"
+import { useEffect,useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { useSelector } from "react-redux"
 import type { RootState } from "../../../../store"
-import { useNavigate } from "react-router-dom"
-import { useState,useEffect } from "react"
-import { getFavoriteList } from "../../../../api/favorite"
-import "./index.scss"
-export default function Favorite() {
+export default function MyLikes(){
   const navigate = useNavigate()
-  // 用户
   const userInfo = useSelector((state:RootState)=>state.user.userInfo)
-  const [articles,setArticles]=useState<any[]>([])
-  
-  // 获得收藏文章
+  const [articles,setArticles] = useState<any[]>([])
   useEffect(()=>{
-  if(!userInfo?.id){
-    return
-  }
-  getFavoriteList().then(res=>{
-    setArticles(res)
-  })
+     if(!userInfo?.id){
+      return
+     }
+     getUserLikes().then(res=>{
+      setArticles(res)
+     })
   },[userInfo?.id])
 
   return(
     <div>
-    <Card title="收藏文章">
+    <Card title="点赞文章">
       {
-        articles.length===0?<Empty description="暂无收藏"/>:
+        articles.length===0?<Empty description="暂无喜欢"/>:
         <Space vertical style={{width:"100%"}}>
             {
               articles.map(item=>(

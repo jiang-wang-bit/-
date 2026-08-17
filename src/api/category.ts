@@ -1,57 +1,76 @@
-import type {CategoryType } from "../types/category"
-import { setStorage,getStorage } from "../utils/storage"
+import { number } from "echarts";
+import request from "../request";
+import type { ArticleType } from "../types/article";
+import type { CategoryListResponse,CategoryType } from "../types/category";
 
-const STORAGE_KEY="categoryList"
-// 新增分类
-export  function createCategory(data:{name:string}){
-  const categoryList = getStorage<CategoryType[]>(STORAGE_KEY)
-   const newCategory:CategoryType = {
-       id:Date.now(),
-      name:data.name,
-      createTime:new Date().toLocaleDateString()
-   }
-   categoryList.push(newCategory)
-   setStorage(STORAGE_KEY,categoryList)
-   return Promise.resolve(
-    newCategory
-   )
+// 获取删除分类
+export function getDeletedCategory(){
+  return request.get("/categories/trash")
 }
+
 
 // 获取分类列表
-export function getCategoryList(){
-  const categoryList = getStorage<CategoryType[]>(STORAGE_KEY)
-  return Promise.resolve(
-    categoryList
-  )
+export function getCategoryList(params?:{
+  page:number,
+  pageSize:number,
+  keyword?:string
+
+}){
+  return request.get<CategoryListResponse>("/categories",{
+    params
+  })
 }
 
-// 删除分类
-export function deleteCategory(id:number){
-  const categoryList = getStorage<CategoryType[]>(STORAGE_KEY)
-  const newList = categoryList.filter(item=>item.id!==id)
-  setStorage(STORAGE_KEY,newList)
-  return Promise.resolve(
-    true
-  )
-}
-
-// 获取分类详情
+// 分类详情
 export function getCategoryDetail(id:number){
-  const categoryList = getStorage<CategoryType[]>(STORAGE_KEY)
-  const category = categoryList.find(item=>item.id===id)
-  return Promise.resolve(category)
+  return request.get<CategoryType>(`/categories/${id}`)
+}
+
+// 新增分类
+export function createCategory(data:{
+  name:string,
+  description?:string
+})
+{
+  return request.post("/categories",data)
 }
 
 // 修改分类
-export function updateCategory(id:number,data:{name:string}){
-   const categoryList = getStorage<CategoryType[]>(STORAGE_KEY)
-   const index = categoryList.findIndex(item=>item.id===id)
-   if(index!==-1){
-    categoryList[index] ={
-      ...categoryList[index],
-      name:data.name
-    }
-   }
-   setStorage(STORAGE_KEY,categoryList)
-   return Promise.resolve(categoryList[index])
+export function updateCategory(id:number,data:{
+  name:string,
+  description?:string
+})
+{
+  return request.put(`/categories/${id}`,data)
+}
+
+
+// 删除分类
+export function deleteCategory(
+    id:number
+){
+
+    return request.delete(
+        `/categories/${id}`
+    )
+
+}
+
+// 恢复分类
+export function restoreCategory(id:number){
+  return request.put(`/categories/${id}/restore`)
+}
+
+
+// 获取分类文章
+export function getCategoryArticles(id:number){
+  return request.get<{category:{
+    id:number
+    name:string
+  },articles:ArticleType[]}>(`/categories/${id}/articles`)
+}
+
+// 彻底删除
+export function forcedeleteCategory(id:number){
+  return request.delete(`/categories/${id}/force`)
 }

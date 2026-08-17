@@ -15,7 +15,7 @@ export default function Edit(){
   const [categories,setCatgories] = useState<CategoryType[]>([])
   useEffect(()=>{
      getCategoryList().then(res=> {
-      setCatgories(res)
+      setCatgories(res.list)
      })
   },[])
   // 获取文章数据
@@ -44,7 +44,7 @@ export default function Edit(){
       content,
       cover,
       status:values.status,
-      categoryId:values.categoryId,
+      category_id:values.categoryId,
       updateTime:new Date().toISOString()
     }
     try{

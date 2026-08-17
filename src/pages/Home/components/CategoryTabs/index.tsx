@@ -12,7 +12,7 @@ export default function CategoryTabs({onChange}:Props){
    const navigate = useNavigate()
    useEffect(()=>{
     getCategoryList().then(res=>{
-      setCategories(res)
+      setCategories(res.list)
     })
    },[]) 
   return(

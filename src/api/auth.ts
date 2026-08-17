@@ -1,15 +1,16 @@
-import type { LoginParams } from "../types/auth"
+import request from "../request";
+import type { LoginParams } from "../types/auth";
+
+// 登录
 export function loginApi(data:LoginParams){
-  if(data.username==="admin"&&data.password==="123456"){
-    return Promise.resolve({
-      token:"blog-token-123",
-      userInfo:{
-        id:2,
-        username:"admin",
-        role:"admin",
-        avatar:""
-      }
-    })
-  }
-  return Promise.reject("账号密码错误")
+  return request.post("/auth/login",data)
+}
+
+// 注册
+export function registerApi(data:{
+  username:string
+  password:string
+  email:string
+}){
+  return request.post("/auth/register",data)
 }

@@ -1,5 +1,7 @@
 import { getStorage,setStorage } from "../utils/storage";
 import type {User,UserSearchParams,UserListParams} from "../types/user"
+import router from "../router";
+import request from "../request";
 const STORAGE_KEY = "userList"
 // 获取用户列表
 export function getUserList(params:UserListParams){
@@ -31,7 +33,7 @@ export function createUser(data:{username:string;
     email:data.email,
     role:data.role,
     status:data.status,
-    createTime:new Date().toLocaleDateString()
+    create_time:new Date().toLocaleDateString()
    }
    users.push(newUser)
    setStorage(STORAGE_KEY,users)
@@ -71,3 +73,9 @@ export function updateUser(id:number,data:{
    setStorage(STORAGE_KEY,users)
    return Promise.resolve(users[index])
   }
+
+// 获取用户点赞文章
+export function getUserLikes(){
+  return request.get(
+ `/user/likes`)
+}

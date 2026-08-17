@@ -1,24 +1,30 @@
 import Banner from "./components/Banner"
 import { Card,Input } from "antd"
-import {useSelector} from "react-redux"
+import { getArticleList } from "../../api/article"
 import { useNavigate } from "react-router-dom"
 import { useEffect,useState } from "react"
 import {getCategoryList} from "../../api/category"
 import type { CategoryType } from "../../types/category"
-import type { RootState } from "../../store"
+import type { ArticleType } from "../../types/article"
 import ArticleCard from "./components/ArticleCard"
 import CategoryCard from "./components/CategoryCard"
 import "./index.scss"
 export default function Home(){
-
-  const articles = useSelector((state:RootState)=>state.article.list).filter(item=>item.status==="published")
+  const [articles,setArticles] = useState<ArticleType[]>([])
+  useEffect(()=>{
+   getArticleList().then(res=>{
+    setArticles(res.filter(item=>item.status==="published"))
+   }).catch(err=>{
+    console.log("获取文章失败",err)
+   })
+  },[])
   const hotArticles = [...articles].sort((a,b)=>b.views-a.views).slice(0,5)
   const latestArticles = [...articles].sort((a,b)=>{return new Date(b.createTime).getTime()-new Date(a.createTime).getTime()}).slice(0,5)
   const [categories,setCategories] = useState<CategoryType[]>([])
   const navigate = useNavigate()
   useEffect(()=>{
     getCategoryList().then(res=>{ 
-      setCategories(res)
+      setCategories(res.list)
     })
   },[])
   return (

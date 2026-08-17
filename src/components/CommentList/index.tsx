@@ -1,20 +1,58 @@
 import type { CommentType } from "../../types/comment";
-import { useSelector } from "react-redux"
 import{Button, Divider,Empty,Typography} from "antd"
 import CommentItem from "../CommentItem";
-import type { RootState } from "../../store";
+import { useEffect,useState } from "react";
+import { getCommentList } from "../../api/comment";
 import "./index.scss"
-import { useState } from "react";
 interface Props {
   articleId:number;
 }
 export default function CommentList({articleId}:Props){
- 
- const comments = useSelector((state:RootState)=>state.comment.list)
- const articleComments = comments.filter(item=>item.articleId===articleId&&item.status==="通过"&&item.parentId===null)
- const totalComments = comments.filter(item=>item.articleId===articleId&&item.status==="通过").length
+
+//  获取评论
+const [comments,setComments] = useState<CommentType[]>([])
+//  获取评论
+  useEffect(()=>{
+      getCommentList(articleId).then(res=>{
+        const list:CommentType[] = res.map(item=>({
+          id:item.id,
+          articleTitle:"",
+
+          articleId: item.article_id,
+
+          userId: item.user_id,
+
+          username:`用户${item.user_id}`,
+
+          content: item.content,
+
+          parentId: item.parent_id,
+
+          status: item.status,
+
+          time: item.create_time,
+
+          // 后端暂时没有点赞数量
+          like: 0,
+          liked:false,
+          parentName:"",
+
+        }))
+        setComments(list)
+      })
+  },[articleId])
+// 当前文章一级评论
+ const articleComments = comments.filter(item=>Number(item.articleId)===Number(articleId)&&item.status==="normal"&&item.parentId===null)
+    console.log(
+    "最终一级评论:",
+    articleComments
+    )
+//  所有文章评论数量
+ const totalComments = comments.filter(item=>item.articleId===articleId&&item.status==="normal").length
  const [showAllComments,setShowAllComments] = useState(false)
  const [sortType,setSortType] = useState<"latest"|"hot">("latest")
+
+//  排序
  const sortedComments = [...articleComments].sort(
   (a,b)=>{
     if(sortType==="hot"){

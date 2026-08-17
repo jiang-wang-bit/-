@@ -1,11 +1,13 @@
-import { Button,Typography } from "antd"
+import { Button,Typography,message } from "antd"
 import { LikeOutlined,MessageOutlined } from "@ant-design/icons"
-import { useState } from "react"
+import { useState,useEffect } from "react"
+import { useSelector } from "react-redux"
 import { formatCommentTime } from "../../utils/formatTime"
 import "./index.scss"
 import { useDispatch} from "react-redux"
-import { likeComment } from "../../store/modules/comment"
+import { likeComment,unlikeComment,getCommentStatus} from "../../api/comment"
 import CommentInput from "../CommentInput"
+import type { RootState } from "../../store"
 interface Props{
   reply:any;
   articleId:number;
@@ -13,10 +15,40 @@ interface Props{
 }
 export default function ReplyItem({reply,articleId,comments}:Props){
   const dispatch = useDispatch()
+  const userInfo=
+useSelector(
+(state:RootState)=>state.user.userInfo
+)
   const [replyId,setReplyId] = useState<number|null>(null)
+  const [likeCount,setLikeCount]=useState(reply.like)
+const [liked,setLiked]=useState(reply.liked)
   const parent = comments.find(item=>item.id===reply.parentId)
   const children = comments.filter(item=>item.parentId ===reply.id&&item.status==="通过")
   const childCount = children.length
+  useEffect(()=>{
+
+
+if(!userInfo?.id)
+return
+
+
+
+getCommentStatus(
+ reply.id,
+ userInfo.id
+
+).then(res=>{
+
+
+setLiked(res.liked)
+
+setLikeCount(res.likes)
+
+
+})
+
+
+},[])
   return(
     <div className="reply-wrapper">
       <div className="reply-item">
@@ -61,21 +93,27 @@ export default function ReplyItem({reply,articleId,comments}:Props){
           type="text"
           size="small"
           icon={<LikeOutlined/>}
-          onClick={()=>{
-          dispatch(
-          likeComment(reply.id)
-          )
+          onClick={async()=>{
+            if(!userInfo?.id){
+  message.warning("请先登录")
+  return
+}
+         if(liked){
+          const res = await unlikeComment(reply.id,userInfo.id)
+          setLikeCount(res.likes)
+          setLiked(false)
+         }else{
+          const res = await likeComment(reply.id,userInfo?.id)
+          setLiked(true)
+          setLikeCount(res.likes)
+         }
 
           }}
 
           >
           {
-          reply.liked?
-          reply.like:
-
-          "点赞"
-
-          }
+            liked?`${likeCount}`:"点赞"
+         }
           </Button>
           {/* 回复 */}
 

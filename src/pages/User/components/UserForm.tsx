@@ -9,7 +9,8 @@ export interface UserFormValues{
   username:string;
   email:string;
   role:User["role"];
-  status:User["status"]
+  status:User["status"];
+  password:string
 }
 export default function UserForm({initialValues,onSubmit}:UserFormProps){
   const [form] = Form.useForm()
@@ -37,15 +38,28 @@ export default function UserForm({initialValues,onSubmit}:UserFormProps){
         <Input placeholder="请输入邮箱"></Input>
       </Form.Item>
 
+          <Form.Item
+      label="密码"
+      name="password"
+      rules={[
+        {
+          required:true,
+          message:"请输入密码"
+        }
+      ]}
+    >
+      <Input.Password placeholder="请输入密码"/>
+      </Form.Item>
+
       <Form.Item label="角色" name="role" rules={[{required:true,message:"请选择角色"}]}>
        <Select options={[
         {
-          value:"管理员",
-          label:"管理员"
+          value:"admin",
+          label:"admin"
         },
         {
-          value:"普通用户",
-          label:"普通用户"
+          value:"user",
+          label:"user"
         }
        ]}/>
       </Form.Item>
@@ -53,11 +67,11 @@ export default function UserForm({initialValues,onSubmit}:UserFormProps){
       <Form.Item label="状态" name="status" rules={[{required:true,message:"请选择状态"}]}>
         <Select options={[
           {
-            value:"正常",
+            value:"active",
             label:"正常"
           },
           {
-            value:"禁用",
+            value:"disabled",
             label:"禁用"
           }
         ]}/>

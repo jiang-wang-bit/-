@@ -1,7 +1,7 @@
 import {Card,message} from "antd"
 import { useNavigate } from "react-router-dom"
 import UserForm from "./components/UserForm"
-import { createUser } from "../../api/user"
+import { createUser } from "../../api/user1"
 import "./index.scss"
 export default function CreateUser(){
   const navigate = useNavigate()

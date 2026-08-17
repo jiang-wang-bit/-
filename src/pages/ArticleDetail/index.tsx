@@ -33,7 +33,7 @@ export default function ArticleDetail(){
   const [categories,setCategories] = useState<CategoryType[]>([])
   useEffect(()=>{
    getCategoryList().then(res=>{
-    setCategories(res)
+    setCategories(res.list)
    }
    )
   },[])

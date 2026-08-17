@@ -12,7 +12,7 @@ export default function MyCategory(){
   const articles = useSelector((state:RootState)=>state.article.list).filter(item=>item.status==="published")
   useEffect(()=>{
     getCategoryList().then(res=>{
-      setCategories(res)
+      setCategories(res.list)
     })
   },[])
   return (

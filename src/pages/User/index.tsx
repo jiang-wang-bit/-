@@ -3,10 +3,11 @@ import "./index.scss"
 import {Space,Button,Empty,Popconfirm,Tag,message,Table} from "antd"
 import { useNavigate } from "react-router-dom"
 import { useState,useEffect } from "react"
+import dayjs from "dayjs"
 import UserSearch from "./components/UserSearch"
-import { getUserList,deleteUser } from "../../api/user"
-
-
+// import { deleteUser } from "../../api/user"
+import { getUserList } from "../../api/user1"
+import { deleteUser,restoreUser } from "../../api/user1"
 export default function User(){
   const navigate = useNavigate()
   const [users,setUsers] = useState<User[]>([])
@@ -19,7 +20,11 @@ export default function User(){
   const loadUsers = async()=>{
     try{
        setLoading(true)
-       const res = await getUserList({...searchParams,page,pageSize})
+       const res = await getUserList({
+        page,
+        pageSize,
+        ...searchParams
+       })
        setUsers(res.list)
        setTotal(res.total)
     }finally{
@@ -30,11 +35,13 @@ export default function User(){
     loadUsers()
   },[page,pageSize,searchParams])
 
+
   // 搜索函数
   const handleSearch = (values:UserSearchParams)=>{
      setSearchParams(values)
      setPage(1)
   }
+
   // 删除用户
   const handleDelete = async(id:number)=>{
     await deleteUser(id)
@@ -44,7 +51,18 @@ export default function User(){
     }
     loadUsers()
   }
+
+  // 恢复用户
+  const handleRestore = async(id:number)=>{
+    await restoreUser(id)
+    message.success("恢复成功")
+    loadUsers()
+  }
 const columns = [
+  {
+    title:"序号",
+    render:(_:any,__:User,index:number)=>index+1
+  },
   {
     title:"ID",
     dataIndex:"id",
@@ -65,7 +83,7 @@ const columns = [
     dataIndex:"role",
     key:"role",
     render:(role:string)=>(
-      role==="管理员"?<Tag color="blue">管理员</Tag>:<Tag >普通用户</Tag>
+      role==="admin"?<Tag color="blue">admin</Tag>:<Tag >user</Tag>
     )
   },
   {
@@ -73,13 +91,16 @@ const columns = [
     dataIndex:"status",
     key:"status",
     render:(status:string)=>(
-      status==="正常"?<Tag color="green">正常</Tag>:<Tag color="red">禁用</Tag>
+      status==="active"?<Tag color="green">正常</Tag>:<Tag color="red">禁用</Tag>
     )
   },
   {
     title:"创建时间",
-    dataIndex:"createTime",
-    key:"createTime"
+    dataIndex:"create_time",
+    key:"create_time",
+    render:(time:string)=>{
+      return dayjs(time).format("YYYY-MM-DD")
+    }
   },
   {
     title:"操作",
@@ -89,11 +110,17 @@ const columns = [
         编辑
        </Button>
        
-       <Popconfirm title="确定删除该用户吗?" onConfirm={()=>handleDelete(record.id)}>
+      {
+        record.status==="active"?
+         <Popconfirm title="确定删除该用户吗?" onConfirm={()=>handleDelete(record.id)}>
        <Button type="link" danger>
         删除
        </Button>
-       </Popconfirm>
+       </Popconfirm>:
+       <Button type="link" onClick={()=>handleRestore(record.id)}>
+          恢复
+       </Button>
+      }
       </Space>
     )
   }
@@ -104,7 +131,10 @@ const columns = [
       <div className="user-title">
       <h2>用户管理</h2>
       <UserSearch onSearch={handleSearch}/>
+      <Space>
+      <Button type="primary" onClick={()=>navigate("trash")}>回收站</Button>
       <Button type="primary" onClick={()=>navigate("create")}>新增用户</Button>
+      </Space>
       </div>
       <Table rowKey="id" pagination={{current:page,pageSize,total, showSizeChanger:true,onChange:(current,size)=>{
        if(size!==pageSize){

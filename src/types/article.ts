@@ -4,7 +4,7 @@ export interface ArticleType {
 
  title:string;
 
- desc:string;
+ desc?:string;
 
  content:string;
 

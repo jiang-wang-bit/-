@@ -28,11 +28,11 @@ export default function UserSearch({onSearch}:UserSearchProps){
         </Form.Item>
 
         <Form.Item name="role">
-          <Select placeholder="角色" style={{width:120}} options={[{label:"管理员",value:"管理员"},{label:"普通用户",value:"普通用户"}]} allowClear/>
+          <Select placeholder="角色" style={{width:120}} options={[{label:"admin",value:"admin"},{label:"user",value:"user"}]} allowClear/>
         </Form.Item>
 
         <Form.Item name="status">
-          <Select placeholder="状态" style={{width:120}} options={[{label:"正常",value:"正常"},{label:"禁用",value:"禁用"}]} allowClear/>
+          <Select placeholder="状态" style={{width:120}} options={[{label:"正常",value:"active"},{label:"禁用",value:"disabled"}]} allowClear/>
         </Form.Item>
 
         <Form.Item>

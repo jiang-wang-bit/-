@@ -2,16 +2,14 @@ import {Form,Input,Button,Select,Card,message,Upload} from "antd"
 import { useNavigate } from "react-router-dom"
 import "./create.scss"
 import { createArtilcle } from "../../api/article"
-import { useDispatch, useSelector } from "react-redux"
+import { getCategoryList } from "../../api/category"
+import { useSelector } from "react-redux"
 import {useState,useEffect} from "react"
 import MDEditor from "@uiw/react-md-editor"
 import type { RootState } from "../../store"
-import {getCategoryList} from "../../api/category"
 import type { CategoryType } from "../../types/category"
-import { addArticle } from "../../store/modules/article"
 import MarkDownEditor from "../../components/MarkDownEditor"
 export default function Create(){
-  const dispatch = useDispatch()
   const userInfo = useSelector((state:RootState)=>state.user.userInfo)
   const [form] = Form.useForm()
   const [categories,setCatgories] = useState<CategoryType[]>([])
@@ -20,7 +18,7 @@ export default function Create(){
   useEffect(()=>{
      getCategoryList().then(res=>
      {
-      setCatgories(res)
+      setCatgories(res.list)
      }
      )
   },[])
@@ -31,10 +29,10 @@ export default function Create(){
       title:values.title,
       content:content,
       cover,
-      categoryId:values.categoryId,
+      category_id:values.categoryId,
       status:values.status,
       author:userInfo?.username,
-      // createTime:new Date().toISOString(),
+      createTime:new Date().toISOString(),
     }
     try{
       await createArtilcle(article)

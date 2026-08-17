@@ -27,7 +27,12 @@ import Favorite from "../pages/Front/UserCenter/Favorite";
 import MyCategory from "../pages/Front/Category";
 import Portal from "../pages/Portal";
 import AdminGuard from "../components/AdminGuard";
-import Trash from "../pages/Trash";
+import MyLikes from "../pages/Front/UserCenter/Like";
+import History from "../pages/Front/UserCenter/History";
+import Trash from "../pages/Article/trash";
+import Register from "../pages/Register";
+import TrashUser from "../pages/User/Trash";
+import TrashCategory from "../pages/Category/trash";
 const router = createBrowserRouter([
 
   // 根路径
@@ -49,6 +54,11 @@ const router = createBrowserRouter([
     path: "/login",
     element:
       <Login />
+  },
+  // 注册
+  {
+    path:"/register",
+    element:<Register/>
   },
   // 前台
   {
@@ -101,6 +111,14 @@ const router = createBrowserRouter([
         {
           path:"comments",
           element:<MyComments/>
+        },
+        {
+          path:"like",
+          element:<MyLikes/>
+        },
+        {
+         path:"history",
+         element:<History/>
         }
        ]
       }
@@ -147,6 +165,10 @@ const router = createBrowserRouter([
           {
             path: "edit/:id",
             element: <Edit />
+          },
+          {
+            path:"trash",
+            element:<Trash/>
           }
         ]
       },
@@ -166,6 +188,10 @@ const router = createBrowserRouter([
           {
             path:"edit/:id",
             element:<EditCategory/>
+          },
+          {
+            path:"trash",
+            element:<TrashCategory/>
           }
         ]
       },
@@ -185,18 +211,17 @@ const router = createBrowserRouter([
           {
             path:"edit/:id",
             element:<EditUser/>
+          },
+          {
+            path:"trash",
+            element:<TrashUser/>
           }
         ]
       },
       {
         path: "comment",
         element: <Comment />
-      },
-      {
-        path:"trash",
-        element:<Trash/>
       }
-
 
     ]
 

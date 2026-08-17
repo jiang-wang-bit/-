@@ -13,9 +13,14 @@ export default function Login() {
    try{
     const res = await loginApi(values)
     const userInfo = {
-      ...res.userInfo,
-      role:res.userInfo.role as "admin" | 'user'
+      ...res.user,
+      role:res.user.role as "admin" | 'user'
     }
+       // 保存token
+    localStorage.setItem(
+      "token",
+      res.token
+    )
     dispatch(login({
       token:res.token,
       userInfo
@@ -43,6 +48,10 @@ export default function Login() {
 
           <Button type="primary" htmlType="submit" block>
             登录
+          </Button>
+
+          <Button type='link' block onClick={()=>navigate("/register")}>
+            没有账号?去注册
           </Button>
 
         </Form>

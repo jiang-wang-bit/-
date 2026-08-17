@@ -8,55 +8,110 @@ import {
  CheckCircleOutlined,
  EditOutlined
 } from "@ant-design/icons";
-import { useSelector } from 'react-redux';
 import dayjs from 'dayjs';
 import { getCategoryList } from '../../api/category';
 import { useState,useEffect } from 'react';
 import type { CategoryType } from '../../types/category';
 import PieChart from '../../components/Charts/pieCharts';
 import type { ArticleType } from '../../types/article';
+import { getDashborad } from '../../api/dashborad';
+interface PublishTrend {
+  date:string
+  count:number
+}
+
+
+interface CategoryTrend {
+  name:string
+  value:number
+}
+
+
+interface RecentArticle {
+
+  id:number
+
+  title:string
+
+  author:string
+
+  createTime:string
+
+}
 export default function Dashboard(){
-  // 获取文章
-  const articles = useSelector((state:any)=>state.article.list as ArticleType[])
-  // 已发布文章
-  const publishArticles = articles.filter(item=>item.status==="published")
-  // 发布文章趋势数据
-   const trendMap = publishArticles.reduce((acc:Record<string, number>,item)=>{
-    const date = dayjs(item.createTime).format("YYYY-MM-DD")
-    // 数量累加
-    acc[date] = (acc[date] || 0) +1
-    return acc
-   },{})
+
+
   //  获取分类
   const [categories,setCategories] = useState<CategoryType[]>([])
+
+  // 统计数量
+  const [dashboardData,setDashboardData] = useState<{
+
+  userCount:number
+
+  articleCount:number
+
+  categoryCount:number
+
+  publishArticleCount:number
+
+  draftArticleCount:number
+
+
+  publishTrend:PublishTrend[]
+
+  recentArticles:RecentArticle[]
+
+  categoryTrend:CategoryTrend[]
+
+  }>({
+
+    userCount:0,
+
+    articleCount:0,
+     
+    categoryCount:0,
+
+    publishArticleCount:0,
+
+    draftArticleCount:0,
+
+    publishTrend:[],
+
+    recentArticles:[],
+
+    categoryTrend:[]
+
+})
   useEffect(()=>{
        getCategoryList().then(res=>{
-        setCategories(res)
+        setCategories(res.list)
+       })
+
+       getDashborad().then(res=>{
+        setDashboardData(res)
        })
   },[])
+    
+  // 统计折线图
+    const chartData = dashboardData.publishTrend.map(item=>({
+       date:item.date,
 
-    const chartData = Object.keys(trendMap).map(date=>({
-      date,
-      count:trendMap[date]
+      count:item.count
+
     }))
 
-  // 草稿文章
-  const draftArticles = articles.filter(item=>item.status==="draft")
   // 全部文章数量
-  const articleCount = articles.length
+  const articleCount = dashboardData.articleCount
   // 分类数量
-  const categoryCount = categories.length
-  // 分类统计
-   const categoryMap = articles.reduce((acc:any,item)=>{
-    const category = categories.find(c=>c.id===item.categoryId)
-    if(category){
-      acc[category.name] = (acc[category.name]||0) +1
-    }
-    return acc
-   },{})
-   const piedata = Object.keys(categoryMap).map(item=>({
-      name:item,
-      value:categoryMap[item]
+  const categoryCount = dashboardData.categoryCount
+  
+  // 分类饼图
+   const piedata = dashboardData.categoryTrend.map(item=>({
+        
+    name:item.name,
+
+    value:item.value
    }))
   const columns = [
     {
@@ -75,11 +130,7 @@ export default function Dashboard(){
       }
     }
   ]
-  // 同步最近发布的文章
-  const data = [...publishArticles].sort(
-    (a,b)=>
-     dayjs(b.createTime).unix()-dayjs(a.createTime).unix()
-  ).slice(0,5)
+
 
   return (
     <div className="dashboard">
@@ -95,7 +146,7 @@ export default function Dashboard(){
        {/* 用户 */}
        <Col span={8}>
        <Card>
-        <Statistic title="用户数量" value={67} prefix={<UserOutlined/>} />
+        <Statistic title="用户数量" value={dashboardData.userCount} prefix={<UserOutlined/>} />
 
        </Card>
        </Col>
@@ -112,20 +163,20 @@ export default function Dashboard(){
       <Row gutter={16} style={{marginTop:16}}>
         <Col span={8}>
          <Card>
-          <Statistic title="已发布文章" value={publishArticles.length} prefix={<CheckCircleOutlined />} />
+          <Statistic title="已发布文章" value={dashboardData.publishArticleCount} prefix={<CheckCircleOutlined />} />
          </Card>
         </Col>
 
         {/* 草稿文章 */}
         <Col span={8}>
         <Card>
-         <Statistic title="草稿文章" value={draftArticles.length} prefix={<EditOutlined/>}/>
+         <Statistic title="草稿文章" value={dashboardData.draftArticleCount} prefix={<EditOutlined/>}/>
         </Card>
         </Col>
       </Row>
 
        <Card title="最近发布的文章" className='article-card'>
-       <Table columns={columns} dataSource={data} pagination={false} rowKey="id">
+       <Table columns={columns} dataSource={dashboardData.recentArticles} pagination={false} rowKey="id">
        </Table>
        </Card>
 

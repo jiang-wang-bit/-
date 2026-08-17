@@ -4,9 +4,12 @@ import {useNavigate,useLocation} from "react-router-dom";
 import {
   UserOutlined,
   FileTextOutlined,
+  HistoryOutlined,
+  LikeOutlined,
   HeartOutlined,
   MessageOutlined
 } from "@ant-design/icons"
+import { icons } from 'antd/es/image/PreviewGroup';
 export default function UserMenu(){
   const navigate = useNavigate();
   const location = useLocation();
@@ -26,6 +29,16 @@ export default function UserMenu(){
       key:"comments",
       icon:<MessageOutlined />,
       label:"我的评论"
+    },
+    {
+      key:"like",
+      icon:<LikeOutlined/>,
+      label:"我的点赞"
+    },
+    {
+      key:"history",
+      icon:<HistoryOutlined/>,
+      label:"阅读历史"
     }
   ]
 

@@ -1,36 +1,33 @@
-import { Button,Input,Card,Space,Typography,Avatar} from "antd";
+import { Button,Input,Card,Space,Typography,Avatar,message} from "antd";
 import { useState,useEffect,useRef} from "react";
 import "./index.scss"
 import { useDispatch} from "react-redux";
+import { useSelector } from "react-redux";
 import CommentInput from "../CommentInput";
+import { likeComment,unlikeComment } from "../../api/comment";
 import ReplyItem from "../ReplyItem";
 import { formatCommentTime } from "../../utils/formatTime";
 import {
   UserOutlined,LikeOutlined,MessageOutlined
 } from "@ant-design/icons";
-import { likeComment } from "../../store/modules/comment";
+import type { RootState } from "../../store";
+import type { CommentType } from "../../types/comment";
 
-interface CommentType{
-id:number;
-articleTitle:string;
-articleId:number;
-username:string;
-content:string;
-status:string;
-time:string;
-parentId:number|null;
-like:number;
-liked:boolean;
-}
 interface Props{
-comment:any;
+comment:CommentType;
 articleId:number
 comments:CommentType[];
 }
 export default function CommentItem({comment,articleId,comments}:Props){
   const dispatch = useDispatch()
   const [replyId,setReplyId]=useState<number|null>(null)
-    const replyRef = useRef<HTMLDivElement>(null)
+  const replyRef = useRef<HTMLDivElement>(null)
+  const userInfo=
+useSelector(
+(state:RootState)=>state.user.userInfo
+)
+  const [liked,setLiked] = useState(comment.liked)
+  const [likeCount,setLikeCount] = useState(comment.like)
     function getAllReplies(id:number){
     const result:CommentType[]=[]
 
@@ -39,7 +36,7 @@ export default function CommentItem({comment,articleId,comments}:Props){
     if(
       item.parentId===parentId
       &&
-      item.status==="通过"
+      item.status==="normal"
     ){
       result.push(item)
       find(item.id)
@@ -69,6 +66,7 @@ export default function CommentItem({comment,articleId,comments}:Props){
         )
        }
   },[])
+
      const allReplies = getAllReplies(comment.id).sort((a,b)=>new Date(a.time).getTime()-new Date(b.time).getTime())
      const [showAllReplies,setShowAllReplies] = useState(false)
      const replies:CommentType[] = showAllReplies?allReplies:allReplies.slice(0,1)
@@ -130,10 +128,23 @@ console.log(formatCommentTime(comment.time))
           </Typography.Text>
 
          {/* 点赞按钮 */}
-          <Button type="text" size="small" icon={<LikeOutlined/>} onClick={()=>{
-            dispatch(likeComment(comment.id))}}>
-         {
-            comment.liked? comment.like:"点赞"
+          <Button type="text" size="small" icon={<LikeOutlined/>} onClick={async()=>{
+            if(!userInfo?.id){
+              message.warning("请先登录")
+              return
+            }
+            if(liked){
+              const res = await unlikeComment(comment.id,userInfo.id)
+              setLiked(false)
+              setLikeCount(res.likes)
+            }else{
+              const res = await likeComment(comment.id,userInfo.id)
+              setLiked(true)
+              setLikeCount(res.likes)
+            }
+            }}>
+            {
+            liked?`${likeCount}`:"点赞"
          }
           </Button>
              

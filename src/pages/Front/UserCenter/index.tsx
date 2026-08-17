@@ -8,6 +8,7 @@ export default function UserCenter() {
     <div className="user-center">
    <Card title="用户中心">
    <Layout>
+    
     <Sider className="user-sider" theme="light">
       <UserMenu/>
     </Sider>
@@ -15,6 +16,7 @@ export default function UserCenter() {
     <Content className="user-content">
       <Outlet/>
     </Content>
+
    </Layout>
    </Card>
    </div>

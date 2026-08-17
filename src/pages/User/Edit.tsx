@@ -3,7 +3,7 @@ import { useEffect,useState } from "react"
 import UserForm from "./components/UserForm"
 import { UserFormValues } from "./components/UserForm"
 import { useNavigate,useParams } from "react-router-dom"
-import { getUserDetail,updateUser } from "../../api/user"
+import { updateUser,getUserDetail } from "../../api/user1"
 import type {User} from "../../types/user"
 export default function EditUser(){
   const navigate = useNavigate()

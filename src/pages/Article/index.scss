@@ -12,3 +12,11 @@ margin-bottom:20px;
 .upload{
   margin-left: 20px;
 }
+
+.trash-page{
+  padding: 24px;
+  .trash-page-title{
+     display: flex;
+     justify-content: space-between;
+  }
+}

@@ -1,25 +1,44 @@
 import {useParams,useNavigate} from "react-router-dom"
 import{Card,Empty,Tag} from "antd"
-import {useSelector} from "react-redux"
 import { useState,useEffect } from "react"
 import { getCategoryDetail } from "../../../api/category"
-import ArticleCard from "../../Home/components/ArticleCard"
-import type { RootState } from "../../../store"
+import { getArticleList } from "../../../api/article"
+import { getCategoryArticles } from "../../../api/category"
 import type { CategoryType } from "../../../types/category"
 import type {ArticleType} from "../../../types/article"
 export default function CategoryArticle(){
   const {id} = useParams()
   const navigate = useNavigate()
-  const articles = useSelector((state: RootState) => state.article.list).filter(item=>item.status==="published") as ArticleType[]
-  const [category,setCategory] = useState<CategoryType>()
-  useEffect(()=>{
-    if(id){
-    getCategoryDetail(Number(id)).then(res=>{
-      setCategory(res)
+  const [articles,setArticles] = useState<ArticleType[]>([])
+  const [category,setCategory] = useState<CategoryType|null>(null)
+ useEffect(()=>{
+
+    if(!id) return
+
+
+    const categoryId = Number(id)
+
+
+    getCategoryDetail(categoryId)
+    .then(res=>{
+
+        setCategory(res)
+
     })
-    }
-  },[id])
-  const categoryArticles = articles.filter(item=>String(item.categoryId)===String(id))
+
+
+    getCategoryArticles(categoryId)
+    .then(res=>{
+
+        setArticles(
+            res.articles
+        )
+
+    })
+
+
+},[id])
+  const categoryArticles = articles
   return(
     <div className="category-article-page">
 
@@ -81,7 +100,9 @@ className="category-header"
 
         <p>
 
-        {item.content.slice(0,120)}
+        {
+          item.content?
+        item.content.slice(0,120):""}
 
         ...
 

@@ -9,7 +9,7 @@ interface Props{
   article:{
     id:number
     title:string;
-    desc:string,
+    desc?:string,
     author:string,
     cover:string,
     createTime:string,
@@ -24,7 +24,7 @@ export default function ArticleCard({article}:Props){
   useEffect(()=>{
       getCategoryList().then(res=>{
          console.log("分类数据",res)
-        setCategories(res)
+        setCategories(res.list)
       })
   },[])
   const category = categories.find(item=>item.id===article.categoryId)

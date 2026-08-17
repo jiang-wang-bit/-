@@ -3,8 +3,10 @@ import {Card,Empty,Pagination,Input} from "antd"
 import { useState,useEffect } from "react"
 import {useSelector} from "react-redux"
 import {useSearchParams} from "react-router-dom"
+import { getArticleList } from "../../../api/article"
 import CategoryTabs from "../../Home/components/CategoryTabs"
 import type { RootState } from "../../../store"
+import type { ArticleType } from "../../../types/article"
 import ArticleCard from "../../Home/components/ArticleCard"
 export default function ArticleList(){
   const [page,setPage] = useState(1)
@@ -12,12 +14,19 @@ export default function ArticleList(){
   const keywordFromUrl = params.get("keyword") || ""
    const [keyword,setKeyword] = useState(keywordFromUrl)
   const [category,setCategory]=useState<number | null>(null)
+  const [articles,setArticles] = useState<ArticleType[]>([])
    useEffect(()=>{
   setKeyword(
    params.get("keyword") || ""
   )
  },[params])
-  const articles = useSelector((state:RootState)=>state.article.list).filter(item=>item.status==="published")
+
+ useEffect(()=>{
+  getArticleList().then(res=>{
+    setArticles(res.filter(item=>item.status==="published"))
+  })
+ },[])
+
   const filterData = articles.filter(item=>{
     const matchKeyword = keyword.trim()?(item.title.includes(keyword) )|| (item.content.includes(keyword)):true
     const matchCategory = category?(item.categoryId)===(category):true

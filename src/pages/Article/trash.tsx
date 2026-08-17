@@ -1,65 +1,82 @@
 import { Table,Button,Popconfirm,Tag,message,Space,Dropdown} from "antd"
-import { useSelector,useDispatch } from "react-redux"
-import { useState } from "react"
-import { forceDeleteArticle,updateArticle } from "../../store/modules/article"
+import { useState,useEffect } from "react"
+import { restoreArticle,forceDeleteArticleApi,batchDeleteArticle,batchRestoreArticle } from "../../api/article"
+import { getTrashArticle } from "../../api/article"
 import type { ArticleType } from "../../types/article"
-import type { RootState } from "../../store"
 import "./index.scss"
 export default function Trash(){
-  const dispatch = useDispatch()
+  const [articles,setArticles] = useState<ArticleType[]>([])
   const [selectedRowKeys,setSelectedRowKeys] = useState<number[]>([])
-  const trashArticles = useSelector((state:RootState)=>state.article.list.filter((item:ArticleType)=>item.status==="trash"))
-   const selectedArticles = trashArticles.filter(item=>selectedRowKeys.includes(item.id))
-  const restore = (article:ArticleType)=>{
-    dispatch(
-      updateArticle(
-        {
-          ...article,
-          status:article.beforeDeleteStatus||"draft"
-        }
-      )
-    )
-    message.success("恢复成功")
+   const selectedArticles = articles.filter(item=>selectedRowKeys.includes(item.id))
+   const loadArticles = async()=>{
+     const res = await getTrashArticle()
+     console.log("回收站文章:",res)
+     setArticles(res)
+   }
+   useEffect(()=>{
+           loadArticles() 
+       },[])
+
+  const restore = async(article:ArticleType)=>{
+    try{
+      await restoreArticle(article.id)
+       message.success("恢复成功")
+       loadArticles()
+    }catch(err){
+      message.error("恢复失败")
+    }
+   
   }
   // 批量恢复：
-  const handleBatchRestore=()=>{
+  const handleBatchRestore=async()=>{
      if(selectedArticles.length===0){
       message.warning("请选择文章")
       return
      }
-     selectedRowKeys.forEach(id=>{
-
-      const article =
-      trashArticles.find(
-        item=>item.id===id
-      )
-      if(article){
-        dispatch(
-          updateArticle({
-            ...article,
-            status:
-            article.beforeDeleteStatus || "draft"
-          })
-        )
-      }
-    })
-     message.success(`恢复${selectedRowKeys.length}篇文章`)
-     setSelectedRowKeys([])
+     try{
+    await batchRestoreArticle(selectedRowKeys)
+    message.success(
+      `恢复${selectedRowKeys.length}篇文章`
+    )
+    setSelectedRowKeys([])
+    loadArticles()
+  }catch(err){
+    message.error("批量恢复失败")
   }
+  }
+
+  // 单个彻底删除
+  const handleForceDelete = async(id:number)=>{
+    try{
+      await forceDeleteArticleApi(id)
+      message.success("彻底删除成功")
+      await loadArticles()
+    }catch(err){
+      message.error("删除失败")
+    }
+  }
+
+
   // 批量删除
-  const handleBatchForceDelete=()=>{
+  const handleBatchForceDelete=async()=>{
     if(selectedRowKeys.length===0){
       message.warning("请选择文章")
       return
     }
-    selectedRowKeys.forEach(id=>
-      dispatch(forceDeleteArticle(id))
-    )
-     message.success(
-    `永久删除${selectedRowKeys.length}篇文章`
-    )
+    try{
+      await batchDeleteArticle(selectedRowKeys)
+      message.success(
+         `永久删除${selectedRowKeys.length}篇文章`
+      )
+      setSelectedRowKeys([])
+      loadArticles()
+    }catch(err){
 
-  setSelectedRowKeys([])
+    console.log(err)
+
+    message.error("永久删除失败")
+
+  }
   }
 
   const columns = [
@@ -87,7 +104,7 @@ export default function Trash(){
         <>
         <Space>
         <Button size="small" onClick={()=>restore(record)}>恢复</Button>
-        <Popconfirm title="确定永久删除吗?" onConfirm={()=>dispatch(forceDeleteArticle(record.id))}>
+        <Popconfirm title="确定永久删除吗?" onConfirm={()=>handleForceDelete(record.id)}>
             <Button danger size="small">永久删除</Button>
         </Popconfirm>
         </Space>
@@ -129,7 +146,7 @@ export default function Trash(){
       )
        }
       </div>
-      <Table dataSource={trashArticles} columns={columns} rowKey="id" rowSelection={{selectedRowKeys,
+      <Table dataSource={articles} columns={columns} rowKey="id" rowSelection={{selectedRowKeys,
         onChange:(keys)=>{
           setSelectedRowKeys(
             keys.map(key=>Number(key))

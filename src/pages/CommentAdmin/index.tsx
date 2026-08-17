@@ -1,20 +1,22 @@
 import { CommentType } from "./types"
-import {data} from "./mock"
 import "./index.scss"
-import { Table,Tag,Button,Card,Popconfirm, message} from "antd"
+import { Table,Tag,Button,Popconfirm, message} from "antd"
 import { useDispatch,useSelector } from "react-redux"
 import { useEffect } from "react"
-import { setComments,deleteComments,updateStatus } from "../../store/modules/comment"
+import type { RootState } from "../../store"
+import { setComments } from "../../store/modules/comment"
+import { getAllComments,updateCommentStatus,deleteComment } from "../../api/comment"
 export default function Comment(){
   const dispatch = useDispatch()
   useEffect(()=>{
-    if(data.length===0){
-     dispatch(setComments(data))}
+   getAllComments().then(res=>{
+    dispatch(setComments(res))
+   })
   },[dispatch])
   const datalist = useSelector((state:any)=>state.comment.list)
   const columns = [{
     title:"文章",
-    dataIndex:"articleTitle"
+    dataIndex:"article_title"
   },
   {
     title:"评论用户",
@@ -28,7 +30,7 @@ export default function Comment(){
    title:"状态",
    dataIndex:"status",
    render:(status:string)=>{
-    return status==="通过" ? <Tag color="green">通过</Tag>:<Tag color="orange">待审核</Tag>
+    return status==="normal" ? <Tag color="green">通过</Tag>:<Tag color="orange">待审核</Tag>
    }
   },
   {
@@ -37,13 +39,19 @@ export default function Comment(){
       return (
         <>
         {
-          record.status==="待审核"&&
-          <Button type="primary" size="small" onClick={()=>{dispatch(updateStatus({id:record.id,status:"通过"}))
-        message.success("审核通过")}}>通过</Button>
+          record.status==="pending"&&
+          <Button type="primary" size="small" onClick={async()=>{await updateCommentStatus(record.id,"normal")
+        message.success("审核通过")
+        getAllComments().then(res=>{
+          dispatch(setComments(res))
+        })}}>通过</Button>
         }
 
-      <Popconfirm title="删除评论" description="确定删除这条评论吗?" okText="确定" cancelText="取消" onConfirm={()=>{dispatch(deleteComments(record.id))
-       message.success("删除成功")}}>
+      <Popconfirm title="删除评论" description="确定删除这条评论吗?" okText="确定" cancelText="取消" onConfirm={async()=>{await deleteComment(record.id)
+       message.success("删除成功")
+       getAllComments().then(res=>{
+        dispatch(setComments(res))
+       })}}>
         <Button danger size="small">删除</Button>
         </Popconfirm>
         </>

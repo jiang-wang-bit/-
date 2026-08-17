@@ -16,8 +16,14 @@ export default function CreateCategory(){
       })
       message.success("新增成功")
       navigate("/admin/category")
-    }catch(err){
-       message.error("新增失败")
+    }catch(err:any){
+       console.log("错误对象:",err)
+
+  console.log(
+    "返回数据:",
+    err.response?.data
+  )
+       message.error(err.response?.data?.detail || "创建失败")
     }
   }
 
