@@ -1,7 +1,7 @@
 import { number } from "echarts";
 import request from "../request";
 import type { ArticleType } from "../types/article";
-import type { CategoryListResponse,CategoryType } from "../types/category";
+import type { CategoryListResponse,CategoryType,CategoryStatsType } from "../types/category";
 
 // 获取删除分类
 export function getDeletedCategory(){
@@ -20,6 +20,8 @@ export function getCategoryList(params?:{
     params
   })
 }
+
+
 
 // 分类详情
 export function getCategoryDetail(id:number){
@@ -70,7 +72,16 @@ export function getCategoryArticles(id:number){
   },articles:ArticleType[]}>(`/categories/${id}/articles`)
 }
 
+
 // 彻底删除
 export function forcedeleteCategory(id:number){
   return request.delete(`/categories/${id}/force`)
+}
+
+export function getCategoryStats(){
+
+    return request.get<CategoryStatsType[]>(
+        "/categories/stats"
+    )
+
 }

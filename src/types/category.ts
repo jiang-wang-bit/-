@@ -16,3 +16,13 @@ export interface CategoryListResponse{
   list:CategoryType[]
   total:number
 }
+
+export interface CategoryStatsType{
+
+    id:number
+
+    name:string
+
+    article_count:number
+
+}

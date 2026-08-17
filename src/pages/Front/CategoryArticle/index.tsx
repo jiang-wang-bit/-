@@ -18,27 +18,21 @@ export default function CategoryArticle(){
 
     const categoryId = Number(id)
 
-
     getCategoryDetail(categoryId)
     .then(res=>{
-
         setCategory(res)
-
     })
-
 
     getCategoryArticles(categoryId)
     .then(res=>{
 
         setArticles(
-            res.articles
-        )
+            res.articles||[])
 
     })
 
 
 },[id])
-  const categoryArticles = articles
   return(
     <div className="category-article-page">
 
@@ -52,7 +46,7 @@ className="category-header"
 </h1>
 
 <p>
-共有 {categoryArticles.length} 篇文章
+共有 {articles.length} 篇文章
 </p>
 
 
@@ -65,7 +59,7 @@ className="category-header"
 
         {
 
-        categoryArticles.length===0?
+        articles.length===0?
 
         <Empty
         description="暂无文章"
@@ -74,7 +68,7 @@ className="category-header"
 
         :
 
-        categoryArticles.map(item=>(
+        articles.map(item=>(
         <Card
 
         key={item.id}

@@ -1,19 +1,19 @@
 import {Card,Tag} from "antd"
 import {useNavigate} from "react-router-dom"
 import { useEffect,useState } from "react"
-import type { CategoryType } from "../../../types/category"
-import { getCategoryList } from "../../../api/category"
+import type { CategoryType,CategoryStatsType } from "../../../types/category"
+import { getCategoryList,getCategoryStats } from "../../../api/category"
 import type { RootState } from "../../../store"
 import { useSelector } from "react-redux"
 import "./index.scss"
 export default function MyCategory(){
   const navigate = useNavigate()
-  const [categories,setCategories] = useState<CategoryType[]>([])
+  const [categories,setCategories] = useState<CategoryStatsType[]>([])
   const articles = useSelector((state:RootState)=>state.article.list).filter(item=>item.status==="published")
   useEffect(()=>{
-    getCategoryList().then(res=>{
-      setCategories(res.list)
-    })
+   getCategoryStats().then(res=>{
+    setCategories(res)
+   })
   },[])
   return (
     <div className="category-page">
@@ -21,9 +21,6 @@ export default function MyCategory(){
       <div className="category-list">
        {
         categories.map(item=>{
-          const count = articles.filter(article=>
-            article.categoryId===item.id
-          ).length
 
           return(
 
@@ -48,7 +45,7 @@ export default function MyCategory(){
           <div className="category-desc">
           共有
           <Tag color="blue">
-          {count}
+          {item.article_count}
           </Tag>
           篇文章
           </div>
