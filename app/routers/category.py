@@ -57,6 +57,40 @@ def get_categories(page:int=Query(1),pageSize:int=Query(10),keyword:str|None=Que
      "total":total
   }
 
+@router.get("/stats")
+def get_category_stats(
+    db:Session=Depends(get_db)
+):
+
+    categories = db.query(Category).all()
+
+
+    result=[]
+
+
+    for category in categories:
+
+        count = db.query(Article)\
+            .filter(
+                Article.category_id==category.id,
+                Article.status=="published"
+            )\
+            .count()
+
+
+        result.append({
+
+            "id":category.id,
+
+            "name":category.name,
+
+            "article_count":count
+
+        })
+
+
+    return result
+
 # 获取单个分类
 @router.get("/{id}",response_model=CategoryResponse)
 def get_category(id:int,db:Session=Depends(get_db)):
@@ -180,3 +214,23 @@ def forcr_delete_category(id:int,db:Session=Depends(get_db)):
    return{
       "message":"永久删除成功"
    }
+
+# 获得分类文章
+@router.get("/{id}/articles")
+def get_articles_by_category(id:int,db:Session=Depends(get_db)):
+  category = db.query(Category)\
+        .filter(Category.id==id)\
+        .first()
+
+
+  articles = db.query(Article)\
+   .filter(
+      Article.category_id==id
+   ).all()
+
+
+  return {
+      "category":category,
+      "articles":articles
+   }
+
