@@ -70,3 +70,6 @@ class MyCommentResponse(BaseModel):
     status:str
 
     time:datetime
+
+class BatchSchems(BaseModel):
+    ids:list[int]

@@ -4,7 +4,7 @@ from app.models.comment import Comment
 from app.models.article import Article
 from app.models.comment_like import CommentLike
 from app.models.user import User
-from app.schemas.comment import CommentCreate,CommentResponse,CommentStatusUpdate,CommentFrontResponse
+from app.schemas.comment import CommentCreate,CommentResponse,CommentStatusUpdate,CommentFrontResponse,BatchSchems
 from app.database import get_db
 from app.dependencies.auth import get_current_user
 from app.models.user import User
@@ -35,6 +35,50 @@ def create_comment(data:CommentCreate,db:Session=Depends(get_db),user:User=Depen
   db.refresh(comment)
   return comment
 
+# 批量审核通过评论
+@router.put("/batch_approve")
+def batch_approve(data:BatchSchems,db:Session=Depends(get_db)):
+   comments = db.query(Comment).filter(Comment.id.in_(data.ids)).all()
+   for comment in comments:
+      comment.status="normal"
+   db.commit()
+   return{
+      "message":"审核通过"
+   }
+
+# 批量删除
+@router.delete("/batch_delete")
+def batch_approve(data:BatchSchems,db:Session=Depends(get_db)):
+   comments = db.query(Comment).filter(Comment.id.in_(data.ids)).all()
+   for comment in comments:
+      comment.status="deleted"
+   db.commit()
+   return{
+      "message":"审核通过"
+   }
+
+# 批量恢复
+@router.put("/batch_restore")
+def batch_restore(data:BatchSchems,db:Session=Depends(get_db)):
+     comments = db.query(Comment).filter(Comment.id.in_(data.ids)).all()
+     for comment in comments:
+         comment.status="normal"
+     db.commit()
+     return{
+        "message":"批量恢复成功"
+    }
+
+# 批量彻底删除
+@router.delete("/batch_delete_permanent")
+def batch_restore(data:BatchSchems,db:Session=Depends(get_db)):
+     comments = db.query(Comment).filter(Comment.id.in_(data.ids)).all()
+     for comment in comments:
+         db.delete()
+     db.commit()
+     return{
+        "message":"批量彻底删除成功"
+    }
+
 # 获取前台评论
 @router.get("/article/{article_id}",response_model=list[CommentFrontResponse])
 def get_article_comment(article_id:int,db:Session=Depends(get_db)):
@@ -46,7 +90,7 @@ def get_article_comment(article_id:int,db:Session=Depends(get_db)):
 @router.get("",response_model=list[CommentResponse])
 def get_comments(db:Session=Depends(get_db)):
    
-    comments= (db.query(Comment,Article.title,User.username).join(Article,Comment.article_id==Article.id).join(User,Comment.user_id==User.id).order_by(Comment.create_time.desc()).all())
+    comments= (db.query(Comment,Article.title,User.username).join(Article,Comment.article_id==Article.id).join(User,Comment.user_id==User.id).filter(Comment.status!="deleted").order_by(Comment.create_time.desc()).all())
     result = []
     for comment,title,username in comments:
         result.append({
@@ -73,6 +117,100 @@ def get_comments(db:Session=Depends(get_db)):
 
         })
     return result
+
+# 获取回收站评论
+@router.get("/trash")
+def get_delete_comments(
+    db:Session=Depends(get_db)
+):
+    comments = (
+        db.query(
+            Comment,
+            Article.title,
+            User.username
+        )
+        .join(
+            Article,
+            Comment.article_id==Article.id
+        )
+        .join(
+            User,
+            Comment.user_id==User.id
+        )
+        .filter(
+            Comment.status=="deleted"
+        )
+        .all()
+    )
+
+
+    data=[]
+
+    for comment,title,username in comments:
+
+        data.append({
+
+          "id":comment.id,
+
+          "article_title":title,
+
+          "username":username,
+
+          "content":comment.content,
+
+          "status":comment.status,
+
+          "create_time":comment.create_time
+
+        })
+
+
+    return data
+  
+
+# 恢复评论
+@router.put("/{id}/restore")
+def restore_comment(id:int,db:Session=Depends(get_db)):
+   comment = db.query(Comment).filter(Comment.id==id).first()
+   if not Comment:
+      raise HTTPException(
+         status_code=404,
+         detail="评论不存在"
+      )
+   comment.status="normal"
+   db.commit()
+   return{
+      "message":"恢复成功"
+   }
+
+# 彻底删除
+@router.delete("/{id}/permanent")
+def permanent_delete(
+ id:int,
+ db:Session=Depends(get_db)
+):
+
+    comment=db.query(Comment)\
+    .filter(
+      Comment.id==id
+    ).first()
+
+
+    if not comment:
+        raise HTTPException(
+          404,
+          "评论不存在"
+        )
+
+
+    db.delete(comment)
+
+    db.commit()
+
+
+    return {
+      "message":"彻底删除成功"
+    }
    
 
 # 删除评论
@@ -84,7 +222,7 @@ def delete_comment(id:int,db:Session=Depends(get_db)):
       status_code=404,
       detail="评论不存在"
     )
-  db.delete(comment)
+  comment.status="deleted"
   db.commit()
   return{
     "message":"删除成功"

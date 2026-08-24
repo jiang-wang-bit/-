@@ -53,6 +53,29 @@ def batch_deleted(data:batchUserSchema,db:Session=Depends(get_db)):
         user.status="deleted"
    db.commit()
 
+# 批量恢复
+@router.put("/batch_restore")
+def batch_deleted(data:batchUserSchema,db:Session=Depends(get_db)):
+   users = db.query(User).filter(User.id.in_(data.ids)).all()
+   for user in users:
+      user.status=user.before_status or "active"
+   db.commit()
+   return{
+      "message":"批量恢复成功"
+   }
+
+# 批量彻底删除
+@router.delete("/batch_permannet")
+def batch_deleted(data:batchUserSchema,db:Session=Depends(get_db)):
+   users = db.query(User).filter(User.id.in_(data.ids)).all()
+   for user in users:
+      db.delete(user)
+   db.commit()
+   return{
+      "message":"批量彻底删除成功"
+   }
+
+
 # 获取用户列表
 @router.get("",response_model=UserListResponse)
 def get_users(page:int=Query(1),pageSize:int=Query(10), username:str|None=None,
