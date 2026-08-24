@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { getTrashUsers,restoreUser } from "../../api/user1";
+import { getTrashUsers,restoreUser,deleteUserPermanently } from "../../api/user1";
 import {
-    Table,Button,Tag,Space,message
+    Table,Button,Tag,Space,message,Popconfirm
 } from "antd"
 import type {User} from "../../types/user"
 import dayjs from "dayjs";
@@ -20,6 +20,13 @@ export default function TrashUser(){
   const handleRestore = async(id:number)=>{
     await restoreUser(id)
     message.success("恢复成功")
+    loadUsers()
+  }
+
+//   彻底删除函数
+  const handleDetele = async(id:number)=>{
+    await deleteUserPermanently(id)
+    message.success("用户已经彻底删除")
     loadUsers()
   }
   const columns=[
@@ -82,6 +89,13 @@ export default function TrashUser(){
                     >
                         恢复
                     </Button>
+
+                    <Popconfirm title="确定彻底删除这个用户吗？" description="删除后将无法恢复,请谨慎操作。" okText="确定删除" cancelText="取消" onConfirm={()=>handleDetele(record.id)}>
+                      <Button danger>
+                        彻底删除
+                      </Button>
+                    </Popconfirm>
+
 
 
                 </Space>

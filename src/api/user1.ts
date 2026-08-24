@@ -1,3 +1,4 @@
+import { ExperimentFilled } from "@ant-design/icons";
 import request from "../request";
 
 // 获取用户列表
@@ -23,6 +24,10 @@ export function deleteUser(id:number){
   return request.delete(`/users/${id}`)
 }
 
+// 彻底删除用户
+export function deleteUserPermanently(id:number){
+  return request.delete(`/users/${id}/permanent`)
+}
 // 恢复用户
 export function restoreUser(id:number){
   return request.put(`/users/${id}/restore`)

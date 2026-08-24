@@ -2,7 +2,7 @@ import "./index.scss"
 import {Table,Button,Space, message, Popconfirm,Empty,Tag,Input} from "antd"
 import { useState,useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getCategoryList,deleteCategory } from "../../api/category";
+import { getCategoryList,deleteCategory, batchTrashCategory } from "../../api/category";
 import dayjs from "dayjs";
 import { current } from "@reduxjs/toolkit";
 interface CategoryType {
@@ -19,6 +19,7 @@ export default function Category(){
   const [page,setPage] = useState(1)
   const [pageSize,setPageSize] = useState(10)
   const [total,setTotal] = useState(0)
+  const [selectedRowKeys,setSelectedRowKeys] = useState<React.Key[]>([])
 
   const loadCategory = async(params?:{
     page?:number
@@ -56,6 +57,23 @@ export default function Category(){
     }
 
   }
+
+  // 批量删除函数
+  const handleBatchTrash = async()=>{
+    if(selectedRowKeys.length===0){
+      message.warning("请选择分类")
+      return
+    }
+    try{
+      await batchTrashCategory(selectedRowKeys as number[])
+      message.success("已移动到回收站")
+      setSelectedRowKeys([])
+      loadCategory()
+    }catch(err:any){
+      message.error(err.response.data.detail)
+    }
+  }
+
   const columns = [
     {
       title:"ID",
@@ -111,10 +129,28 @@ export default function Category(){
           <Space>
          <Button type="primary" onClick={()=>navigate("create")}>新增分类</Button>
          <Button type="primary" onClick={()=>navigate("trash")}>回收站</Button>
+         <Button
+        danger
+        disabled={
+          selectedRowKeys.length===0
+        }
+        onClick={handleBatchTrash}
+        >
+        批量移入回收站
+        </Button>
          </Space>
         </div>
         
-       <Table rowKey="id" columns={columns} dataSource={categories} loading={loading} locale={{emptyText:<Empty description="暂无分类"/>}} pagination={{current:page,pageSize,total,onChange:(current,size)=>{
+       <Table rowKey="id" columns={columns} dataSource={categories} loading={loading} locale={{emptyText:<Empty description="暂无分类"/>}}
+       
+       rowSelection={{
+        selectedRowKeys,
+        onChange:(keys)=>{
+          setSelectedRowKeys(keys)
+        }
+       }}
+       
+       pagination={{current:page,pageSize,total,onChange:(current,size)=>{
         setPage(current)
         setPageSize(size)
         loadCategory({

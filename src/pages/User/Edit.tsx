@@ -10,6 +10,7 @@ export default function EditUser(){
   const {id} = useParams()
   const userId = Number(id)
   const [user,setUser] = useState<User>()
+ 
   // 获取用户详情
   const loadUser = async()=>{
      if(!userId) return

@@ -85,3 +85,28 @@ export function getCategoryStats(){
     )
 
 }
+
+// 批量删除
+export function batchTrashCategory(ids:number[]){
+  return request.delete("/categories/batch-trash",{
+    data:{
+      ids
+    }
+  })
+}
+
+// 批量永久删除
+export function batchDeleteCategory(ids:number[]){
+  return request.delete("/categories/batch-delete",{
+    data:{
+      ids
+    }
+  })
+}
+
+// 批量恢复
+export function batchRestoreCategory(ids:number[]){
+  return request.put("/categories/batch-restore",{
+   ids
+  })
+}

@@ -1,7 +1,8 @@
-import { getDeletedCategory,restoreCategory,forcedeleteCategory } from "../../api/category";
+import { getDeletedCategory,restoreCategory,forcedeleteCategory, batchRestoreCategory,batchDeleteCategory } from "../../api/category";
 import {
     Table,Button,Tag,Space,message,Popconfirm
 } from "antd"
+import "./index.scss"
 import dayjs from "dayjs";
 import { useEffect,useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -10,6 +11,7 @@ import type { CategoryType } from "../../types/category";
 export default function TrashCategory(){
     const navigate = useNavigate()
     const [categories,setCategories] = useState<CategoryType[]>([])
+      const [selectedRowKeys,setSelectedRowKeys] = useState<React.Key[]>([])
     const loadCategories = async()=>{
       const res = await getDeletedCategory()
       setCategories(res)
@@ -29,6 +31,41 @@ export default function TrashCategory(){
         message.success("永久删除成功")
         loadCategories()
     }
+
+    // 批量恢复函数
+     const handleBatchRestore = async()=>{
+    if(selectedRowKeys.length===0){
+        message.warning("请选择分类")
+        return
+    }
+    try{
+        await batchRestoreCategory(selectedRowKeys as number[])
+        message.success("恢复成功")
+        setSelectedRowKeys([])
+        loadCategories()
+    }catch(err:any){
+        message.error(err.response.data.detail)
+    }
+    }
+
+    // 批量永久删除
+    const handleBatchDelete = async()=>{
+        if(selectedRowKeys.length===0){
+            message.warning("请选择分类")
+             return
+        }
+        try{
+          await batchDeleteCategory(selectedRowKeys.map(Number))
+          message.success("永久删除成功")
+          setSelectedRowKeys([])
+          loadCategories()
+        }catch(err){
+            message.error("删除失败")
+        }
+       
+
+    }
+
      const columns=[
     
             {
@@ -100,9 +137,30 @@ export default function TrashCategory(){
     
             <div className="restore-page">
     
+
+               <div className="restore-header">
                 <h2>
                     分类回收站
                 </h2>
+
+
+                <Space>
+                <Popconfirm title="永久删除后无法恢复,确认吗?" onConfirm={handleBatchDelete}>
+                    <Button danger disabled={selectedRowKeys.length===0}>批量永久删除</Button>
+                </Popconfirm>
+
+                 <Button
+                type="primary"
+                disabled={
+                selectedRowKeys.length===0
+                }
+                onClick={handleBatchRestore}
+                >
+                批量恢复
+                </Button>
+                </Space>
+                </div>
+
 
     
     
@@ -113,6 +171,11 @@ export default function TrashCategory(){
                     columns={columns}
     
                     dataSource={categories}
+
+                    rowSelection={{
+                        selectedRowKeys,
+                        onChange:(keys)=>{setSelectedRowKeys(keys)}
+                    }}
     
                 />
     
