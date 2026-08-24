@@ -35,3 +35,6 @@ class UserListResponse(BaseModel):
     list:list[UserResponse]
 
     total:int
+
+class batchUserSchema(BaseModel):
+    ids:list[int]

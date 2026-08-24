@@ -2,7 +2,7 @@ from fastapi import APIRouter,Depends,HTTPException,Query
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.user import User
-from app.schemas.user import (UserCreate,UserResponse,UserUpdate,UserListResponse)
+from app.schemas.user import (UserCreate,UserResponse,UserUpdate,UserListResponse,batchUserSchema)
 from app.utils.password import hash_password
 router = APIRouter(
   prefix="/users",
@@ -17,6 +17,41 @@ def get_deleted_users(db:Session=Depends(get_db)):
     "list":users,
     "total":len(users)
   }
+
+# 批量禁用用户
+@router.put("/batch_disable")
+def batch_disable(data:batchUserSchema,db:Session=Depends(get_db)):
+   users = (db.query(User).filter(User.id.in_(data.ids)).all())
+   for user in users:
+      user.before_status=user.status
+      user.status = "disabled"
+   db.commit()
+   return{
+      "message":"批量禁用成功"
+   }
+
+# 批量启用
+@router.put("/batch_enable")
+def batch_disable(data:batchUserSchema,db:Session=Depends(get_db)):
+   users = (db.query(User).filter(User.id.in_(data.ids)).all())
+   for user in users:
+      user.status = "active"
+   db.commit()
+   return{
+      "message":"批量启用成功"
+   }
+
+
+# 批量删除用户
+@router.put("/batch_deleted")
+def batch_deleted(data:batchUserSchema,db:Session=Depends(get_db)):
+   users = db.query(User).filter(User.id.in_(data.ids)).all()
+   for user in users:
+
+        user.before_status=user.status
+
+        user.status="deleted"
+   db.commit()
 
 # 获取用户列表
 @router.get("",response_model=UserListResponse)
@@ -139,6 +174,7 @@ def delete_user(id:int,db:Session=Depends(get_db)):
   }
 
 
+
 # 恢复用户
 @router.put("/{id}/restore")
 def restore_user(id:int,db:Session=Depends(get_db)):
@@ -187,6 +223,8 @@ def disable_user(id:int,db:Session=Depends(get_db)):
       "message":"用户已禁用"
    }
 
+
+
 # 启用用户
 @router.put("/{id}/enable")
 def enable_user(id:int,db:Session=Depends(get_db)):
@@ -201,6 +239,7 @@ def enable_user(id:int,db:Session=Depends(get_db)):
     return{
        "message":"用户已启用"
     }
+
 
 # 重置密码
 @router.put("/{id}/reset_password")
