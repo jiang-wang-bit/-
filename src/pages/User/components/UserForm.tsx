@@ -38,7 +38,7 @@ export default function UserForm({initialValues,onSubmit}:UserFormProps){
         <Input placeholder="请输入邮箱"></Input>
       </Form.Item>
 
-          <Form.Item
+          {/* <Form.Item
       label="密码"
       name="password"
       rules={[
@@ -49,7 +49,7 @@ export default function UserForm({initialValues,onSubmit}:UserFormProps){
       ]}
     >
       <Input.Password placeholder="请输入密码"/>
-      </Form.Item>
+      </Form.Item> */}
 
       <Form.Item label="角色" name="role" rules={[{required:true,message:"请选择角色"}]}>
        <Select options={[

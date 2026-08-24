@@ -1,13 +1,12 @@
 import type {User,UserSearchParams} from "../../types/user"
 import "./index.scss"
-import {Space,Button,Empty,Popconfirm,Tag,message,Table} from "antd"
+import {Space,Button,Empty,Popconfirm,Tag,message,Table, Dropdown} from "antd"
 import { useNavigate } from "react-router-dom"
 import { useState,useEffect } from "react"
 import dayjs from "dayjs"
 import UserSearch from "./components/UserSearch"
-// import { deleteUser } from "../../api/user"
 import { getUserList } from "../../api/user1"
-import { deleteUser,restoreUser } from "../../api/user1"
+import { deleteUser,restoreUser,disableUser,enableUser,resetPassword } from "../../api/user1"
 export default function User(){
   const navigate = useNavigate()
   const [users,setUsers] = useState<User[]>([])
@@ -58,6 +57,89 @@ export default function User(){
     message.success("恢复成功")
     loadUsers()
   }
+
+  // 禁用和启用用户
+  const handleChangeStatus = async(id:number,status:string)=>{
+    try{
+      if(status==="active"){
+        await disableUser(id)
+        message.success("用户已禁用")
+      }
+      else{
+        await enableUser(id)
+        message.success("用户已启用")
+      }
+      loadUsers()
+
+    }catch(err){
+      message.error("操作失败")
+    }
+  }
+
+  
+  // 重置密码
+  const handleResetPassword =async (id:number)=>{
+    try{
+      const res = await resetPassword(id)
+      message.success(`密码已重置：${res.password}`)
+    }catch(err)
+    {
+      message.error("重置失败")
+    }
+  }
+
+
+  const getUserActions = (record:User)=>{
+    const items = [
+      {
+        key:"edit",
+        label:"编辑"
+      },
+      record.status==="active"?
+      {
+        key:"disable",
+        label:"禁用"
+      }:
+      {
+        key:"enable",
+        label:"启用"
+      },
+      {
+        key:"resetPassword",
+        label:"重置密码"
+      },
+      {
+        key:"delete",
+        label:"删除",
+        danger:true
+      }
+    ]
+    return items
+  }
+
+  const handleAction = (key:string,record:User)=>{
+   switch(key){
+    case "edit":
+      navigate(`/admin/user/edit/${record.id}`)
+      break
+    case "disable":
+      handleChangeStatus(record.id,record.status)
+      break
+    case "enable":
+      handleChangeStatus(record.id,record.status)
+      break
+    case "delete":
+      handleDelete(record.id)
+      break
+    case "resetPassword":
+     handleResetPassword(record.id)
+      break
+   }
+  
+
+  }
+
+
 const columns = [
   {
     title:"序号",
@@ -105,26 +187,18 @@ const columns = [
   {
     title:"操作",
     render:(_:any,record:User)=>(
-      <Space>
-       <Button type="link" onClick={()=>navigate(`/admin/user/edit/${record.id}`)}>
-        编辑
-       </Button>
-       
-      {
-        record.status==="active"?
-         <Popconfirm title="确定删除该用户吗?" onConfirm={()=>handleDelete(record.id)}>
-       <Button type="link" danger>
-        删除
-       </Button>
-       </Popconfirm>:
-       <Button type="link" onClick={()=>handleRestore(record.id)}>
-          恢复
-       </Button>
-      }
-      </Space>
+      <Dropdown menu={{items:getUserActions(record),
+        onClick:({key})=>{
+         handleAction(key,record)
+        }
+      }}>
+       <Button size="small">更多 ▼</Button>
+      </Dropdown>
     )
-  }
-]
+
+  }]
+
+
   return (
     <div className="user-page">
   

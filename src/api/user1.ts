@@ -52,3 +52,18 @@ export function updateUser(id:number,data:any){
 export function createUser(data:any){
   return request.post("/users",data)
 }
+
+// 禁用用户
+export function disableUser(id:number){
+  return request.put(`/users/${id}/disable`)
+}
+
+// 启用用户
+export function enableUser(id:number){
+  return request.put(`/users/${id}/enable`)
+}
+
+// 重置密码
+export function resetPassword(id:number){
+  return request.put(`/users/${id}/reset_password`)
+}

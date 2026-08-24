@@ -3,7 +3,7 @@ export interface User{
   username:string;
   email:string;
   role:"管理员"|"普通用户";
-  status:"active"|"status";
+  status:"active"|"disabled"|"deleted";
   create_time:string
 }
 
