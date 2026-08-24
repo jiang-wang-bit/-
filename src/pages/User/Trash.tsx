@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
-import { getTrashUsers,restoreUser,deleteUserPermanently } from "../../api/user1";
+import { getTrashUsers,restoreUser,deleteUserPermanently,batchDeletePermanent,batchRestoreUser } from "../../api/user1";
 import {
-    Table,Button,Tag,Space,message,Popconfirm
+    Table,Button,Tag,Space,message,Popconfirm,Dropdown,Modal
 } from "antd"
 import type {User} from "../../types/user"
 import dayjs from "dayjs";
 export default function TrashUser(){
   const [users,setUsers] = useState<User[]>([])
+  const [selectedRowKeys,setSelectedRowKeys] = useState<React.Key[]>([])
+  
   const loadUsers = async()=>{
     const res = await getTrashUsers()
     setUsers(res.list)
@@ -28,6 +30,76 @@ export default function TrashUser(){
     await deleteUserPermanently(id)
     message.success("用户已经彻底删除")
     loadUsers()
+  }
+
+// 批量彻底删除
+const handleBatchPermanent = async(ids:number[])=>{
+   try{
+     await batchDeletePermanent(ids)
+     message.success("批量彻底删除成功")
+     await loadUsers()
+     setSelectedRowKeys([])
+   }catch(err){
+    message.error("批量彻底删除失败")
+   }
+}
+
+// 批量恢复
+const handleRestoreUser = async(ids:number[])=>{
+  try{
+    await batchRestoreUser(ids)
+    message.success("批量恢复成功")
+    loadUsers()
+    setSelectedRowKeys([])
+  }catch(err){
+    message.error("批量恢复失败")
+  }
+}
+
+//   抽离批量菜单
+  const getBatchActions = ()=>{
+
+    return [
+        {
+            key:"restore",
+            label:"批量恢复"
+        },
+        {
+            key:"permanentDelete",
+            label:"批量彻底删除",
+            danger:true
+        }
+    ]
+  }
+
+  const handleBatchAction = (key:string)=>{
+    if(selectedRowKeys.length===0)
+    {
+         message.warning("请选择用户")
+         return
+    }
+    const ids = selectedRowKeys as number[]
+    switch(key){
+      case "restore":
+        handleRestoreUser(ids)
+        break
+      case "permanentDelete":
+        Modal.confirm({
+
+        title:"确认永久删除?",
+
+        content:
+        "删除后无法恢复",
+
+        async onOk(){
+       await batchDeletePermanent(ids)
+
+        }
+
+})
+        break
+
+    }
   }
   const columns=[
 
@@ -69,7 +141,7 @@ export default function TrashUser(){
             render:(status:string)=>(
 
                 <Tag color="red">
-                    {status}
+                   回收站
                 </Tag>
 
             )
@@ -110,15 +182,33 @@ export default function TrashUser(){
     return (
 
         <div className="restore-page">
-
+           
+             <div className="restore-page-header">
             <h2>
                 用户回收站
             </h2>
+
+            <Dropdown menu={{
+                items:getBatchActions(),
+                onClick:({key})=>{
+                    handleBatchAction(key)
+                }
+            }}>
+                <Button disabled={selectedRowKeys.length===0}>批量操作 ▼</Button>
+            </Dropdown>
+            </div>
 
 
             <Table
 
                 rowKey="id"
+
+                rowSelection={{
+                    selectedRowKeys,
+                    onChange:(keys)=>{
+                        setSelectedRowKeys(keys)
+                    }
+                }}
 
                 columns={columns}
 

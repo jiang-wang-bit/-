@@ -70,3 +70,50 @@ export function getCommentStatus(id:number,userId:number){
 export function getMyComments(){
   return request.get("/user/comments")
 }
+
+// 批量审核通过
+export function batchApprove(ids:number[]){
+  return request.put("/comments/batch_approve",{
+    ids
+  })
+}
+
+// 批量软删除
+export function batchDelete(ids:number[]){
+  return request.delete("/comments/batch_delete",{
+    data:{
+      ids
+    }
+  })
+}
+
+// 获取回收站评论
+export function getTrashComments(){
+  return request.get("/comments/trash")
+}
+
+// 恢复评论
+export function restoreComment(id:number){
+  return request.put(`/comments/${id}/restore`)
+}
+
+// 彻底删除评论
+export function deletePermanent(id:number){
+  return request.delete(`/comments/${id}/permanent`)
+}
+
+// 批量恢复
+export function batchRestoreComment(ids:number[]){
+  return request.put("/comments/batch_restore",{
+  ids
+  })
+}
+
+// 批量彻底删除
+export function batchDeletePermanent(ids:number[]){
+  return request.delete("/comments/batch_delete_permanent",{
+    data:{
+      ids
+    }
+  })
+}

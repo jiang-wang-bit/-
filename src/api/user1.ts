@@ -90,6 +90,24 @@ export function batchDeteleUser(ids:number[]){
   )
 }
 
+// 批量恢复
+export function batchRestoreUser(ids:number[]){
+  return request.put("/users/batch_restore",
+    {
+      ids
+    }
+  )
+}
+
+// 批量永久删除
+export function batchDeletePermanent(ids:number[]){
+  return request.delete("/user/batch_permannet",{
+    data:{
+      ids
+    }
+  })
+}
+
 // 重置密码
 export function resetPassword(id:number){
   return request.put(`/users/${id}/reset_password`)

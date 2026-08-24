@@ -32,6 +32,7 @@ import History from "../pages/Front/UserCenter/History";
 import Trash from "../pages/Article/trash";
 import Register from "../pages/Register";
 import TrashUser from "../pages/User/Trash";
+import CommentTrash from "../pages/CommentAdmin/Trash";
 import TrashCategory from "../pages/Category/trash";
 const router = createBrowserRouter([
 
@@ -220,7 +221,17 @@ const router = createBrowserRouter([
       },
       {
         path: "comment",
-        element: <Comment />
+        children:[
+          {
+            index:true,
+            element: <Comment />
+          },
+          {
+            path:"trash",
+            element:<CommentTrash/>
+          }
+        ]
+
       }
 
     ]

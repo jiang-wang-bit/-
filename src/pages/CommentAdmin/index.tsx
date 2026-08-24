@@ -1,19 +1,132 @@
 import { CommentType } from "./types"
 import "./index.scss"
-import { Table,Tag,Button,Popconfirm, message} from "antd"
+import { Table,Tag,Button,Popconfirm, message,Dropdown, Space} from "antd"
 import { useDispatch,useSelector } from "react-redux"
-import { useEffect } from "react"
-import type { RootState } from "../../store"
+import { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { setComments } from "../../store/modules/comment"
-import { getAllComments,updateCommentStatus,deleteComment } from "../../api/comment"
+import { getAllComments,updateCommentStatus,deleteComment,batchApprove,batchDelete } from "../../api/comment"
 export default function Comment(){
   const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const [selectedRowKeys,setSelectedRowKeys] = useState<React.Key[]>([])
+  const loadComments = async()=>{
+     try{
+   const res = await getAllComments()
+   dispatch(
+    setComments(res)
+   )
+
+ }catch(err){
+   message.error("获取评论失败")
+
+ }
+  }
+
   useEffect(()=>{
-   getAllComments().then(res=>{
-    dispatch(setComments(res))
-   })
-  },[dispatch])
+   loadComments()
+  },[])
+
   const datalist = useSelector((state:any)=>state.comment.list)
+
+  // 单个通过
+  const handleApprove =async(id:number)=>{
+        try{
+
+      await updateCommentStatus(
+        id,
+        "normal"
+      )
+      message.success(
+        "审核通过"
+      )
+      loadComments()
+
+    }catch(err){
+
+      message.error(
+        "审核失败"
+      )
+
+    }
+      }
+
+  // 单个删除
+  const handleDeleteComment = async(id:number)=>{
+        try{
+
+      await deleteComment(id)
+      message.success(
+      "删除成功"
+      )
+      loadComments()
+    }catch(err){
+      message.error(
+      "删除失败"
+      )
+
+    }
+      }
+
+  // 批量通过
+  const handleBatchApprove= async(ids:number[])=>{
+    try{
+        await batchApprove(ids)
+        message.success("批量审核通过")
+        loadComments()
+        setSelectedRowKeys([])
+    }catch(err){
+      message.error("批量审核通过失败")
+    }
+  }
+  // 批量删除
+  const handleBatchDelete = async(ids:number[])=>{
+    try{
+      await batchDelete(ids)
+      message.success("批量删除成功")
+       loadComments()
+      setSelectedRowKeys([])
+
+    }catch(err){
+      message.error("批量删除失败")
+    }
+  }
+
+
+  // 批量菜单
+  const getBatchActions=()=>[
+
+ {
+   key:"approve",
+   label:"批量审核通过"
+ },
+
+ {
+   key:"delete",
+   label:"批量删除",
+   danger:true
+ }
+
+]
+
+//  批量处理
+const handleBatchActions=(key:string)=>{
+  if(selectedRowKeys.length===0){
+ message.warning("请选择评论")
+ return
+}
+  const ids = selectedRowKeys as number[]
+   switch(key){
+  case "approve":
+    handleBatchApprove(ids)
+    break
+  case "delete":
+    handleBatchDelete(ids)
+    break
+  }
+}
+
+
   const columns = [{
     title:"文章",
     dataIndex:"article_title"
@@ -40,18 +153,12 @@ export default function Comment(){
         <>
         {
           record.status==="pending"&&
-          <Button type="primary" size="small" onClick={async()=>{await updateCommentStatus(record.id,"normal")
-        message.success("审核通过")
-        getAllComments().then(res=>{
-          dispatch(setComments(res))
-        })}}>通过</Button>
+          <Button type="primary" size="small" 
+          onClick={()=>handleApprove(record.id)}>通过</Button>
         }
 
-      <Popconfirm title="删除评论" description="确定删除这条评论吗?" okText="确定" cancelText="取消" onConfirm={async()=>{await deleteComment(record.id)
-       message.success("删除成功")
-       getAllComments().then(res=>{
-        dispatch(setComments(res))
-       })}}>
+      <Popconfirm title="删除评论" description="确定删除这条评论吗?" okText="确定" cancelText="取消" 
+      onConfirm={()=>handleDeleteComment(record.id)}>
         <Button danger size="small">删除</Button>
         </Popconfirm>
         </>
@@ -61,8 +168,31 @@ export default function Comment(){
 ]
   return (
     <div className="comment-page">
-     <h2>评论管理</h2>
-     <Table columns={columns} dataSource={datalist} rowKey="id"></Table>
+
+      <div className="comment-header">
+     <h2>评论管理</h2> 
+     <Space>
+    <Button type="primary" onClick={()=>navigate("trash")}>回收站</Button>
+    <Dropdown menu={{
+        items:getBatchActions(),
+        onClick:({key})=>{
+            handleBatchActions(key)
+        }
+    }}>
+        <Button disabled={selectedRowKeys.length===0}>批量操作 ▼</Button>
+    </Dropdown>
+    </Space>
+    </div>
+    
+     <Table columns={columns} 
+     rowSelection={{
+      selectedRowKeys,
+      onChange:(keys)=>{
+        setSelectedRowKeys(keys)
+      }
+     }}
+     dataSource={datalist} rowKey="id"
+     ></Table>
     </div>
   )
 }
