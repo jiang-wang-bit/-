@@ -37,3 +37,11 @@ class CategoryListResponse(BaseModel):
     list:list[CategoryResponse]
 
     total:int
+
+# 批量删除
+class BatchTrashSchema(BaseModel):
+   ids:list[int]
+
+# 批量恢复
+class BatchRestoreSchema(BaseModel):
+   ids:list[int]

@@ -31,6 +31,17 @@ def get_current_user(token:str=Depends(oauth2_scheme),db:Session=Depends(get_db)
             status_code=404,
             detail="用户不存在"
         )
+  if user.status=="disabled":
+     raise HTTPException(
+        status_code=403,
+        detail="账号已被禁用"
+     )
+  if user.status == "deleted":
+    raise HTTPException(
+        status_code=403,
+        detail="账号已被删除"
+    )
+  
 
 
   return user

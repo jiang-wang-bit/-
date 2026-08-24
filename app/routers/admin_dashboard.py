@@ -19,7 +19,7 @@ def get_dashborad(db:Session=Depends(get_db),admin=Depends(require_admin)):
 
   article_count = db.query(Article).count()
 
-  category_count = db.query(Category).count()
+  category_count = db.query(Category).filter(Category.status=="active").count()
 
   publish_article_count = db.query(Article).filter(Article.status=="published").count()
 

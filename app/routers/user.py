@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.user import User
 from app.schemas.user import (UserCreate,UserResponse,UserUpdate,UserListResponse)
-
+from app.utils.password import hash_password
 router = APIRouter(
   prefix="/users",
   tags=["用户管理"]
@@ -12,7 +12,7 @@ router = APIRouter(
 # 回收站列表
 @router.get("/trash",response_model=UserListResponse)
 def get_deleted_users(db:Session=Depends(get_db)):
-  users = db.query(User).filter(User.status=="disabled").order_by(User.id.asc()).all()
+  users = db.query(User).filter(User.status=="deleted").order_by(User.id.asc()).all()
   return{
     "list":users,
     "total":len(users)
@@ -117,7 +117,7 @@ def update_user(
   user.status = data.status
   user.role = data.role
   if data.password:
-    user.password=data.password
+    user.password=hash_password(data.password)
   db.commit()
   db.refresh(user)
   return user
@@ -132,7 +132,7 @@ def delete_user(id:int,db:Session=Depends(get_db)):
       detail="用户不存在"
     )
  
-  user.status = "disabled"
+  user.status = "deleted"
   db.commit()
   return{
     "message":"删除成功"
@@ -154,3 +154,18 @@ def restore_user(id:int,db:Session=Depends(get_db)):
   return{
     "message":"恢复成功"
   }
+
+# 彻底删除用户
+@router.delete("/{id}/permanent")
+def delete_user_permanently(id:int,db:Session=Depends(get_db)):
+   user = db.query(User).filter(User.id==id).first()
+   if not user:
+       raise HTTPException(
+          status_code=404,
+          detail="用户不存在"
+       )
+   db.delete(user)
+   db.commit()
+   return{
+    "message":"用户已经彻底删除"
+   }

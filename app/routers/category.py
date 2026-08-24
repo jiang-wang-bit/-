@@ -2,6 +2,7 @@ from fastapi import APIRouter,Depends,HTTPException,Query
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from app.database import get_db
+from app.schemas.category import BatchTrashSchema,BatchRestoreSchema
 from app.models.category import Category
 from app.models.article import Article
 from app.schemas.category import (CategoryCreate,CategoryListResponse,CategoryResponse,CategoryUpdate)
@@ -15,13 +16,13 @@ router = APIRouter(
 def get_deleted_categories(
    db:Session=Depends(get_db)
 ):
-   categories = db.query(Category).filter(Category.status=="deleted").all()
+   categories = db.query(Category).filter(Category.status=="trash").all()
    return categories
 
 # 获取分类列表
 @router.get("",response_model=CategoryListResponse)
 def get_categories(page:int=Query(1),pageSize:int=Query(10),keyword:str|None=Query(None),db:Session=Depends(get_db)):
-  query = (db.query(Category,func.count(Article.id).label("article_count")).outerjoin(Article,Article.category_id==Category.id))
+  query = (db.query(Category,func.count(Article.id).label("article_count")).outerjoin(Article,Article.category_id==Category.id).filter(Category.status=="active"))
 
 #   搜索
   if keyword:
@@ -63,11 +64,7 @@ def get_category_stats(
 ):
 
     categories = db.query(Category).all()
-
-
     result=[]
-
-
     for category in categories:
 
         count = db.query(Article)\
@@ -76,7 +73,6 @@ def get_category_stats(
                 Article.status=="published"
             )\
             .count()
-
 
         result.append({
 
@@ -88,8 +84,53 @@ def get_category_stats(
 
         })
 
-
     return result
+
+# 批量删除函数
+@router.delete("/batch-trash")
+def batch_trash(data:BatchTrashSchema,db:Session=Depends(get_db)):
+   categories = db.query(Category).filter(Category.id.in_(data.ids)).all()
+   for category in categories:
+
+      count = (
+         db.query(Article)
+         .filter(
+               Article.category_id == category.id
+         )
+         .count()
+      )
+      if count > 0:
+            raise HTTPException(
+                status_code=400,
+                detail=f"{category.name}下面还有{count}文章，无法删除"
+            )
+      category.status = "trash"
+   db.commit()
+   return{
+      "message":"已经移动到回收站"
+   }
+
+# 批量恢复
+@router.put("/batch-restore")
+def batch_restore(data:BatchRestoreSchema,db:Session=Depends(get_db)):
+   categories = (db.query(Category).filter(Category.id.in_(data.ids))).all()
+   for category in categories:
+      category.status="active"
+   db.commit()
+   return{
+      "message":"批量恢复成功"
+   }
+
+# 批量永久删除
+@router.delete("/batch-delete")
+def batch_delete(data:BatchTrashSchema,db:Session=Depends(get_db)):
+   categories = (db.query(Category).filter(Category.id.in_(data.ids),Category.status=="trash").all())
+   for category in categories:
+      db.delete(category)
+   db.commit()
+   return{
+      "message":"批量永久删除成功"
+   }
 
 # 获取单个分类
 @router.get("/{id}",response_model=CategoryResponse)
@@ -233,4 +274,6 @@ def get_articles_by_category(id:int,db:Session=Depends(get_db)):
       "category":category,
       "articles":articles
    }
+
+
 
