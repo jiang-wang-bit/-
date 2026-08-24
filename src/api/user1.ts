@@ -58,9 +58,36 @@ export function disableUser(id:number){
   return request.put(`/users/${id}/disable`)
 }
 
+// 批量禁用用户
+export function batchDisableUser(ids:number[]){
+  return request.put("/users/batch_disable",
+    {
+      ids
+    }
+  )
+}
+
 // 启用用户
 export function enableUser(id:number){
   return request.put(`/users/${id}/enable`)
+}
+
+// 批量启用
+export function batchEnableUser(ids:number[]){
+  return request.put("/users/batch_enable",
+   {
+    ids
+   }
+  )
+}
+
+// 批量进入回收站
+export function batchDeteleUser(ids:number[]){
+  return request.put("/users/batch_deleted",
+    {
+      ids
+    }
+  )
 }
 
 // 重置密码

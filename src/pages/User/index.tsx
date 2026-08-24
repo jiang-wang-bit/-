@@ -6,7 +6,7 @@ import { useState,useEffect } from "react"
 import dayjs from "dayjs"
 import UserSearch from "./components/UserSearch"
 import { getUserList } from "../../api/user1"
-import { deleteUser,restoreUser,disableUser,enableUser,resetPassword } from "../../api/user1"
+import { deleteUser,restoreUser,disableUser,enableUser,resetPassword,batchDeteleUser,batchDisableUser,batchEnableUser} from "../../api/user1"
 export default function User(){
   const navigate = useNavigate()
   const [users,setUsers] = useState<User[]>([])
@@ -14,6 +14,7 @@ export default function User(){
   const [page,setPage] = useState(1)
   const [pageSize,setPageSize] = useState(10)
   const [loading,setLoading] = useState(false)
+  const [selectedRowKeys,setSelectedRowKeys] = useState<React.Key[]>([])
   const [searchParams,setSearchParams] = useState<UserSearchParams>({})
   // 获取用户列表
   const loadUsers = async()=>{
@@ -139,6 +140,100 @@ export default function User(){
 
   }
 
+  // 批量禁用
+  const batchDisable=async(ids:number[])=>{
+
+  try{
+
+    await batchDisableUser(ids)
+
+    message.success(
+      "批量禁用成功"
+    )
+
+    loadUsers()
+
+    setSelectedRowKeys([])
+
+  }catch{
+
+    message.error(
+      "操作失败"
+    )
+
+  }
+
+  }
+
+  //  批量启用
+  const batchEnable=async(ids:number[])=>{
+
+  await batchEnableUser(ids)
+
+  message.success(
+    "批量启用成功"
+  )
+
+  loadUsers()
+
+  setSelectedRowKeys([])
+
+  }
+
+  // 批量删除
+  const batchDelete=async(ids:number[])=>{
+
+  await batchDeteleUser(ids)
+
+  message.success(
+    "已移动到回收站"
+  )
+
+  loadUsers()
+
+  setSelectedRowKeys([])
+
+  }
+
+  // 批量操作
+  const getBatchAction=()=>{
+    return[
+      {
+        key:"batchDisable",
+        label:"批量禁用"
+      },
+      {
+        key:"batchEnable",
+        label:"批量启用"
+      },
+      {
+        key:"batchDelete",
+        label:"批量移入回收站",
+        danger:true
+      }
+    ]
+  }
+
+  // 批量点击处理
+  const handleBatchAction = (key:string)=>{
+    if(selectedRowKeys.length===0){
+      message.warning("请选择用户")
+      return
+    }
+    const ids = selectedRowKeys as number[]
+    switch(key){
+      case "batchDisable":
+        batchDisable(ids)
+        break
+      case "batchEnable":
+        batchEnable(ids)
+        break
+      case "batchDelete":
+        batchDelete(ids)
+        break
+    }
+  }
+
 
 const columns = [
   {
@@ -208,9 +303,22 @@ const columns = [
       <Space>
       <Button type="primary" onClick={()=>navigate("trash")}>回收站</Button>
       <Button type="primary" onClick={()=>navigate("create")}>新增用户</Button>
+      <Dropdown menu={{items:getBatchAction(),
+        onClick:({key})=>{
+          handleBatchAction(key)
+        }
+      }}>
+        <Button disabled={selectedRowKeys.length===0}>批量操作 ▼</Button>
+      </Dropdown>
       </Space>
       </div>
-      <Table rowKey="id" pagination={{current:page,pageSize,total, showSizeChanger:true,onChange:(current,size)=>{
+      <Table rowKey="id" 
+      rowSelection={{selectedRowKeys,
+        onChange:(keys)=>{
+          setSelectedRowKeys(keys)
+        }
+      }}
+      pagination={{current:page,pageSize,total, showSizeChanger:true,onChange:(current,size)=>{
        if(size!==pageSize){
         setPage(1)
        }else{
