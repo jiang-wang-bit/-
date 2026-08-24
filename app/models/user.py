@@ -38,6 +38,11 @@ class User(Base):
       default="active"
   )
 
+  before_status:Mapped[str] = mapped_column(
+    String,
+    nullable=True
+  )
+
 
   create_time:Mapped[datetime] = mapped_column(
       DateTime,

@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import Optional
 from datetime import datetime
 
 # 创建用户请求
@@ -15,7 +16,7 @@ class UserUpdate(BaseModel):
   email:str
   role:str
   status:str
-  password:str
+  password:Optional[str]=None
 
 # 返回用户数据
 class UserResponse(BaseModel):

@@ -23,7 +23,7 @@ def get_deleted_users(db:Session=Depends(get_db)):
 def get_users(page:int=Query(1),pageSize:int=Query(10), username:str|None=None,
     email:str|None=None,
     role:str|None=None,db:Session = Depends(get_db)):
-  query = db.query(User).filter(User.status=="active")
+  query = db.query(User).filter(User.status!="deleted")
 
 
     # 用户名搜索
@@ -131,7 +131,7 @@ def delete_user(id:int,db:Session=Depends(get_db)):
       status_code=404,
       detail="用户不存在"
     )
- 
+  user.before_status = user.status
   user.status = "deleted"
   db.commit()
   return{
@@ -148,7 +148,8 @@ def restore_user(id:int,db:Session=Depends(get_db)):
       status_code=404,
       detail="用户不存在"
     )
-  user.status ="active"
+  user.status =user.before_status
+  user.before_status=None
   db.commit()
   db.refresh(user)
   return{
@@ -169,3 +170,51 @@ def delete_user_permanently(id:int,db:Session=Depends(get_db)):
    return{
     "message":"用户已经彻底删除"
    }
+
+# 禁用用户
+@router.put("/{id}/disable")
+def disable_user(id:int,db:Session=Depends(get_db)):
+   user = db.query(User).filter(User.id==id).first()
+   if not user:
+      raise HTTPException(
+         status_code=404,
+         detail="用户不存在"
+      )
+   user.before_status=user.status
+   user.status = "disabled"
+   db.commit()
+   return{
+      "message":"用户已禁用"
+   }
+
+# 启用用户
+@router.put("/{id}/enable")
+def enable_user(id:int,db:Session=Depends(get_db)):
+    user = db.query(User).filter(User.id==id).first()
+    if not user:
+        raise HTTPException(
+          status_code=404,
+          detail="用户不存在"
+        )
+    user.status="active"
+    db.commit()
+    return{
+       "message":"用户已启用"
+    }
+
+# 重置密码
+@router.put("/{id}/reset_password")
+def reset_password(id:int,db:Session=Depends(get_db)):
+    user = db.query(User).filter(User.id==id).first()
+    if not user:
+          raise HTTPException(
+            status_code=404,
+            detail="用户不存在"
+          )
+    new_password = "123456"
+    user.password=hash_password(new_password)
+    db.commit()
+    return{
+        "message":"密码已重置",
+        "password":new_password
+    }
