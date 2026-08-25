@@ -4,7 +4,6 @@ import { useState,useEffect } from "react"
 import { useSelector } from "react-redux"
 import { formatCommentTime } from "../../utils/formatTime"
 import "./index.scss"
-import { useDispatch} from "react-redux"
 import { likeComment,unlikeComment,getCommentStatus} from "../../api/comment"
 import CommentInput from "../CommentInput"
 import type { RootState } from "../../store"
@@ -14,7 +13,6 @@ interface Props{
   comments:any[]
 }
 export default function ReplyItem({reply,articleId,comments}:Props){
-  const dispatch = useDispatch()
   const userInfo=
 useSelector(
 (state:RootState)=>state.user.userInfo
@@ -23,8 +21,17 @@ useSelector(
   const [likeCount,setLikeCount]=useState(reply.like)
 const [liked,setLiked]=useState(reply.liked)
   const parent = comments.find(item=>item.id===reply.parentId)
-  const children = comments.filter(item=>item.parentId ===reply.id&&item.status==="通过")
+  const children = comments.filter(item=>item.parentId ===reply.id&&
+ item.status==="normal")
   const childCount = children.length
+  const shouldShow = 
+reply.status==="normal"
+||
+(
+ reply.status==="deleted"
+ &&
+ hasNormalDescendant(reply.id)
+)
   useEffect(()=>{
 
 
@@ -48,7 +55,39 @@ setLikeCount(res.likes)
 })
 
 
-},[])
+},[ userInfo?.id,
+ reply.id])
+
+ function hasNormalDescendant(id:number):boolean{
+
+  const children = comments.filter(
+    item=>item.parentId===id
+  )
+
+
+  return children.some(child=>{
+
+    // 直接子评论正常
+    if(child.status==="normal"){
+      return true
+    }
+
+
+    // 子评论删除，继续查找
+    if(child.status==="deleted"){
+      return hasNormalDescendant(child.id)
+    }
+
+
+    return false
+
+  })
+
+}
+  
+if(!shouldShow){
+  return null
+}
   return(
     <div className="reply-wrapper">
       <div className="reply-item">
@@ -64,7 +103,13 @@ setLikeCount(res.likes)
 
           &nbsp; 回复 &nbsp;
 
-          {parent?.username}
+          {
+          (parent?.status==="removed"||parent?.status==="deleted")
+          ?
+          "已删除用户"
+          :
+          parent?.username
+          }
 
           </Typography.Text>
 
@@ -74,8 +119,20 @@ setLikeCount(res.likes)
 
           <Typography.Paragraph>
 
-          {reply.content}
+          {
+         
+          (reply.status==="deleted")
+          ?
 
+          <span className="deleted-comment">
+            该评论已删除
+          </span>
+
+          :
+
+          reply.content
+
+          }
           </Typography.Paragraph>
 
 
@@ -88,8 +145,10 @@ setLikeCount(res.likes)
           <Typography.Text type="secondary">
           {formatCommentTime(reply.time)}
           </Typography.Text>
+
           {/* 点赞 */}
-          <Button
+          {reply.status==="normal"&&
+           <Button
           type="text"
           size="small"
           icon={<LikeOutlined/>}
@@ -114,9 +173,10 @@ setLikeCount(res.likes)
           {
             liked?`${likeCount}`:"点赞"
          }
-          </Button>
-          {/* 回复 */}
-
+          </Button>}
+          
+             {/* 回复 */}
+          {reply.status==="normal"&&
           <Button
           type="text"
           size="small"
@@ -126,7 +186,8 @@ setLikeCount(res.likes)
           }}
           >
           回复
-          </Button>
+          </Button>}
+       
         
         {/* 回复数量 */}
         <Typography.Text type="secondary">
@@ -140,7 +201,7 @@ setLikeCount(res.likes)
 
           {
 
-          replyId===reply.id && (
+          replyId===reply.id&&reply.status==="normal" && (
 
           <CommentInput
           articleTitle={reply.articleTitle}

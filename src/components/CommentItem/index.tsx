@@ -1,7 +1,6 @@
 import { Button,Input,Card,Space,Typography,Avatar,message} from "antd";
 import { useState,useEffect,useRef} from "react";
 import "./index.scss"
-import { useDispatch} from "react-redux";
 import { useSelector } from "react-redux";
 import CommentInput from "../CommentInput";
 import { likeComment,unlikeComment } from "../../api/comment";
@@ -19,7 +18,6 @@ articleId:number
 comments:CommentType[];
 }
 export default function CommentItem({comment,articleId,comments}:Props){
-  const dispatch = useDispatch()
   const [replyId,setReplyId]=useState<number|null>(null)
   const replyRef = useRef<HTMLDivElement>(null)
   const userInfo=
@@ -28,22 +26,70 @@ useSelector(
 )
   const [liked,setLiked] = useState(comment.liked)
   const [likeCount,setLikeCount] = useState(comment.like)
+  useEffect(()=>{
+ setLiked(comment.liked)
+ setLikeCount(comment.like)
+},[ comment.liked,
+ comment.like])
+
+    function hasNormalChild(id:number):boolean{
+
+  const children = comments.filter(
+    item=>item.parentId===id
+  )
+
+
+  return children.some(child=>{
+
+    // 自己正常，需要显示
+    if(child.status==="normal"){
+      return true
+    }
+
+
+    // 自己删除，但是下面还有正常评论
+    if(child.status==="deleted"){
+      return hasNormalChild(child.id)
+    }
+
+
+    return false
+
+  })
+
+}
+
     function getAllReplies(id:number){
     const result:CommentType[]=[]
-
+    const visited=new Set<number>()
     function find(parentId:number){
-    comments.forEach(item=>{
-    if(
-      item.parentId===parentId
-      &&
-      item.status==="normal"
-    ){
+
+ comments.forEach(item=>{
+
+ if(
+   item.parentId===parentId &&
+   !visited.has(item.id)
+ ){
+
+   visited.add(item.id)
+
+    // 判断这个节点是否需要展示
+   if(
+    item.status==="normal" ||
+    hasNormalChild(item.id)
+   ){
       result.push(item)
-      find(item.id)
-    }
-   })
+   }
+
+
+   find(item.id)
+
  }
- find(id)
+
+ })
+
+}
+  find(id)
  return result
 }
     //  点击外部输入框消失
@@ -70,8 +116,7 @@ useSelector(
      const allReplies = getAllReplies(comment.id).sort((a,b)=>new Date(a.time).getTime()-new Date(b.time).getTime())
      const [showAllReplies,setShowAllReplies] = useState(false)
      const replies:CommentType[] = showAllReplies?allReplies:allReplies.slice(0,1)
-     console.log(comment.time)
-console.log(formatCommentTime(comment.time))
+     
           return (
 
           <Card style={{
@@ -86,8 +131,8 @@ console.log(formatCommentTime(comment.time))
           size={40}
           icon={<UserOutlined/>}
           />
-          <div>
-
+          
+         <div className="comment-content">
           <Typography.Text strong>
           {comment.username}
           </Typography.Text>
@@ -96,7 +141,19 @@ console.log(formatCommentTime(comment.time))
           style={{
           marginTop:8
           }} >
-          {comment.content}
+          {
+       (comment.status==="deleted")
+
+        ?
+
+        <span className="deleted-comment">
+          该评论已删除
+        </span>
+
+        :
+
+        comment.content
+        }
 
           </Typography.Paragraph>
 
@@ -104,7 +161,7 @@ console.log(formatCommentTime(comment.time))
          <div className="comment-actions">
           {/* 输入框 */}
           {
-          replyId===comment.id&&(
+          replyId===comment.id&&comment.status==="normal"&&(
           <div
             ref={replyRef}
             onClick={(e)=>e.stopPropagation()}
@@ -127,8 +184,11 @@ console.log(formatCommentTime(comment.time))
           {formatCommentTime(comment.time)}
           </Typography.Text>
 
-         {/* 点赞按钮 */}
-          <Button type="text" size="small" icon={<LikeOutlined/>} onClick={async()=>{
+          {/* 点赞评论按钮 */}
+          {
+            comment.status==="normal"&&
+            <>
+            <Button type="text" size="small" icon={<LikeOutlined/>} onClick={async()=>{
             if(!userInfo?.id){
               message.warning("请先登录")
               return
@@ -148,7 +208,6 @@ console.log(formatCommentTime(comment.time))
          }
           </Button>
              
-         {/* 回复按钮 */}
           <Button
           type="text"
           size="small"
@@ -159,10 +218,19 @@ console.log(formatCommentTime(comment.time))
           >
           回复
           </Button>
-          <Typography.Text>
-            {allReplies.length}条回复
-          </Typography.Text>
-          </div>
+          </>
+          }
+           </div>
+
+           {
+          allReplies.length>0 &&
+          (
+            <Typography.Text>
+              {allReplies.length}条回复
+            </Typography.Text>
+          )
+          }
+
          
          {/* 初级回复 */}
           {

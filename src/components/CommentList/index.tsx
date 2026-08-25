@@ -41,12 +41,70 @@ const [comments,setComments] = useState<CommentType[]>([])
         setComments(list)
       })
   },[articleId])
+
+  function hasNormalDescendant(id:number):boolean{
+
+  const children = comments.filter(
+    item=>item.parentId===id
+  )
+
+    for(const child of children){
+
+    // 有正常后代
+    if(child.status==="normal"){
+      return true
+    }
+
+
+    // deleted / removed 都继续寻找
+    if(hasNormalDescendant(child.id)){
+      return true
+    }
+
+  }
+
+
+  return false
+
+
+
+}
 // 当前文章一级评论
- const articleComments = comments.filter(item=>Number(item.articleId)===Number(articleId)&&item.status==="normal"&&item.parentId===null)
-    console.log(
-    "最终一级评论:",
-    articleComments
-    )
+const articleComments = comments.filter(item => {
+
+  if(item.articleId !== articleId){
+    return false
+  }
+
+
+  // 只找一级评论
+  if(item.parentId !== null){
+    return false
+  }
+
+
+  // 正常一级评论
+  if(item.status==="normal"){
+    return true
+  }
+
+
+  // 删除但存在回复
+  if(item.status==="deleted"){
+     return hasNormalDescendant(item.id)
+
+    }
+
+
+  // 永久删除占位
+  if(item.status==="removed"){
+    return true
+  }
+
+
+  return false
+
+})
 //  所有文章评论数量
  const totalComments = comments.filter(item=>item.articleId===articleId&&item.status==="normal").length
  const [showAllComments,setShowAllComments] = useState(false)
