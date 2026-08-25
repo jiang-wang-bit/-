@@ -1,4 +1,4 @@
-from sqlalchemy import Integer,String,DateTime,ForeignKey
+from sqlalchemy import Integer,String,DateTime,ForeignKey,Boolean
 from sqlalchemy.orm import Mapped,mapped_column,relationship
 from app.database import Base
 from datetime import datetime
@@ -42,7 +42,24 @@ class Comment(Base):
     DateTime,
     default=datetime.now
   )
-  article = relationship(
-        "Article",
-        back_populates="comments"
+  
+    # 父评论
+  parent = relationship(
+        "Comment",
+        remote_side=[id],
+        back_populates="children",
+         foreign_keys=[parent_id]
     )
+
+
+    # 子评论
+  children = relationship(
+        "Comment",
+        back_populates="parent",
+         passive_deletes=True
+    )
+
+  is_placeholder: Mapped[bool] = mapped_column(
+    Boolean,
+    default=False
+)

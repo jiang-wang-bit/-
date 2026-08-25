@@ -70,19 +70,56 @@ def batch_restore(data:BatchSchems,db:Session=Depends(get_db)):
 
 # 批量彻底删除
 @router.delete("/batch_delete_permanent")
-def batch_restore(data:BatchSchems,db:Session=Depends(get_db)):
-     comments = db.query(Comment).filter(Comment.id.in_(data.ids)).all()
-     for comment in comments:
-         db.delete()
-     db.commit()
-     return{
+def batch_delete_permanent(
+    data:BatchSchems,
+    db:Session=Depends(get_db)
+):
+
+    comments = (
+        db.query(Comment)
+        .filter(
+            Comment.id.in_(data.ids)
+        )
+        .all()
+    )
+
+
+    for comment in comments:
+
+        # 查询子评论
+        children_count = (
+            db.query(Comment)
+            .filter(
+                Comment.parent_id == comment.id
+            )
+            .count()
+        )
+
+
+        # 没有子评论
+        if children_count == 0:
+
+            db.delete(comment)
+
+
+        # 有子评论
+        else:
+
+            comment.content = "该评论已删除"
+
+            comment.status = "removed"
+
+
+    db.commit()
+
+
+    return {
         "message":"批量彻底删除成功"
     }
-
 # 获取前台评论
 @router.get("/article/{article_id}",response_model=list[CommentFrontResponse])
 def get_article_comment(article_id:int,db:Session=Depends(get_db)):
-  comments = db.query(Comment).filter(Comment.article_id==article_id,Comment.status=="normal").order_by(Comment.create_time.desc()).all()
+  comments = db.query(Comment).filter(Comment.article_id==article_id,Comment.status!="removed").order_by(Comment.create_time.desc()).all()
   return comments
 
 
@@ -90,7 +127,7 @@ def get_article_comment(article_id:int,db:Session=Depends(get_db)):
 @router.get("",response_model=list[CommentResponse])
 def get_comments(db:Session=Depends(get_db)):
    
-    comments= (db.query(Comment,Article.title,User.username).join(Article,Comment.article_id==Article.id).join(User,Comment.user_id==User.id).filter(Comment.status!="deleted").order_by(Comment.create_time.desc()).all())
+    comments= (db.query(Comment,Article.title,User.username).join(Article,Comment.article_id==Article.id).join(User,Comment.user_id==User.id).filter(Comment.status!="deleted",Comment.status!="removed").order_by(Comment.create_time.desc()).all())
     result = []
     for comment,title,username in comments:
         result.append({
@@ -138,7 +175,8 @@ def get_delete_comments(
             Comment.user_id==User.id
         )
         .filter(
-            Comment.status=="deleted"
+            Comment.status=="deleted",
+             Comment.is_placeholder==False
         )
         .all()
     )
@@ -186,32 +224,52 @@ def restore_comment(id:int,db:Session=Depends(get_db)):
 # 彻底删除
 @router.delete("/{id}/permanent")
 def permanent_delete(
- id:int,
- db:Session=Depends(get_db)
+    id:int,
+    db:Session=Depends(get_db)
 ):
 
-    comment=db.query(Comment)\
-    .filter(
-      Comment.id==id
-    ).first()
+    comment = db.query(Comment)\
+        .filter(Comment.id == id)\
+        .first()
 
 
     if not comment:
         raise HTTPException(
-          404,
-          "评论不存在"
+            status_code=404,
+            detail="评论不存在"
         )
 
 
-    db.delete(comment)
+    # 查询子评论
+    children_count = (
+        db.query(Comment)
+        .filter(
+            Comment.parent_id == id
+        )
+        .count()
+    )
+
+
+    # 没有子评论，真正删除
+    if children_count == 0:
+
+        db.delete(comment)
+
+
+    # 有子评论，保留占位
+    else:
+
+        comment.content = "该评论已删除"
+
+        comment.status = "removed"
+
 
     db.commit()
 
 
     return {
-      "message":"彻底删除成功"
+        "message":"彻底删除成功"
     }
-   
 
 # 删除评论
 @router.delete("/{id}")
@@ -222,7 +280,14 @@ def delete_comment(id:int,db:Session=Depends(get_db)):
       status_code=404,
       detail="评论不存在"
     )
+#   查询有没有子评论
+  children_count = db.query(Comment)\
+    .filter(
+        Comment.parent_id == id
+    )\
+    .count()
   comment.status="deleted"
+
   db.commit()
   return{
     "message":"删除成功"
