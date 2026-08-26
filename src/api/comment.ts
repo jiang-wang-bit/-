@@ -101,8 +101,19 @@ export function batchDelete(ids:number[]){
 }
 
 // 获取回收站评论
-export function getTrashComments(){
-  return request.get("/comments/trash")
+export function getTrashComments(params:{
+  page:number,
+  pageSize:number,
+  keyword:string
+}){
+  return request.get("/comments/trash",{
+    params:{
+      page:params.page,
+      page_size:params.pageSize,
+      keyword:params.keyword
+    }
+  }
+  )
 }
 
 // 恢复评论

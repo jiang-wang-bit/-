@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import {
-    Table,Button,Tag,Space,message,Popconfirm,Dropdown,Modal
+    Table,Input,Button,Tag,Space,message,Popconfirm,Dropdown,Modal
 } from "antd"
 import { getTrashComments,restoreComment,deletePermanent,batchDeletePermanent,batchRestoreComment } from "../../api/comment";
 import dayjs from "dayjs";
@@ -9,14 +9,46 @@ import type { CommentType } from "../../types/comment";
 export default function CommentTrash(){
    const [comments,setComments] = useState<CommentType[]>([])
    const [selectedRowKeys,setSelectedRowKeys]=useState<React.Key[]>([])
+   const [page,setPage] = useState(1)
+
+    const [pageSize,setPageSize] = useState(10)
+
+    const [total,setTotal] = useState(0)
+
+    const [keyword,setKeyword] = useState("")
+
+    const [searchKeyword,setSearchKeyword] = useState("")
     // 获取回收站评论
    const loadTrashComments = async()=>{
-    const res = await getTrashComments()
-    setComments(res)
-   }
-   useEffect(()=>{
-   loadTrashComments()
-   },[])
+
+    try{
+
+    const res = await getTrashComments({
+        page,
+        pageSize,
+        keyword:searchKeyword
+    })
+
+    setComments(res.list)
+    setTotal(res.total)
+
+    }catch(err){
+
+    message.error("获取回收站评论失败")
+
+ }
+
+}
+
+  useEffect(()=>{
+
+    loadTrashComments()
+
+},[
+    page,
+    pageSize,
+    searchKeyword
+])
 
   // 单独恢复
    const handleRestore=async(id:number)=>{
@@ -174,6 +206,26 @@ const columns=[
                 评论回收站
             </h2>
 
+            {/* 搜索框 */}
+            <Input placeholder="搜索评论内容" value={keyword} style={{width:200}}
+            onChange={(e)=>{
+                setKeyword(e.target.value)
+            }}/>
+
+
+             {/* 查询按钮 */}
+            <Button type="primary" onClick={()=>{
+            setSearchKeyword(keyword)
+            setPage(1)
+            }}>查询</Button>
+
+            {/* 重置按钮 */}
+            <Button onClick={()=>{
+                setKeyword("")
+                setSearchKeyword("")
+                setPage(1)
+            }}>重置</Button>
+
             <Dropdown menu={{
                 items:items,
                 onClick:({key})=>{
@@ -193,6 +245,20 @@ const columns=[
                     selectedRowKeys,
                     onChange:(keys)=>{
                         setSelectedRowKeys(keys)
+                    }
+                }}
+
+                pagination={{
+                    current:page,
+                    pageSize:pageSize,
+                    total:total,
+                    showSizeChanger:true,
+                    showTotal:(total)=>{
+                        return  `共${total}条评论`
+                    },
+                    onChange:(current,size)=>{
+                       setPage(current)
+                       setPageSize(size)
                     }
                 }}
 
