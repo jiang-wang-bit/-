@@ -1,21 +1,42 @@
-import { Table,Button,Popconfirm,Tag,message,Space,Dropdown} from "antd"
+import { Table,Button,Input,Popconfirm,Tag,message,Space,Dropdown} from "antd"
 import { useState,useEffect } from "react"
 import { restoreArticle,forceDeleteArticleApi,batchDeleteArticle,batchRestoreArticle } from "../../api/article"
 import { getTrashArticle } from "../../api/article"
 import type { ArticleType } from "../../types/article"
+import useTableQuery from "../../hooks/useTableQuery"
 import "./index.scss"
 export default function Trash(){
   const [articles,setArticles] = useState<ArticleType[]>([])
   const [selectedRowKeys,setSelectedRowKeys] = useState<number[]>([])
    const selectedArticles = articles.filter(item=>selectedRowKeys.includes(item.id))
-   const loadArticles = async()=>{
-     const res = await getTrashArticle()
+   const {page,pageSize,total,setPage,keyword,setKeyword,
+      searchKeyword,loading,setLoading,setTotal,   handlePageChange,handleSearch,handleReset} = useTableQuery()
+   
+      // 加载文章
+    const loadArticles = async()=>{
+    try{
+      setLoading(true)
+     const res = await getTrashArticle({
+      page,
+      page_size:pageSize,
+      keyword:searchKeyword
+     })
      console.log("回收站文章:",res)
-     setArticles(res)
+     setArticles(res.items)
+     setTotal(res.total)
+
+    }catch(err)
+    {
+      console.log("获取文章失败",err)
+      setArticles([])
+    }finally{
+      setLoading(false)
+    }
+    
    }
    useEffect(()=>{
            loadArticles() 
-       },[])
+       },[page,pageSize,searchKeyword])
 
   const restore = async(article:ArticleType)=>{
     try{
@@ -126,7 +147,14 @@ export default function Trash(){
     <div className="trash-page">
       <div className="trash-page-title">
            <h2>回收站</h2>
-        { selectedRowKeys.length>0&&(
+           <Input placeholder="搜索文章标题" value={keyword} onChange={(e)=>setKeyword(e.target.value)}  style={{width:"400px"}}/>
+          
+           <Space>
+           <Button type="primary" onClick={handleSearch}>查询</Button>
+           <Button onClick={handleReset}>重置</Button>
+          </Space>
+          
+       { selectedRowKeys.length>0&&(
           <>
           <div className="action">
       <span>已选择{selectedRowKeys.length}篇文章</span>
@@ -146,7 +174,21 @@ export default function Trash(){
       )
        }
       </div>
-      <Table dataSource={articles} columns={columns} rowKey="id" rowSelection={{selectedRowKeys,
+      <Table dataSource={articles} 
+      
+      columns={columns} rowKey="id" 
+
+       pagination={{current:page,
+      pageSize:pageSize,
+      total:total,
+      showSizeChanger:true,
+      showTotal:(total)=>{
+        return`共${total}篇文章`
+      },
+      onChange:handlePageChange
+    }}
+      
+      rowSelection={{selectedRowKeys,
         onChange:(keys)=>{
           setSelectedRowKeys(
             keys.map(key=>Number(key))

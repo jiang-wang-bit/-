@@ -217,6 +217,8 @@ export function getHistory(){
 }
 
 // 获得回收站文章
-export function getTrashArticle(){
-  return request.get("/articles/trash")
+export function getTrashArticle(params:any){
+  return request.get("/articles/trash",{
+    params
+  })
 }

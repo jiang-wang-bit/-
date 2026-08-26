@@ -1,22 +1,37 @@
 import { useEffect, useState } from "react";
 import { getTrashUsers,restoreUser,deleteUserPermanently,batchDeletePermanent,batchRestoreUser } from "../../api/user1";
 import {
-    Table,Button,Tag,Space,message,Popconfirm,Dropdown,Modal
+    Table,Input,Button,Tag,Space,message,Popconfirm,Dropdown,Modal
 } from "antd"
 import type {User} from "../../types/user"
 import dayjs from "dayjs";
+import useTableQuery from "../../hooks/useTableQuery";
 export default function TrashUser(){
   const [users,setUsers] = useState<User[]>([])
   const [selectedRowKeys,setSelectedRowKeys] = useState<React.Key[]>([])
+  const {page,pageSize,total,setPage,keyword,setKeyword,
+        searchKeyword,loading,setLoading,setTotal,   handlePageChange,handleSearch,handleReset} = useTableQuery()
   
+        // 获取回收站用户
   const loadUsers = async()=>{
-    const res = await getTrashUsers()
+    try{
+      setLoading(true)
+     const res = await getTrashUsers({
+      page,page_size:pageSize,keyword:searchKeyword
+     })
     setUsers(res.list)
+    setTotal(res.total)
+    }catch(err){
+      console.log("获取用户失败",err)
+    }finally{
+      setLoading(false)
+    }
+  
   }
 
   useEffect(()=>{
     loadUsers()
-  },[])
+  },[page,pageSize,searchKeyword])
 
   // 恢复函数
   const handleRestore = async(id:number)=>{
@@ -91,8 +106,27 @@ const handleRestoreUser = async(ids:number[])=>{
         content:
         "删除后无法恢复",
 
-        async onOk(){
-       await batchDeletePermanent(ids)
+       async onOk(){
+
+        try{
+
+        await batchDeletePermanent(ids)
+
+        message.success(
+        "批量删除成功"
+        )
+
+        setSelectedRowKeys([])
+
+        loadUsers()
+
+        }catch(err){
+
+        message.error(
+        "删除失败"
+        )
+
+        }
 
         }
 
@@ -188,6 +222,18 @@ const handleRestoreUser = async(ids:number[])=>{
                 用户回收站
             </h2>
 
+            <Input placeholder="请输入用户名或邮箱" value={keyword} onChange={(e)=>{setKeyword(e.target.value)} } style={{width:400}}/>
+
+
+            <Space>
+            {/* 搜索 */}
+            <Button type="primary"onClick={handleSearch}>查询</Button>
+
+            {/* 重置 */}
+            <Button onClick={handleReset}>重置</Button>
+            </Space>
+
+
             <Dropdown menu={{
                 items:getBatchActions(),
                 onClick:({key})=>{
@@ -202,6 +248,19 @@ const handleRestoreUser = async(ids:number[])=>{
             <Table
 
                 rowKey="id"
+
+                loading={loading}
+
+                pagination={{
+                  current:page,
+                  pageSize:pageSize,
+                  total:total,
+                  showSizeChanger:true,
+                  showTotal:(total)=>{
+                    return`共${total}篇文章`
+                  },
+                  onChange:handlePageChange
+                }}
 
                 rowSelection={{
                     selectedRowKeys,

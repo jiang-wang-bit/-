@@ -7,17 +7,42 @@ import { getArticleList,updateArticleStatus} from "../../api/article"
 import type { CategoryType } from "../../types/category"
 import type { ArticleType } from "../../types/article"
 import type { MenuProps } from "antd"
+import useTableQuery from "../../hooks/useTableQuery"
 import dayjs from "dayjs"
 export default function Article(){
   const navigate = useNavigate()
-  const [keyword,setKeyword] = useState("")
   const [statusFilter,setStatusFilter] = useState<string|undefined>()
   const [category,setCategory] = useState<number|undefined>()
-  const [page,setPage] = useState(1)
-  const [pageSize,setPageSize] = useState(10)
-  const [total,setTotal] = useState(0)
-  const [loading,setLoading] = useState(false)
-  const [searchKeyword,setSearchKeyword] = useState("")
+  const {
+
+      page,
+
+      pageSize,
+
+      keyword,
+
+      searchKeyword,
+
+      loading,
+
+
+      setKeyword,
+
+      setLoading,
+
+      total,
+
+      setTotal,
+
+
+      handleSearch:baseSearch,
+
+      handleReset:baseReset,
+
+      handlePageChange
+
+
+}=useTableQuery()
   const [searchCategory,setSearchCategory]=useState<number>()
   const [searchStatus,setSearchStatus]=useState<string>()
   // 批量删除
@@ -70,6 +95,8 @@ const handleBatchOffline = async()=>{
 
   const [categories,setCategories] = useState<CategoryType[]>([])
   const [data,setData] = useState<ArticleType[]>([])
+ 
+//  加载文章
   const loadArticles = async()=>{
 
    try{
@@ -179,14 +206,20 @@ const handleBatchOffline = async()=>{
       ])
  
     // 重置函数
-    const handleReset=()=>{
-      setKeyword("")
-      setSearchKeyword("")
+    const handleArticleReset=()=>{
+      baseReset()
       setSearchCategory(undefined)
       setSearchStatus(undefined)
       setCategory(undefined)
       setStatusFilter(undefined)
-      setPage(1)
+    }
+
+    // 查询函数
+    const handleArticleSearch=()=>{
+      baseSearch()
+      // 文章自己筛选
+      setSearchStatus(statusFilter)
+      setSearchCategory(category)
     }
    const columns=[
     {
@@ -344,23 +377,17 @@ const handleBatchOffline = async()=>{
         }}></Select>
 
         {/* 查询按钮 */}
-        <Button type="primary" onClick={()=>{
-          setSearchStatus(statusFilter)
-          setSearchKeyword(keyword)
-          setSearchCategory(category)
-          setPage(1)
-        }}>查询</Button>
+        <Button type="primary" onClick={handleArticleSearch}>查询</Button>
         {/* 重置按钮 */}
-        <Button onClick={handleReset}>重置</Button>
+        <Button onClick={handleArticleReset}>重置</Button>
 
         {/* 回收站 */}
         <Button type="primary" onClick={()=>navigate("/admin/article/trash")}>回收站</Button>
         
         <Button type="primary" onClick={()=>navigate("/admin/article/create")}>新增文章</Button>
         {
-          selectedRowKeys.length>0&&
+  
           <div className="batch-action">
-            <span>已选择{selectedRowKeys.length}篇文章</span>
            <Dropdown menu={{
             items:batchItems,
             onClick:({key})=>{
@@ -375,7 +402,7 @@ const handleBatchOffline = async()=>{
               }
             }
            }}>
-             <Button>
+             <Button disabled={selectedRowKeys.length===0}>
               批量操作 ▼
               </Button>
 
@@ -395,9 +422,11 @@ const handleBatchOffline = async()=>{
       pageSize:pageSize,
       total:total,
       showSizeChanger:true,
-      onChange:(page,pageSize)=>{
-        setPage(page)
-      setPageSize(pageSize)}}}
+      showTotal:(total)=>{
+        return`共${total}篇文章`
+      },
+      onChange:handlePageChange
+    }}
       
       rowSelection={{selectedRowKeys,
         onChange:(keys)=>{

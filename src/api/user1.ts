@@ -34,8 +34,14 @@ export function restoreUser(id:number){
 }
 
 // 获取回收站用户
-export function getTrashUsers(){
-  return request.get("/users/trash")
+export function getTrashUsers(params:{
+  page:number,
+  page_size:number,
+  keyword:string
+}){
+  return request.get("/users/trash",{
+    params
+  })
 }
 
 // 获取用户详情
