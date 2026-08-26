@@ -195,27 +195,44 @@ def get_comments(page:int=1,page_size:int=10,keyword:Optional[str]=None,status:O
 # 获取回收站评论
 @router.get("/trash")
 def get_delete_comments(
+    page:int=1,
+    page_size:int=10,
+    keyword:str|None=None,
     db:Session=Depends(get_db)
 ):
-    comments = (
-        db.query(
-            Comment,
-            Article.title,
-            User.username
+
+    query = (
+            db.query(
+                Comment,
+                Article.title,
+                User.username
+            )
+            .join(
+                Article,
+                Comment.article_id==Article.id
+            )
+            .join(
+                User,
+                Comment.user_id==User.id
+            )
+            .filter(
+                Comment.status=="deleted",
+                 Comment.is_placeholder==False
+            )
         )
-        .join(
-            Article,
-            Comment.article_id==Article.id
+
+    if keyword:
+        query= query.filter( or_(
+            Comment.content.like(f"%{keyword}%"),
+            Article.title.like(f"%{keyword}%"),
+            User.username.like(f"%{keyword}%"))
         )
-        .join(
-            User,
-            Comment.user_id==User.id
-        )
-        .filter(
-            Comment.status=="deleted",
-             Comment.is_placeholder==False
-        )
-        .all()
+
+    total=query.count()
+
+
+     
+    comments = (query.order_by(Comment.create_time.desc()).offset((page-1)*page_size).limit(page_size).all()
     )
 
 
@@ -240,7 +257,10 @@ def get_delete_comments(
         })
 
 
-    return data
+    return {
+        "list":data,
+        "total":total
+    }
   
 
 # 恢复评论
