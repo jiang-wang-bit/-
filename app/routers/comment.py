@@ -4,10 +4,11 @@ from app.models.comment import Comment
 from app.models.article import Article
 from app.models.comment_like import CommentLike
 from app.models.user import User
-from app.schemas.comment import CommentCreate,CommentResponse,CommentStatusUpdate,CommentFrontResponse,BatchSchems
+from app.schemas.comment import CommentCreate,CommentResponse,CommentPageResponse,CommentStatusUpdate,CommentFrontResponse,BatchSchems
 from app.database import get_db
 from app.dependencies.auth import get_current_user
 from app.models.user import User
+from typing import Optional
 
 router = APIRouter(
   prefix="/comments",
@@ -124,10 +125,40 @@ def get_article_comment(article_id:int,db:Session=Depends(get_db)):
 
 
 # 获得全部评论
-@router.get("",response_model=list[CommentResponse])
-def get_comments(db:Session=Depends(get_db)):
-   
-    comments= (db.query(Comment,Article.title,User.username).join(Article,Comment.article_id==Article.id).join(User,Comment.user_id==User.id).filter(Comment.status!="deleted",Comment.status!="removed").order_by(Comment.create_time.desc()).all())
+@router.get("",response_model=CommentPageResponse)
+def get_comments(page:int=1,page_size:int=10,keyword:Optional[str]=None,status:Optional[str]=None,db:Session=Depends(get_db)):
+    query = (
+    db.query(
+        Comment,
+        Article.title,
+        User.username
+    )
+    .join(
+        Article,
+        Comment.article_id==Article.id
+    )
+    .join(
+        User,
+        Comment.user_id==User.id
+    ).filter(
+        Comment.status!="deleted",
+        Comment.status!="removed")
+)
+
+    # 搜索评论内容
+    if keyword:
+        query = query.filter(Comment.content.like(f"%{keyword}%")|Article.title.like(f"%{keyword}%")|User.username.like(f"%{keyword}%"))
+
+    # 状态筛选
+    if status:
+        query = query.filter(Comment.status==status)
+
+    # 总数量
+    total = query.count()
+
+    comments = (query.order_by(Comment.create_time.desc()).offset((page-1)*page_size).limit(page_size).all())
+
+
     result = []
     for comment,title,username in comments:
         result.append({
@@ -153,7 +184,13 @@ def get_comments(db:Session=Depends(get_db)):
             "username":username
 
         })
-    return result
+    return {
+
+        "list":result,
+
+        "total":total
+
+    }
 
 # 获取回收站评论
 @router.get("/trash")

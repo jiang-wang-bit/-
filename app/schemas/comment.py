@@ -73,3 +73,9 @@ class MyCommentResponse(BaseModel):
 
 class BatchSchems(BaseModel):
     ids:list[int]
+
+class CommentPageResponse(BaseModel):
+
+    list:list[CommentResponse]
+
+    total:int
