@@ -24,3 +24,11 @@ export interface BackendCommentType {
   status: string
   create_time: string
 }
+
+export interface CommentPage{
+
+ list:BackendCommentType[]
+
+ total:number
+
+}

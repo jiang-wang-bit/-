@@ -1,6 +1,7 @@
 import { use } from "echarts";
 import request from "../request";
-import type { BackendCommentType } from "../types/comment";
+import type { BackendCommentType,CommentPage } from "../types/comment";
+import { keyboard } from "@testing-library/user-event/dist/keyboard";
 // 获取评论
 export function getCommentList(articleId:number):Promise<BackendCommentType[]>{
   return request.get(`/comments/article/${articleId}`)}
@@ -20,8 +21,20 @@ export function deleteComment(id:number){
 }
 
 // 获得全部评论
-export function getAllComments(){
-  return request.get<BackendCommentType[]>("/comments")
+export function getAllComments(params:{
+  page:number,
+  pageSize:number,
+  keyword?:string,
+  status?:string
+}){
+  return request.get<CommentPage>("/comments",{
+    params:{
+      page:params.page,
+      page_size:params.pageSize,
+      keyword:params.keyword,
+      status:params.status
+    }
+  })
 
 }
 

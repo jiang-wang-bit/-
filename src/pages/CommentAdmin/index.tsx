@@ -1,6 +1,6 @@
 import { CommentType } from "./types"
 import "./index.scss"
-import { Table,Tag,Button,Popconfirm, message,Dropdown, Space} from "antd"
+import { Table,Tag,Button,Popconfirm, message,Dropdown, Space,Input} from "antd"
 import { useDispatch,useSelector } from "react-redux"
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
@@ -10,12 +10,22 @@ export default function Comment(){
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const [selectedRowKeys,setSelectedRowKeys] = useState<React.Key[]>([])
+  const [page,setPage] = useState(1)
+  const [pageSize,setPageSize] = useState(10)
+  const [total,setTotal] = useState(0)
+  const [keyword,setKeyWord] = useState("")
+  const [status,setStatus]=useState("")
+
+
   const loadComments = async()=>{
      try{
-   const res = await getAllComments()
+   const res = await getAllComments({
+    page,pageSize,keyword,status
+   })
    dispatch(
-    setComments(res)
+    setComments(res.list)
    )
+   setTotal(res.total)
 
  }catch(err){
    message.error("获取评论失败")
@@ -25,7 +35,10 @@ export default function Comment(){
 
   useEffect(()=>{
    loadComments()
-  },[])
+  }, [page,
+ pageSize,
+ keyword,
+ status])
 
   const datalist = useSelector((state:any)=>state.comment.list)
 
@@ -171,6 +184,7 @@ const handleBatchActions=(key:string)=>{
 
       <div className="comment-header">
      <h2>评论管理</h2> 
+     <Input.Search placeholder="搜索评论内容" value={keyword} onChange={(e)=>setKeyWord(e.target.value)} onSearch={()=>{setPage(1)}} style={{width:200}}/>
      <Space>
     <Button type="primary" onClick={()=>navigate("trash")}>回收站</Button>
     <Dropdown menu={{
@@ -189,6 +203,19 @@ const handleBatchActions=(key:string)=>{
       selectedRowKeys,
       onChange:(keys)=>{
         setSelectedRowKeys(keys)
+      }
+     }}
+     pagination={{
+      current:page,
+      pageSize:pageSize,
+      total:total,
+      showSizeChanger:true,
+      showTotal:(total)=>{
+        return`共${total}条评论`
+      },
+      onChange:(current,size)=>{
+        setPage(current)
+        setPageSize(size)
       }
      }}
      dataSource={datalist} rowKey="id"
