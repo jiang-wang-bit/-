@@ -83,9 +83,18 @@ def create_article(data:ArticleCreate,db:Session=Depends(get_db)):
 
 # 获得回收站文章
 @router.get("/trash",response_model=list[ArticleResponse])
-def get_trash_article(db:Session=Depends(get_db)):
-  articles = db.query(Article).filter(Article.status=="trash").all()
-  return articles
+def get_trash_article(page:int=1,page_size:int=10,keyword:str|None=None,db:Session=Depends(get_db)):
+  qeury = db.query(Article).filter(Article.status=="trash")
+  if keyword:
+    query = query.filter(Article.title.like(f"%{keyword}%"))
+  total = query.count()
+  articles = query.offset((page-1)*page_size).limit(page_size).all()
+  return {
+        "items":articles,
+        "total":total,
+        "page":page,
+        "page_size":page_size
+    }
 
 # 获取文章详情
 @router.get("/{article_id}",response_model=ArticleResponse)

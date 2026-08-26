@@ -1,9 +1,11 @@
 from fastapi import APIRouter,Depends,HTTPException,Query
 from sqlalchemy.orm import Session
+from sqlalchemy import or_
 from app.database import get_db
 from app.models.user import User
 from app.schemas.user import (UserCreate,UserResponse,UserUpdate,UserListResponse,batchUserSchema)
 from app.utils.password import hash_password
+from typing import Optional
 router = APIRouter(
   prefix="/users",
   tags=["用户管理"]
@@ -11,11 +13,26 @@ router = APIRouter(
 
 # 回收站列表
 @router.get("/trash",response_model=UserListResponse)
-def get_deleted_users(db:Session=Depends(get_db)):
-  users = db.query(User).filter(User.status=="deleted").order_by(User.id.asc()).all()
+def get_deleted_users(page:int=1,page_size:int=10,keyword:Optional[str]=None,db:Session=Depends(get_db)):
+
+  query = db.query(User).filter(User.status=="deleted")
+  if keyword:
+     query = query.filter(or_(
+                  User.username.like(
+                    f"%{keyword}%"
+                ),
+
+                User.email.like(
+                    f"%{keyword}%"
+                )))
+  total = query.count()
+
+  users = query.order_by(User.id.asc()).offset((page-1)*page_size).limit(page_size).all()
+
+
   return{
     "list":users,
-    "total":len(users)
+    "total":total
   }
 
 # 批量禁用用户
