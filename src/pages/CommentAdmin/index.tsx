@@ -1,6 +1,6 @@
 import { CommentType } from "./types"
 import "./index.scss"
-import { Table,Tag,Button,Popconfirm, message,Dropdown, Space,Input} from "antd"
+import { Table,Tag,Select,Button,Popconfirm, message,Dropdown, Space,Input} from "antd"
 import { useDispatch,useSelector } from "react-redux"
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
@@ -14,7 +14,7 @@ export default function Comment(){
   const [pageSize,setPageSize] = useState(10)
   const [total,setTotal] = useState(0)
   const [keyword,setKeyWord] = useState("")
-  const [status,setStatus]=useState("")
+  const [status,setStatus]=useState<string|undefined>(undefined)
 
 
   const loadComments = async()=>{
@@ -184,7 +184,12 @@ const handleBatchActions=(key:string)=>{
 
       <div className="comment-header">
      <h2>评论管理</h2> 
+     {/* 搜索 */}
      <Input.Search placeholder="搜索评论内容" value={keyword} onChange={(e)=>setKeyWord(e.target.value)} onSearch={()=>{setPage(1)}} style={{width:200}}/>
+     {/* 状态筛选 */}
+     <Select  placeholder="评论状态" value={status} allowClear style={{width:200}} onChange={(value)=>{setStatus(value||"")
+      setPage(1)
+     }} options={[{value:"normal",label:"已通过"},{value:"pending",label:"待审核"}]}></Select>
      <Space>
     <Button type="primary" onClick={()=>navigate("trash")}>回收站</Button>
     <Dropdown menu={{
@@ -205,6 +210,7 @@ const handleBatchActions=(key:string)=>{
         setSelectedRowKeys(keys)
       }
      }}
+     
      pagination={{
       current:page,
       pageSize:pageSize,
