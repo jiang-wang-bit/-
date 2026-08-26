@@ -18,11 +18,13 @@ export default function CommentTrash(){
     const [keyword,setKeyword] = useState("")
 
     const [searchKeyword,setSearchKeyword] = useState("")
+
+    const [loading,setLoading] = useState(false)
     // 获取回收站评论
    const loadTrashComments = async()=>{
 
     try{
-
+    setLoading(true)
     const res = await getTrashComments({
         page,
         pageSize,
@@ -36,6 +38,8 @@ export default function CommentTrash(){
 
     message.error("获取回收站评论失败")
 
+ }finally{
+    setLoading(false)
  }
 
 }
@@ -240,6 +244,8 @@ const columns=[
             <Table
 
                 rowKey="id"
+
+                loading={loading}
 
                 rowSelection={{
                     selectedRowKeys,

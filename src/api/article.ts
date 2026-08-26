@@ -1,38 +1,80 @@
 
 import request from "../request";
-import { ArticleType } from "../types/article";
+import { ArticleType,ArticlePageResponse } from "../types/article";
+export interface ArticleResponse{
+
+ id:number
+
+ title:string
+
+ content:string
+
+ category_id:number
+
+ category_name:string
+
+ status:string
+
+ cover:string
+
+ author:string
+
+ likes:string
+
+ views:string
+
+ create_time:string
+
+ update_time:string
+
+}
 // 获取文章列表
-export async function getArticleList():Promise<ArticleType[]>{
-const res = await request.get<ArticleType[]>("/articles")
- console.log("文章接口返回",res)
-return res.map((item:any)=>(
-  {
-     id:item.id,
+export async function getArticleList(params:any):Promise<ArticlePageResponse>{
 
-    title:item.title,
+const res = await request.get(
+    "/articles",
+    {
+        params
+    }
+)
 
-    content:item.content,
 
-    desc:item.content?.slice(0,20)||"",
+return {
 
-    cover:item.cover,
+    list:res.list.map((item:ArticleResponse)=>({
 
-    author:item.author,
+        id:item.id,
 
-    categoryId:item.category_id,
+        title:item.title,
 
-    status:item.status,
+        content:item.content,
 
-    views:item.views,
+        desc:item.content?.slice(0,20)||"",
 
-    likes:item.likes,
+        cover:item.cover,
 
-    createTime:item.create_time,
+        author:item.author,
 
-    updateTime:item.update_time
-  }
- ))
- 
+        categoryId:item.category_id,
+
+        categoryName:item.category_name,
+
+        status:item.status,
+
+        views:item.views,
+
+        likes:item.likes,
+
+        createTime:item.create_time,
+
+        updateTime:item.update_time
+
+    })),
+
+    total:res.total
+
+}
+
 }
 // 文章详情
 export async function getArticleDetail(id:number){

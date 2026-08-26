@@ -121,7 +121,7 @@ export default function Category(){
 
          <Space>
          <Input placeholder="请输入分类名称" value={keyword} onChange={(e)=>setKeyword(e.target.value)}/>
-         <Button type="primary" onClick={()=>{loadCategory({keyword})}}>搜索</Button>
+         <Button type="primary" onClick={()=>{loadCategory({keyword})}}>查询</Button>
          <Button type="primary" onClick={()=>{setKeyword("")
           loadCategory()}}>重置</Button>
           </Space>

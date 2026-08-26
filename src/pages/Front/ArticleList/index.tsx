@@ -22,8 +22,12 @@ export default function ArticleList(){
  },[params])
 
  useEffect(()=>{
-  getArticleList().then(res=>{
-    setArticles(res.filter(item=>item.status==="published"))
+  getArticleList({
+    page:1,
+    pageSize:6,
+    status:"published"
+ }).then(res=>{
+    setArticles(res.list.filter(item=>item.status==="published"))
   })
  },[])
 

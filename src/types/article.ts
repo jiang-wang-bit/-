@@ -27,3 +27,11 @@ export interface ArticleType {
 updateTime:string;
 
 }
+
+export interface ArticlePageResponse {
+
+    list: ArticleType[]
+
+    total:number
+
+}

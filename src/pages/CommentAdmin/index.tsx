@@ -17,12 +17,14 @@ export default function Comment(){
   const [keyword,setKeyWord] = useState("")
   const [status,setStatus]=useState<string|undefined>(undefined)
   const [searchKeyword,setSearchKeyword] = useState("")
-const [searchStatus,setSearchStatus] = useState<string|undefined>(undefined)
+  const [searchStatus,setSearchStatus] = useState<string|undefined>(undefined)
+  const [loading,setLoading] = useState(false)
 
   const loadComments = async()=>{
      try{
-   const res = await getAllComments({
-    page,pageSize,keyword:searchKeyword,status:searchStatus
+        setLoading(true)
+        const res = await getAllComments({
+        page,pageSize,keyword:searchKeyword, status:searchStatus
    })
    dispatch(
     setComments(res.list)
@@ -31,7 +33,8 @@ const [searchStatus,setSearchStatus] = useState<string|undefined>(undefined)
 
  }catch(err){
    message.error("获取评论失败")
-
+ }finally{
+  setLoading(false)
  }
   }
 
@@ -228,6 +231,9 @@ const handleBatchActions=(key:string)=>{
     </div>
     
      <Table columns={columns} 
+     
+     loading={loading}
+
      rowSelection={{
       selectedRowKeys,
       onChange:(keys)=>{

@@ -12,8 +12,12 @@ import "./index.scss"
 export default function Home(){
   const [articles,setArticles] = useState<ArticleType[]>([])
   useEffect(()=>{
-   getArticleList().then(res=>{
-    setArticles(res.filter(item=>item.status==="published"))
+   getArticleList({
+    page:1,
+    pageSize:6,
+    status:"published"
+ }).then(res=>{
+    setArticles(res.list.filter(item=>item.status==="published"))
    }).catch(err=>{
     console.log("获取文章失败",err)
    })

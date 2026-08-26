@@ -11,10 +11,15 @@ import dayjs from "dayjs"
 export default function Article(){
   const navigate = useNavigate()
   const [keyword,setKeyword] = useState("")
-  const [statusFilter,setStatusFilter] = useState<string|undefined>("")
+  const [statusFilter,setStatusFilter] = useState<string|undefined>()
   const [category,setCategory] = useState<number|undefined>()
   const [page,setPage] = useState(1)
   const [pageSize,setPageSize] = useState(10)
+  const [total,setTotal] = useState(0)
+  const [loading,setLoading] = useState(false)
+  const [searchKeyword,setSearchKeyword] = useState("")
+  const [searchCategory,setSearchCategory]=useState<number>()
+  const [searchStatus,setSearchStatus]=useState<string>()
   // 批量删除
   const [selectedRowKeys,setSelectedRowKeys] = useState<number[]>([])
   // 批量删除函数
@@ -23,9 +28,11 @@ export default function Article(){
       message.warning("请选择文章")
       return
     }
-   for(const id of selectedRowKeys){
-    await updateArticleStatus(id,"trash")
-   }
+    await Promise.all(
+    selectedRowKeys.map(id=>
+      updateArticleStatus(id,"trash")
+    )
+    )
     message.success(`删除${selectedRowKeys.length}篇文章成功`)
     loadArticles()
     setSelectedRowKeys([])
@@ -63,15 +70,41 @@ const handleBatchOffline = async()=>{
 
   const [categories,setCategories] = useState<CategoryType[]>([])
   const [data,setData] = useState<ArticleType[]>([])
-  const loadArticles = ()=>{
-  getArticleList()
-    .then(res=>{
-      console.log("后台文章列表",res)
-      setData(res ?? [])})
-    .catch((err)=>{
-      
+  const loadArticles = async()=>{
+
+   try{
+
+   setLoading(true)
+
+
+   const res = await getArticleList({
+    page,
+    pageSize,
+    keyword:searchKeyword,
+    status:searchStatus,
+    category_id:searchCategory
+   })
+
+
+   console.log("后台文章列表",res)
+
+
+   setData(res.list ?? [])
+   setTotal(res.total)
+   
+
+ }catch(err){
+
    console.log("获取文章失败",err)
-      setData([])})
+
+   setData([])
+
+
+ }finally{
+
+   setLoading(false)
+
+ }
 }
 
   const selectedArticles = useMemo(()=>{
@@ -124,25 +157,37 @@ const handleBatchOffline = async()=>{
 
  },[canPublish,canOffline,canDelete])
 
-  useEffect(()=>{
-    // Assuming you have a function to fetch categories
-    getCategoryList().then(res=>setCategories(res.list))
-    loadArticles()
-  },[])
+      useEffect(()=>{
 
-     const filterData = data.filter(item=>{const matchKeyword = item.title.toLowerCase().includes(keyword.toLowerCase())
-     const matchCategory = category ?String(item.categoryId)===String(category):true
-     const matchStatus = statusFilter?item.status===statusFilter:true
-     return (matchKeyword&&matchCategory&&matchStatus)
-})
+      getCategoryList()
+      .then(res=>{
+        setCategories(res.list)
+      })
+
+      },[])
+
+      useEffect(()=>{
+
+      loadArticles()
+
+      },[
+      page,
+      pageSize,
+      searchKeyword,
+      searchStatus,
+      searchCategory
+      ])
+ 
     // 重置函数
     const handleReset=()=>{
       setKeyword("")
+      setSearchKeyword("")
+      setSearchCategory(undefined)
+      setSearchStatus(undefined)
       setCategory(undefined)
       setStatusFilter(undefined)
       setPage(1)
     }
-  const tableData = filterData.slice((page-1)*pageSize,page*pageSize)
    const columns=[
     {
       title:"ID",
@@ -290,14 +335,21 @@ const handleBatchOffline = async()=>{
     <div className="article-page">
       <div className="article-header">
         <h2>文章管理</h2>
-        <Input placeholder="搜索文章标题" value={keyword} onChange={e=>{setKeyword(e.target.value) 
-          setPage(1)}} style={{width:"400px"}}></Input>
+
+        {/* 搜索 */}
+        <Input placeholder="搜索文章标题" value={keyword} onChange={e=>{setKeyword(e.target.value) }} style={{width:"400px"}}></Input>
         <Select placeholder="选择分类" allowClear value={category||undefined} options={categories.map(item=>({label:item.name,value:item.id}))} onChange={value=>{setCategory(value)
-          setPage(1)
         }}></Select>
         <Select placeholder="文章状态" allowClear value={statusFilter||undefined} options={[{label:"发布",value:"published"},{label:"草稿",value:"draft"},{label:"已下架",value:"offline"}]} onChange={value=>{setStatusFilter(value||"")
-          setPage(1)
         }}></Select>
+
+        {/* 查询按钮 */}
+        <Button type="primary" onClick={()=>{
+          setSearchStatus(statusFilter)
+          setSearchKeyword(keyword)
+          setSearchCategory(category)
+          setPage(1)
+        }}>查询</Button>
         {/* 重置按钮 */}
         <Button onClick={handleReset}>重置</Button>
 
@@ -331,8 +383,23 @@ const handleBatchOffline = async()=>{
           </div>
         }
       </div>
-    <Table columns={columns} dataSource={tableData} rowKey="id" pagination={{current:page,pageSize:pageSize,total:filterData.length,onChange:(page,pageSize)=>{setPage(page)
-      setPageSize(pageSize)}}} rowSelection={{selectedRowKeys,
+    <Table columns={columns} 
+
+    loading={loading}
+    
+    dataSource={data} 
+    
+    rowKey="id" 
+    
+    pagination={{current:page,
+      pageSize:pageSize,
+      total:total,
+      showSizeChanger:true,
+      onChange:(page,pageSize)=>{
+        setPage(page)
+      setPageSize(pageSize)}}}
+      
+      rowSelection={{selectedRowKeys,
         onChange:(keys)=>{
          setSelectedRowKeys(
      keys.map(key=>Number(key))

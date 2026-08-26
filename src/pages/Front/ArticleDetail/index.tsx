@@ -47,9 +47,9 @@ res
           getCategoryList().then(res=>{ 
             setCategories(res.list)
           })
-          getArticleList().then(res=>
+          getArticleList({page:1,pageSize:6}).then(res=>
           {
-            setArticles(res)
+            setArticles(res.list)
           }
           )
       },[])
