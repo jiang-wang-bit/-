@@ -1,5 +1,5 @@
 from fastapi import APIRouter,Depends,HTTPException
-from app.schemas.article import (ArticleCreate,ArticleResponse,ArticleUpdate,ArticleStatus,BatchDelete)
+from app.schemas.article import (ArticleCreate,ArticleResponse,ArticlePageResponse,ArticleUpdate,ArticleStatus,BatchDelete)
 from app.models.article import Article
 from app.database import get_db
 from sqlalchemy.orm import Session,joinedload
@@ -10,28 +10,61 @@ router = APIRouter(
 )
 
 # 获得文章
-@router.get("",response_model=list[ArticleResponse])
-def get_articles(db:Session=Depends(get_db)):
-  articles = db.query(Article).options(joinedload(Article.category)).filter(Article.status!="trash").all()
-  return [
-        {
+@router.get("",response_model=ArticlePageResponse)
+def get_articles(page:int=1,page_size:int=10,keyword:str|None=None,status:str|None=None,category_id:int|None=None,db:Session=Depends(get_db)):
+
+  query = db.query(Article).options(joinedload(Article.category)).filter(Article.status!="trash")
+  if keyword:
+    query = query.filter(Article.title.like(f"%{keyword}%"))
+
+  if status:
+    query = query.filter(Article.status==status)
+
+  if category_id:
+    query = query.filter(Article.category_id==category_id)
+
+  total = query.count()
+
+  articles = query.order_by(Article.create_time.desc()).offset((page-1)*page_size).limit(page_size).all()
+  data = []
+  for article in articles:
+
+        data.append({
+
             "id":article.id,
+
             "title":article.title,
+
             "content":article.content,
+
             "cover":article.cover,
+
             "author":article.author,
+
             "category_id":article.category_id,
+
             "category_name":
-                article.category.name 
-                if article.category else None,
+                article.category.name
+                if article.category
+                else None,
+
+
             "status":article.status,
+
             "views":article.views,
+
             "likes":article.likes,
+
             "create_time":article.create_time,
+
             "update_time":article.update_time
-        }
-        for article in articles
-    ]
+
+        })
+  return {
+      "list":data,
+      "total":total
+    }
+
 # 新增文章
 @router.post("",response_model=ArticleResponse)
 def create_article(data:ArticleCreate,db:Session=Depends(get_db)):

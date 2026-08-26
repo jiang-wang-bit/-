@@ -1,5 +1,6 @@
 from fastapi import APIRouter,Depends,HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy import or_
 from app.models.comment import Comment
 from app.models.article import Article
 from app.models.comment_like import CommentLike

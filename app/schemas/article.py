@@ -48,3 +48,8 @@ class ArticleResponse(BaseModel):
 
     class config:
        from_attributes = True
+
+class ArticlePageResponse(BaseModel):
+   list:list[ArticleResponse]
+
+   total:int
