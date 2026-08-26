@@ -1,4 +1,5 @@
 import { CommentType } from "./types"
+import { useRef } from "react"
 import "./index.scss"
 import { Table,Tag,Select,Button,Popconfirm, message,Dropdown, Space,Input} from "antd"
 import { useDispatch,useSelector } from "react-redux"
@@ -15,12 +16,13 @@ export default function Comment(){
   const [total,setTotal] = useState(0)
   const [keyword,setKeyWord] = useState("")
   const [status,setStatus]=useState<string|undefined>(undefined)
-
+  const [searchKeyword,setSearchKeyword] = useState("")
+const [searchStatus,setSearchStatus] = useState<string|undefined>(undefined)
 
   const loadComments = async()=>{
      try{
    const res = await getAllComments({
-    page,pageSize,keyword,status
+    page,pageSize,keyword:searchKeyword,status:searchStatus
    })
    dispatch(
     setComments(res.list)
@@ -37,8 +39,8 @@ export default function Comment(){
    loadComments()
   }, [page,
  pageSize,
- keyword,
- status])
+ searchKeyword,
+ searchStatus])
 
   const datalist = useSelector((state:any)=>state.comment.list)
 
@@ -184,12 +186,33 @@ const handleBatchActions=(key:string)=>{
 
       <div className="comment-header">
      <h2>评论管理</h2> 
+
+     
      {/* 搜索 */}
-     <Input.Search placeholder="搜索评论内容" value={keyword} onChange={(e)=>setKeyWord(e.target.value)} onSearch={()=>{setPage(1)}} style={{width:200}}/>
+     <Input placeholder="搜索评论内容" value={keyword} onChange={(e)=>setKeyWord(e.target.value)} style={{width:200}}/>
+    
      {/* 状态筛选 */}
      <Select  placeholder="评论状态" value={status} allowClear style={{width:200}} onChange={(value)=>{setStatus(value||"")
-      setPage(1)
      }} options={[{value:"normal",label:"已通过"},{value:"pending",label:"待审核"}]}></Select>
+     
+     {/* 查询按钮 */}
+     <Button type="primary" onClick={()=>{
+      setSearchKeyword(keyword)
+      setSearchStatus(status)
+      setPage(1)
+     }}>查询</Button>
+
+     {/* 重置按钮 */}
+     <Button onClick={()=>{
+      setKeyWord("")
+      setStatus(undefined)
+      setSearchKeyword("")
+      setSearchStatus(undefined)
+      setPage(1)
+     }}>
+      重置
+     </Button>
+     
      <Space>
     <Button type="primary" onClick={()=>navigate("trash")}>回收站</Button>
     <Dropdown menu={{
@@ -201,6 +224,7 @@ const handleBatchActions=(key:string)=>{
         <Button disabled={selectedRowKeys.length===0}>批量操作 ▼</Button>
     </Dropdown>
     </Space>
+
     </div>
     
      <Table columns={columns} 
@@ -210,7 +234,7 @@ const handleBatchActions=(key:string)=>{
         setSelectedRowKeys(keys)
       }
      }}
-     
+
      pagination={{
       current:page,
       pageSize:pageSize,
@@ -224,7 +248,8 @@ const handleBatchActions=(key:string)=>{
         setPageSize(size)
       }
      }}
-     dataSource={datalist} rowKey="id"
+     dataSource={datalist} 
+     rowKey="id"
      ></Table>
     </div>
   )
